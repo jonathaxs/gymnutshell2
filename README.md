@@ -1,11 +1,11 @@
 # Gym Nutshell - Android
 
-Porte nativo Android do app **Gym Nutshell** (iOS/watchOS), feito em **Kotlin + Jetpack Compose**.
+Native Android port of the **Gym Nutshell** app (iOS/watchOS), built with **Kotlin + Jetpack Compose**.
 
-- **Linguagem:** Kotlin
+- **Language:** Kotlin
 - **UI:** Jetpack Compose (Material 3)
-- **minSdk:** 29 (Android 10) · **compileSdk:** mais recente
-- **Persistência:** Room + DataStore
-- **Projeto:** `GymNutshell/`
+- **minSdk:** 29 (Android 10) · **compileSdk:** latest
+- **Persistence:** Room + DataStore
+- **Project:** `GymNutshell/`
 
-App iOS original: [jonathasmotta.com](https://jonathasmotta.com)
+Original iOS app: [jonathasmotta.com](https://jonathasmotta.com)
