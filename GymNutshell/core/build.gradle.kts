@@ -1,6 +1,7 @@
 plugins {
     // AGP 9 traz suporte Kotlin embutido — não aplicamos plugin Kotlin separado.
     alias(libs.plugins.android.library)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -19,5 +20,9 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.room.runtime)
+    ksp(libs.androidx.room.compiler)
+    implementation(libs.kotlinx.coroutines.android)
+
     testImplementation(libs.junit)
 }
