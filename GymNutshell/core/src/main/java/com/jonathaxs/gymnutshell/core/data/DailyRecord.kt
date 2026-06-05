@@ -7,7 +7,8 @@ import androidx.room.PrimaryKey
  * Um dia concluído no Gym Nutshell — porte do @Model DailyRecord (SwiftData) pro Room @Entity.
  *
  * Diferenças do iOS:
- * - `date` é o epoch em millis (início do dia) e serve de chave primária, garantindo 1 registro/dia.
+ * - `date` é o **epoch-day** (dias desde 1970-01-01, via LocalDate.toEpochDay) e serve de chave
+ *   primária: garante 1 registro/dia e é imune a fuso horário (representa o dia do calendário, não um instante).
  * - `customValues`/`customRestDays` eram `Data` (JSON) no iOS; aqui são String JSON
  *   (serialização fica na camada de dados/domínio, com kotlinx.serialization).
  * - Os nomes antigos (`carb`, `fat`, `catTitle`, `catEmoji`) eram migrações do SwiftData;
@@ -15,7 +16,7 @@ import androidx.room.PrimaryKey
  */
 @Entity(tableName = "daily_record")
 data class DailyRecord(
-    @PrimaryKey val date: Long,
+    @PrimaryKey val date: Long, // epoch-day (LocalDate.toEpochDay)
     val water: Int = 0,
     val protein: Int = 0,
     val carbs: Int = 0,
