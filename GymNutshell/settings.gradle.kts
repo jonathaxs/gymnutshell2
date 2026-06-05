@@ -24,3 +24,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "Gym Nutshell"
 include(":app")
+include(":core")

@@ -22,10 +22,11 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.annotation.StringRes
 import com.jonathaxs.gymnutshell.R
+import com.jonathaxs.gymnutshell.core.theme.AccentColor
 import com.jonathaxs.gymnutshell.ui.achievements.AchievementsScreen
 import com.jonathaxs.gymnutshell.ui.profile.ProfileScreen
 import com.jonathaxs.gymnutshell.ui.settings.SettingsScreen
-import com.jonathaxs.gymnutshell.ui.theme.AccentColor
+import com.jonathaxs.gymnutshell.ui.theme.color
 import com.jonathaxs.gymnutshell.ui.today.TodayScreen
 
 /**
