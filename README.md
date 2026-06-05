@@ -1,4 +1,4 @@
-# Gym Nutshell — Android
+# Gym Nutshell - Android
 
 Porte nativo Android do app **Gym Nutshell** (iOS/watchOS), feito em **Kotlin + Jetpack Compose**.
 
@@ -8,4 +8,4 @@ Porte nativo Android do app **Gym Nutshell** (iOS/watchOS), feito em **Kotlin + 
 - **Persistência:** Room + DataStore
 - **Projeto:** `GymNutshell/`
 
-App iOS original: [github.com/jonathaxs/gymnutshell](https://github.com/jonathaxs/gymnutshell)
+App iOS original: [jonathasmotta.com](https://jonathasmotta.com)
