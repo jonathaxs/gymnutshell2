@@ -21,6 +21,15 @@ enum class DailyAchievement {
             Level4 -> 90
         }
 
+    /** Emoji padrão do tier (tema base "cat"); os temas trocam isso mais à frente na Fase 4. */
+    val emoji: String
+        get() = when (this) {
+            Level1 -> "🐱"
+            Level2 -> "🐈"
+            Level3 -> "🐆"
+            Level4 -> "🦁"
+        }
+
     companion object {
         /**
          * Converte um progresso normalizado (0..1) no tier correspondente.

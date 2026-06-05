@@ -4,4 +4,16 @@
     <string name="tab_achievements">Achievements</string>
     <string name="tab_profile">Profile</string>
     <string name="tab_settings">Settings</string>
+
+    <!-- Metas da Today -->
+    <string name="today_workout">Workout</string>
+    <string name="today_cardio">Cardio</string>
+    <string name="today_sleep">Sleep</string>
+    <string name="today_water">Water</string>
+    <string name="today_calories">Calories</string>
+    <string name="today_protein">Protein</string>
+    <string name="today_carbs">Carbs</string>
+    <string name="today_good_fat">Fats</string>
+    <string name="today_fiber">Fiber</string>
+    <string name="today_creatine">Creatine</string>
 </resources>
