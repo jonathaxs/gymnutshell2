@@ -36,8 +36,9 @@ private val LightColorScheme = lightColorScheme(
 @Composable
 fun GymNutshellTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    // Desligado: o Gym Nutshell tem identidade visual própria (cores de destaque),
+    // então não adotamos a paleta Material You do sistema (Android 12+).
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
