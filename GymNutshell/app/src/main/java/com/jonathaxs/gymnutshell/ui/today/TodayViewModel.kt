@@ -36,7 +36,7 @@ data class TodayGoalUi(
 data class TodayUiState(
     val dateLabel: String = "",
     val overallPercent: Int = 0,
-    val tierEmoji: String = "🐱",
+    val tierEmoji: String = "🐓",
     val overallProgress: Float = 0f,
     val goals: List<TodayGoalUi> = emptyList(),
 )
@@ -73,12 +73,13 @@ class TodayViewModel(app: Application) : AndroidViewModel(app) {
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), TodayUiState())
 
-    fun increment(goal: TodayGoalUi) = changeIntake(goal.key, goal.increment)
-    fun decrement(goal: TodayGoalUi) = changeIntake(goal.key, -goal.increment)
+    fun increment(goal: TodayGoalUi) = changeIntake(goal.key, goal.increment, goal.target)
+    fun decrement(goal: TodayGoalUi) = changeIntake(goal.key, -goal.increment, goal.target)
 
-    private fun changeIntake(key: String, delta: Int) {
+    // Limita o valor entre 0 e a meta (o slider do iOS também é limitado ao alvo).
+    private fun changeIntake(key: String, delta: Int, max: Int) {
         intakes.update { current ->
-            current + (key to ((current[key] ?: 0) + delta).coerceAtLeast(0))
+            current + (key to ((current[key] ?: 0) + delta).coerceIn(0, max))
         }
     }
 

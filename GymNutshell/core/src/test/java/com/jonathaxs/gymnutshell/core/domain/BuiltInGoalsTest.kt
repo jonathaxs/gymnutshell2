@@ -20,4 +20,16 @@ class BuiltInGoalsTest {
         val protein = goals.first { it.key == "tracking.protein" }
         assertEquals(result.protein, protein.target)
     }
+
+    @Test
+    fun `ordem segue as categorias - Essencial antes de Treino`() {
+        val goals = BuiltInGoals.forResult(GoalsCalculator.calculate(80.0, 180, 30, "male", UserGoal.Maintenance))
+        val keys = goals.map { it.key }
+
+        // Essencial (sleep/water) vem primeiro
+        assertEquals("tracking.sleep", keys.first())
+        // Treino (workout/cardio) vem DEPOIS de Nutrição (protein) — o bug histórico do iOS
+        assert(keys.indexOf("tracking.workout") > keys.indexOf("tracking.protein"))
+        assert(keys.indexOf("tracking.water") < keys.indexOf("tracking.workout"))
+    }
 }

@@ -21,13 +21,16 @@ enum class DailyAchievement {
             Level4 -> 90
         }
 
-    /** Emoji padrão do tier (tema base "cat"); os temas trocam isso mais à frente na Fase 4. */
+    /**
+     * Emoji do tier no tema padrão Academia (gym) — o tema default atual do app.
+     * Placeholder até portarmos o sistema de temas (fatia 7); aí o emoji virá do tema escolhido.
+     */
     val emoji: String
         get() = when (this) {
-            Level1 -> "🐱"
-            Level2 -> "🐈"
-            Level3 -> "🐆"
-            Level4 -> "🦁"
+            Level1 -> "🐓"
+            Level2 -> "🏋️"
+            Level3 -> "🐀"
+            Level4 -> "💪"
         }
 
     companion object {
