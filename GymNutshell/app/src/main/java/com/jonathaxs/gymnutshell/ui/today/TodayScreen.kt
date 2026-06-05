@@ -23,6 +23,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -76,6 +79,7 @@ private fun TodayHeader(state: TodayUiState) {
 /** Linha de uma meta: emoji, título, valor/alvo e os botões –/+. */
 @Composable
 private fun GoalRow(goal: TodayGoalUi, onMinus: () -> Unit, onPlus: () -> Unit) {
+    val title = stringResource(titleRes(goal.key))
     Card {
         Row(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp),
@@ -84,16 +88,26 @@ private fun GoalRow(goal: TodayGoalUi, onMinus: () -> Unit, onPlus: () -> Unit) 
             Text(goal.emoji, style = MaterialTheme.typography.titleLarge)
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
-                Text(stringResource(titleRes(goal.key)), style = MaterialTheme.typography.bodyLarge)
+                Text(title, style = MaterialTheme.typography.bodyLarge)
                 Text(
                     text = "${goal.intake}/${goal.target} ${goal.unit}",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-            FilledTonalIconButton(onClick = onMinus) { Text("−") }
+            // Rótulos de acessibilidade nos botões: o TalkBack lê "Decrease Água"/"Increase Água"
+            // (contentDescription no botão), e o texto visual "−"/"+" é escondido da árvore a11y.
+            val decreaseLabel = stringResource(R.string.cd_decrease, title)
+            val increaseLabel = stringResource(R.string.cd_increase, title)
+            FilledTonalIconButton(
+                onClick = onMinus,
+                modifier = Modifier.semantics { contentDescription = decreaseLabel },
+            ) { Text("−", modifier = Modifier.clearAndSetSemantics {}) }
             Spacer(Modifier.width(4.dp))
-            FilledTonalIconButton(onClick = onPlus) { Text("+") }
+            FilledTonalIconButton(
+                onClick = onPlus,
+                modifier = Modifier.semantics { contentDescription = increaseLabel },
+            ) { Text("+", modifier = Modifier.clearAndSetSemantics {}) }
         }
     }
 }

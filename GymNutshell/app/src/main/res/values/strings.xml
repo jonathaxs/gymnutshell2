@@ -16,4 +16,8 @@
     <string name="today_good_fat">Fats</string>
     <string name="today_fiber">Fiber</string>
     <string name="today_creatine">Creatine</string>
+
+    <!-- Acessibilidade (TalkBack) -->
+    <string name="cd_increase">Increase %1$s</string>
+    <string name="cd_decrease">Decrease %1$s</string>
 </resources>
