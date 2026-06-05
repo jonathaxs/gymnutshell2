@@ -21,8 +21,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.annotation.StringRes
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.jonathaxs.gymnutshell.R
-import com.jonathaxs.gymnutshell.core.theme.AccentColor
 import com.jonathaxs.gymnutshell.ui.achievements.AchievementsScreen
 import com.jonathaxs.gymnutshell.ui.profile.ProfileScreen
 import com.jonathaxs.gymnutshell.ui.settings.SettingsScreen
@@ -46,10 +47,10 @@ private enum class MainTab(@param:StringRes val labelRes: Int, val icon: ImageVe
  * via rememberSaveable (≈ @AppStorage selectedTab no iOS, que persistiremos na Fase 2).
  */
 @Composable
-fun MainScreen() {
+fun MainScreen(viewModel: MainViewModel = viewModel()) {
     var selectedTab by rememberSaveable { mutableIntStateOf(0) }
     val tabs = MainTab.entries
-    val accent = AccentColor.Default.color
+    val accent = viewModel.accentColor.collectAsStateWithLifecycle().value.color
 
     Scaffold(
         bottomBar = {
