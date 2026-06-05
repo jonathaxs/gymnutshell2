@@ -1,0 +1,51 @@
+# =========================================================
+#  Gym Nutshell (Android) — .gitignore
+#  Padrões sem "/" inicial valem recursivamente (cobrem GymNutshell/, app/, etc.)
+# =========================================================
+
+# --- macOS ---
+.DS_Store
+
+# --- Gradle ---
+.gradle/
+build/
+captures/
+gradle-app.setting
+!gradle-wrapper.jar
+!gradle-wrapper.properties
+
+# --- Kotlin ---
+.kotlin/
+
+# --- Android Studio / IntelliJ ---
+*.iml
+.idea/
+# (Ignoramos a .idea inteira: são configs locais da IDE, não do projeto)
+
+# --- SDK local / config de máquina ---
+# local.properties guarda o caminho do Android SDK NESTA máquina — nunca versionar
+local.properties
+
+# --- Assinatura do app (CRÍTICO — nunca versionar) ---
+# Equivalente aos certificados/provisioning profiles do iOS
+*.jks
+*.keystore
+keystore.properties
+signing.properties
+
+# --- Saídas de build ---
+*.apk
+*.aab
+*.ap_
+*.aar
+*.dex
+*.class
+output.json
+
+# --- NDK / C++ (não usamos por ora, mas previne lixo) ---
+.externalNativeBuild/
+.cxx/
+
+# --- Logs / temporários ---
+*.log
+*.hprof
