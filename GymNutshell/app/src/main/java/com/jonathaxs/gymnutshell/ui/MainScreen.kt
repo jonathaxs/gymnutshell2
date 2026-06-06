@@ -36,8 +36,8 @@ import com.jonathaxs.gymnutshell.ui.today.TodayScreen
  */
 private enum class MainTab(@param:StringRes val labelRes: Int, val icon: ImageVector) {
     Today(R.string.tab_today, Icons.Default.Check),
-    Achievements(R.string.tab_achievements, Icons.Default.Star),
-    Progress(R.string.tab_progress, Icons.Default.DateRange),
+    Achievements(R.string.tab_achievements, Icons.Default.DateRange),
+    Progress(R.string.tab_progress, Icons.Default.Star),
     Settings(R.string.tab_settings, Icons.Default.Settings)
 }
 
