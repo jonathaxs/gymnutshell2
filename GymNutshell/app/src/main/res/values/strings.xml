@@ -31,4 +31,9 @@
     <string name="state_collapsed">Collapsed</string>
     <string name="state_expanded">Expanded</string>
     <string name="cd_daily_progress">Daily progress, %1$d percent</string>
+    <string name="cd_prev_month">Previous month</string>
+    <string name="cd_next_month">Next month</string>
+
+    <!-- Achievements -->
+    <string name="achievements_empty">No records yet</string>
 </resources>
