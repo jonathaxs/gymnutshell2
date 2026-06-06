@@ -52,4 +52,20 @@
     <string name="progress_bonus_monthly_strong">Monthly · Strong</string>
     <string name="progress_bonus_monthly_expert">Monthly · Expert</string>
     <string name="progress_days_count">%1$d days</string>
+
+    <!-- Settings -->
+    <string name="settings_appearance">Appearance</string>
+    <string name="settings_accent_color">Accent color</string>
+    <string name="a11y_selected">Selected</string>
+    <string name="a11y_not_selected">Not selected</string>
+
+    <!-- Nomes das cores de destaque -->
+    <string name="color_red">Red</string>
+    <string name="color_blue">Blue</string>
+    <string name="color_purple">Purple</string>
+    <string name="color_green">Green</string>
+    <string name="color_yellow">Yellow</string>
+    <string name="color_orange">Orange</string>
+    <string name="color_cyan">Cyan</string>
+    <string name="color_pink">Pink</string>
 </resources>
