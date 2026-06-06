@@ -36,8 +36,11 @@ data class TodayGoalUi(
     val increment: Int,
     val intake: Int,
     val target: Int,
+    val isRestDay: Boolean = false,
+    val supportsRestDay: Boolean = false,
 ) {
-    val progress: Double get() = ProgressHelpers.normalizedProgress(intake, target)
+    // Em dia de descanso a meta conta como 100%, sem precisar de intake.
+    val progress: Double get() = if (isRestDay) 1.0 else ProgressHelpers.normalizedProgress(intake, target)
 }
 
 /** Uma categoria com suas metas e o estado de colapso. */
@@ -91,9 +94,10 @@ class TodayViewModel(app: Application) : AndroidViewModel(app) {
         val effective = if (profile.weightKg <= 0.0) DEMO_PROFILE else profile
         val result = GoalsProvider.goals(effective)
         val theme = settingsRepo.theme.first()
+        val restDays = intakeRepo.restDays.first()
 
-        // 1) grava o último dia com os intakes que ficaram (emoji do tema escolhido)
-        recordRepo.upsert(DailyRecordFactory.build(last, intakeRepo.intakes.first(), result, theme))
+        // 1) grava o último dia com os intakes que ficaram (emoji do tema + dias de descanso)
+        recordRepo.upsert(DailyRecordFactory.build(last, intakeRepo.intakes.first(), result, theme, restDays))
         // 2) zera os intakes pro novo dia
         intakeRepo.resetAllIntakes()
         // 3) preenche dias perdidos (last+1 .. today-1) com Level1
@@ -124,13 +128,24 @@ class TodayViewModel(app: Application) : AndroidViewModel(app) {
             intakeRepo.intakes,
             todayPrefs.collapsedCategories,
             settingsRepo.theme,
-        ) { profile, intakeMap, collapsed, theme ->
+            intakeRepo.restDays,
+        ) { profile, intakeMap, collapsed, theme, restDays ->
             // Enquanto não houver onboarding, usa um perfil-demo se nada foi salvo.
             val effective = if (profile.weightKg <= 0.0) DEMO_PROFILE else profile
             val builtins = BuiltInGoals.forResult(GoalsProvider.goals(effective))
 
             val allGoals = builtins.map { g ->
-                TodayGoalUi(g.key, g.emoji, g.unit, g.increment, intakeMap[g.key] ?: 0, g.target)
+                TodayGoalUi(
+                    key = g.key,
+                    emoji = g.emoji,
+                    unit = g.unit,
+                    increment = g.increment,
+                    intake = intakeMap[g.key] ?: 0,
+                    target = g.target,
+                    isRestDay = g.key in restDays,
+                    // Só metas de Treino (workout/cardio) aceitam dia de descanso.
+                    supportsRestDay = GoalCategory.defaultCategory(g.key) == GoalCategory.Treino,
+                )
             }
             // Agrupa por categoria na ordem da GoalCategory (Essencial → Nutrição → Treino → Suplemento).
             val sections = GoalCategory.entries.mapNotNull { category ->
@@ -162,6 +177,10 @@ class TodayViewModel(app: Application) : AndroidViewModel(app) {
 
     fun toggleCategory(category: GoalCategory) {
         viewModelScope.launch { todayPrefs.toggleCategory(category.rawValue) }
+    }
+
+    fun toggleRestDay(goal: TodayGoalUi) {
+        viewModelScope.launch { intakeRepo.toggleRestDay(goal.key) }
     }
 
     companion object {

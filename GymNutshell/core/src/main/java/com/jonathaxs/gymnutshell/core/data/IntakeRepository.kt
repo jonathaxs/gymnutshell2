@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -16,6 +17,7 @@ import kotlinx.coroutines.flow.map
 class IntakeRepository(private val context: Context) {
 
     private val lastActiveDayKey = longPreferencesKey("today.lastActiveDay")
+    private val restDaysKey = stringSetPreferencesKey("today.restDays")
 
     /** Mapa chaveDaMeta → intake, lido das preferências com prefixo "intake.". */
     val intakes: Flow<Map<String, Int>> = context.appPreferences.data.map { prefs ->
@@ -29,12 +31,24 @@ class IntakeRepository(private val context: Context) {
         context.appPreferences.edit { prefs -> prefs[intPreferencesKey(INTAKE_PREFIX + goalKey)] = value }
     }
 
-    /** Apaga todos os intakes (usado ao virar o dia). */
+    /** Metas em "dia de descanso" hoje (por chave). Contam como 100% sem slider. */
+    val restDays: Flow<Set<String>> =
+        context.appPreferences.data.map { prefs -> prefs[restDaysKey] ?: emptySet() }
+
+    suspend fun toggleRestDay(goalKey: String) {
+        context.appPreferences.edit { prefs ->
+            val current = prefs[restDaysKey] ?: emptySet()
+            prefs[restDaysKey] = if (goalKey in current) current - goalKey else current + goalKey
+        }
+    }
+
+    /** Apaga todos os intakes e dias de descanso (usado ao virar o dia). */
     suspend fun resetAllIntakes() {
         context.appPreferences.edit { prefs ->
             prefs.asMap().keys
                 .filter { it.name.startsWith(INTAKE_PREFIX) }
                 .forEach { prefs.remove(it) }
+            prefs.remove(restDaysKey)
         }
     }
 

@@ -18,6 +18,7 @@
     <string name="today_good_fat">Fats</string>
     <string name="today_fiber">Fiber</string>
     <string name="today_creatine">Creatine</string>
+    <string name="rest_day">Rest day</string>
 
     <!-- Categorias de metas -->
     <string name="category_essencial">Essential</string>

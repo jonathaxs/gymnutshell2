@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.FilledTonalIconButton
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -56,6 +57,7 @@ fun TodayScreen(modifier: Modifier = Modifier, viewModel: TodayViewModel = viewM
                             goal = goal,
                             onMinus = { viewModel.decrement(goal) },
                             onPlus = { viewModel.increment(goal) },
+                            onToggleRest = { viewModel.toggleRestDay(goal) },
                         )
                     }
                 }
@@ -106,38 +108,49 @@ private fun CategoryHeader(section: TodayCategoryUi, onToggle: () -> Unit) {
     }
 }
 
-/** Linha de uma meta: emoji, título, valor/alvo e os botões –/+. */
+/** Linha de uma meta: emoji, título, valor/alvo, botões –/+ e, quando aplicável, dia de descanso. */
 @Composable
-private fun GoalRow(goal: TodayGoalUi, onMinus: () -> Unit, onPlus: () -> Unit) {
+private fun GoalRow(goal: TodayGoalUi, onMinus: () -> Unit, onPlus: () -> Unit, onToggleRest: () -> Unit) {
     val title = stringResource(titleRes(goal.key))
+    val restLabel = stringResource(R.string.rest_day)
     Card {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(goal.emoji, style = MaterialTheme.typography.titleLarge)
-            Spacer(Modifier.width(12.dp))
-            Column(Modifier.weight(1f)) {
-                Text(title, style = MaterialTheme.typography.bodyLarge)
-                Text(
-                    text = "${goal.intake}/${goal.target} ${goal.unit}",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+        Column(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(goal.emoji, style = MaterialTheme.typography.titleLarge)
+                Spacer(Modifier.width(12.dp))
+                Column(Modifier.weight(1f)) {
+                    Text(title, style = MaterialTheme.typography.bodyLarge)
+                    Text(
+                        text = if (goal.isRestDay) restLabel else "${goal.intake}/${goal.target} ${goal.unit}",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                // Sem steppers no dia de descanso (a meta já conta como 100%).
+                if (!goal.isRestDay) {
+                    // Rótulos a11y nos botões; o "−"/"+" visual é escondido do TalkBack.
+                    val decreaseLabel = stringResource(R.string.cd_decrease, title)
+                    val increaseLabel = stringResource(R.string.cd_increase, title)
+                    FilledTonalIconButton(
+                        onClick = onMinus,
+                        modifier = Modifier.semantics { contentDescription = decreaseLabel },
+                    ) { Text("−", modifier = Modifier.clearAndSetSemantics {}) }
+                    Spacer(Modifier.width(4.dp))
+                    FilledTonalIconButton(
+                        onClick = onPlus,
+                        modifier = Modifier.semantics { contentDescription = increaseLabel },
+                    ) { Text("+", modifier = Modifier.clearAndSetSemantics {}) }
+                }
+            }
+            // Toggle de dia de descanso (só metas de Treino).
+            if (goal.supportsRestDay) {
+                Spacer(Modifier.height(4.dp))
+                FilterChip(
+                    selected = goal.isRestDay,
+                    onClick = onToggleRest,
+                    label = { Text(restLabel) },
                 )
             }
-            // Rótulos de acessibilidade nos botões: o TalkBack lê "Decrease Água"/"Increase Água"
-            // (contentDescription no botão), e o texto visual "−"/"+" é escondido da árvore a11y.
-            val decreaseLabel = stringResource(R.string.cd_decrease, title)
-            val increaseLabel = stringResource(R.string.cd_increase, title)
-            FilledTonalIconButton(
-                onClick = onMinus,
-                modifier = Modifier.semantics { contentDescription = decreaseLabel },
-            ) { Text("−", modifier = Modifier.clearAndSetSemantics {}) }
-            Spacer(Modifier.width(4.dp))
-            FilledTonalIconButton(
-                onClick = onPlus,
-                modifier = Modifier.semantics { contentDescription = increaseLabel },
-            ) { Text("+", modifier = Modifier.clearAndSetSemantics {}) }
         }
     }
 }
