@@ -19,7 +19,15 @@
     <string name="today_fiber">Fiber</string>
     <string name="today_creatine">Creatine</string>
 
+    <!-- Categorias de metas -->
+    <string name="category_essencial">Essential</string>
+    <string name="category_nutricao">Nutrition</string>
+    <string name="category_treino">Training</string>
+    <string name="category_suplemento">Supplements</string>
+
     <!-- Acessibilidade (TalkBack) -->
     <string name="cd_increase">Increase %1$s</string>
     <string name="cd_decrease">Decrease %1$s</string>
+    <string name="state_collapsed">Collapsed</string>
+    <string name="state_expanded">Expanded</string>
 </resources>

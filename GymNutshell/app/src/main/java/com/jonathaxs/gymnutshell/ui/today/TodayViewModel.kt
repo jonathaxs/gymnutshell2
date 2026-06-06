@@ -5,9 +5,11 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.jonathaxs.gymnutshell.core.data.IntakeRepository
 import com.jonathaxs.gymnutshell.core.data.ProfileRepository
+import com.jonathaxs.gymnutshell.core.data.TodayPreferencesRepository
 import com.jonathaxs.gymnutshell.core.domain.AppDateFormatters
 import com.jonathaxs.gymnutshell.core.domain.BuiltInGoals
 import com.jonathaxs.gymnutshell.core.domain.DailyAchievement
+import com.jonathaxs.gymnutshell.core.domain.GoalCategory
 import com.jonathaxs.gymnutshell.core.domain.GoalsProvider
 import com.jonathaxs.gymnutshell.core.domain.Profile
 import com.jonathaxs.gymnutshell.core.domain.ProgressHelpers
@@ -32,24 +34,32 @@ data class TodayGoalUi(
     val progress: Double get() = ProgressHelpers.normalizedProgress(intake, target)
 }
 
+/** Uma categoria com suas metas e o estado de colapso. */
+data class TodayCategoryUi(
+    val category: GoalCategory,
+    val goals: List<TodayGoalUi>,
+    val collapsed: Boolean,
+)
+
 /** Estado completo da TodayView. */
 data class TodayUiState(
     val dateLabel: String = "",
     val overallPercent: Int = 0,
     val tierEmoji: String = "🐓",
     val overallProgress: Float = 0f,
-    val goals: List<TodayGoalUi> = emptyList(),
+    val sections: List<TodayCategoryUi> = emptyList(),
 )
 
 /**
  * ViewModel da TodayView — porte (MVP) do estado da TodayView (iOS).
- * Junta perfil → metas (GoalsProvider) + os intakes do dia (persistidos no DataStore),
- * e calcula % geral e tier. Os intakes resetam quando vira o dia.
+ * Junta perfil → metas (GoalsProvider) + intakes (persistidos) + colapso de categorias,
+ * e calcula % geral e tier. As metas são agrupadas por categoria (Essencial primeiro).
  */
 class TodayViewModel(app: Application) : AndroidViewModel(app) {
 
     private val profileRepo = ProfileRepository(app.applicationContext)
     private val intakeRepo = IntakeRepository(app.applicationContext)
+    private val todayPrefs = TodayPreferencesRepository(app.applicationContext)
 
     init {
         // Ao abrir, se virou o dia, zera os intakes. (Fatia 6: salvar o DailyRecord do dia
@@ -64,22 +74,33 @@ class TodayViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     val uiState: StateFlow<TodayUiState> =
-        combine(profileRepo.profile, intakeRepo.intakes) { profile, intakeMap ->
+        combine(
+            profileRepo.profile,
+            intakeRepo.intakes,
+            todayPrefs.collapsedCategories,
+        ) { profile, intakeMap, collapsed ->
             // Enquanto não houver onboarding, usa um perfil-demo se nada foi salvo.
             val effective = if (profile.weightKg <= 0.0) DEMO_PROFILE else profile
-            val result = GoalsProvider.goals(effective)
+            val builtins = BuiltInGoals.forResult(GoalsProvider.goals(effective))
 
-            val goals = BuiltInGoals.forResult(result).map { g ->
+            val allGoals = builtins.map { g ->
                 TodayGoalUi(g.key, g.emoji, g.unit, g.increment, intakeMap[g.key] ?: 0, g.target)
             }
-            val avg = if (goals.isEmpty()) 0.0 else goals.sumOf { it.progress } / goals.size
+            // Agrupa por categoria na ordem da GoalCategory (Essencial → Nutrição → Treino → Suplemento).
+            val sections = GoalCategory.entries.mapNotNull { category ->
+                val goals = allGoals.filter { GoalCategory.defaultCategory(it.key) == category }
+                if (goals.isEmpty()) null
+                else TodayCategoryUi(category, goals, collapsed = category.rawValue in collapsed)
+            }
+
+            val avg = if (allGoals.isEmpty()) 0.0 else allGoals.sumOf { it.progress } / allGoals.size
 
             TodayUiState(
                 dateLabel = AppDateFormatters.longDate(LocalDate.now()),
                 overallPercent = floor(avg * 100).toInt(),
                 tierEmoji = DailyAchievement.from(avg).emoji,
                 overallProgress = avg.toFloat(),
-                goals = goals,
+                sections = sections,
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), TodayUiState())
 
@@ -91,6 +112,10 @@ class TodayViewModel(app: Application) : AndroidViewModel(app) {
         viewModelScope.launch {
             intakeRepo.setIntake(goal.key, value.coerceIn(0, goal.target))
         }
+    }
+
+    fun toggleCategory(category: GoalCategory) {
+        viewModelScope.launch { todayPrefs.toggleCategory(category.rawValue) }
     }
 
     companion object {
