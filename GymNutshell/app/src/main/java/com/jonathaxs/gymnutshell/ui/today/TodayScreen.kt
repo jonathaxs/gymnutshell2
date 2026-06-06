@@ -16,7 +16,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.FilledTonalIconButton
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -65,25 +64,23 @@ fun TodayScreen(modifier: Modifier = Modifier, viewModel: TodayViewModel = viewM
     }
 }
 
-/** Cabeçalho: data por extenso, emoji do tier, % do dia e barra de progresso geral. */
+/** Cabeçalho: data por extenso, anel de progresso (com % no centro) e emoji do tier. */
 @Composable
 private fun TodayHeader(state: TodayUiState) {
-    Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                text = state.dateLabel,
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.weight(1f),
-            )
-            Text(state.tierEmoji, style = MaterialTheme.typography.headlineSmall)
-            Spacer(Modifier.width(8.dp))
-            Text("${state.overallPercent}%", style = MaterialTheme.typography.titleLarge)
-        }
-        Spacer(Modifier.height(8.dp))
-        LinearProgressIndicator(
-            progress = { state.overallProgress },
-            modifier = Modifier.fillMaxWidth(),
+    val progressDesc = stringResource(R.string.cd_daily_progress, state.overallPercent)
+    Column(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(state.dateLabel, style = MaterialTheme.typography.titleMedium)
+        Spacer(Modifier.height(16.dp))
+        TodayProgressRing(
+            progress = state.overallProgress,
+            percent = state.overallPercent,
+            modifier = Modifier.semantics { contentDescription = progressDesc },
         )
+        Spacer(Modifier.height(8.dp))
+        Text(state.tierEmoji, style = MaterialTheme.typography.headlineLarge)
     }
 }
 
