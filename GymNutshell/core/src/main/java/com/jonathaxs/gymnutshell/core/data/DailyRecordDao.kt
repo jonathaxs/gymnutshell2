@@ -20,6 +20,10 @@ interface DailyRecordDao {
     @Query("SELECT * FROM daily_record WHERE date = :date LIMIT 1")
     suspend fun findByDate(date: Long): DailyRecord?
 
+    /** Snapshot único (não-Flow) — usado pela avaliação de streak bonus. */
+    @Query("SELECT * FROM daily_record")
+    suspend fun getAll(): List<DailyRecord>
+
     @Upsert
     suspend fun upsert(record: DailyRecord)
 

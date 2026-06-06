@@ -3,20 +3,25 @@ package com.jonathaxs.gymnutshell.ui.today
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.jonathaxs.gymnutshell.core.data.DailyRecordRepository
 import com.jonathaxs.gymnutshell.core.data.IntakeRepository
 import com.jonathaxs.gymnutshell.core.data.ProfileRepository
+import com.jonathaxs.gymnutshell.core.data.StreakBonus
 import com.jonathaxs.gymnutshell.core.data.TodayPreferencesRepository
 import com.jonathaxs.gymnutshell.core.domain.AppDateFormatters
 import com.jonathaxs.gymnutshell.core.domain.BuiltInGoals
 import com.jonathaxs.gymnutshell.core.domain.DailyAchievement
+import com.jonathaxs.gymnutshell.core.domain.DailyRecordFactory
 import com.jonathaxs.gymnutshell.core.domain.GoalCategory
 import com.jonathaxs.gymnutshell.core.domain.GoalsProvider
 import com.jonathaxs.gymnutshell.core.domain.Profile
 import com.jonathaxs.gymnutshell.core.domain.ProgressHelpers
+import com.jonathaxs.gymnutshell.core.domain.StreakBonusEvaluator
 import com.jonathaxs.gymnutshell.core.domain.UserGoal
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -60,16 +65,53 @@ class TodayViewModel(app: Application) : AndroidViewModel(app) {
     private val profileRepo = ProfileRepository(app.applicationContext)
     private val intakeRepo = IntakeRepository(app.applicationContext)
     private val todayPrefs = TodayPreferencesRepository(app.applicationContext)
+    private val recordRepo = DailyRecordRepository(app.applicationContext)
 
     init {
-        // Ao abrir, se virou o dia, zera os intakes. (Fatia 6: salvar o DailyRecord do dia
-        // anterior ANTES de zerar; por ora só reseta.)
-        viewModelScope.launch {
-            val today = LocalDate.now().toEpochDay()
-            if (intakeRepo.lastActiveDay() != today) {
-                intakeRepo.resetAllIntakes()
-                intakeRepo.setLastActiveDay(today)
-            }
+        viewModelScope.launch { rolloverIfNeeded() }
+    }
+
+    /**
+     * Vira o dia (porte de checkIfNewDay/finishSpecificDay do iOS): grava o DailyRecord do último
+     * dia ativo com os intakes atuais, zera os intakes, preenche dias perdidos com Level1 e
+     * avalia os bônus de sequência. No primeiro uso, só marca hoje como dia ativo.
+     */
+    private suspend fun rolloverIfNeeded() {
+        val today = LocalDate.now().toEpochDay()
+        val last = intakeRepo.lastActiveDay()
+        if (last == null) {
+            intakeRepo.setLastActiveDay(today)
+            return
+        }
+        if (last >= today) return
+
+        val profile = profileRepo.profile.first()
+        val effective = if (profile.weightKg <= 0.0) DEMO_PROFILE else profile
+        val result = GoalsProvider.goals(effective)
+
+        // 1) grava o último dia com os intakes que ficaram
+        recordRepo.upsert(DailyRecordFactory.build(last, intakeRepo.intakes.first(), result))
+        // 2) zera os intakes pro novo dia
+        intakeRepo.resetAllIntakes()
+        // 3) preenche dias perdidos (last+1 .. today-1) com Level1
+        var day = last + 1
+        while (day < today) {
+            if (recordRepo.findByDate(day) == null) recordRepo.upsert(DailyRecordFactory.missed(day))
+            day++
+        }
+        // 4) marca hoje como dia ativo
+        intakeRepo.setLastActiveDay(today)
+        // 5) avalia bônus de sequência nos registros acumulados
+        val awarded = recordRepo.awardedAnchors()
+        StreakBonusEvaluator.evaluate(recordRepo.allRecords(), awarded).forEach { award ->
+            recordRepo.insertBonus(
+                StreakBonus(
+                    anchorDate = award.anchorEpochDay,
+                    bonusType = award.bonusType,
+                    bonusPoints = award.points,
+                    bonusEmoji = award.emoji,
+                ),
+            )
         }
     }
 
