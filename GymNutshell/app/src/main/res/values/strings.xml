@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">Gym Nutshell</string>
+    <!-- Nome curto exibido na home screen (como o display name "Nutshell" do iOS) -->
+    <string name="app_name_home">Nutshell</string>
     <string name="tab_today">Today</string>
     <string name="tab_achievements">Achievements</string>
     <string name="tab_profile">Profile</string>
