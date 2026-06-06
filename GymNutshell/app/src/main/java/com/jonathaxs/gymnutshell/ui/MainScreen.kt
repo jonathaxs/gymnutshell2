@@ -3,7 +3,7 @@ package com.jonathaxs.gymnutshell.ui
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
@@ -25,7 +25,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.jonathaxs.gymnutshell.R
 import com.jonathaxs.gymnutshell.ui.achievements.AchievementsScreen
-import com.jonathaxs.gymnutshell.ui.profile.ProfileScreen
+import com.jonathaxs.gymnutshell.ui.progress.ProgressScreen
 import com.jonathaxs.gymnutshell.ui.settings.SettingsScreen
 import com.jonathaxs.gymnutshell.ui.theme.color
 import com.jonathaxs.gymnutshell.ui.today.TodayScreen
@@ -37,7 +37,7 @@ import com.jonathaxs.gymnutshell.ui.today.TodayScreen
 private enum class MainTab(@param:StringRes val labelRes: Int, val icon: ImageVector) {
     Today(R.string.tab_today, Icons.Default.Check),
     Achievements(R.string.tab_achievements, Icons.Default.Star),
-    Profile(R.string.tab_profile, Icons.Default.Person),
+    Progress(R.string.tab_progress, Icons.Default.DateRange),
     Settings(R.string.tab_settings, Icons.Default.Settings)
 }
 
@@ -75,7 +75,7 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
         when (tabs[selectedTab]) {
             MainTab.Today -> TodayScreen(contentModifier)
             MainTab.Achievements -> AchievementsScreen(contentModifier)
-            MainTab.Profile -> ProfileScreen(contentModifier)
+            MainTab.Progress -> ProgressScreen(contentModifier)
             MainTab.Settings -> SettingsScreen(contentModifier)
         }
     }

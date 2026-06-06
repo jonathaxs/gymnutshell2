@@ -4,7 +4,7 @@
     <string name="app_name_home">Nutshell</string>
     <string name="tab_today">Today</string>
     <string name="tab_achievements">Achievements</string>
-    <string name="tab_profile">Profile</string>
+    <string name="tab_progress">Progress</string>
     <string name="tab_settings">Settings</string>
 
     <!-- Metas da Today -->
