@@ -16,6 +16,9 @@ class DailyRecordRepository(context: Context) {
     /** Histórico observável (a UI reage a mudanças). */
     val records: Flow<List<DailyRecord>> = recordDao.observeAll()
 
+    /** Bônus de sequência observáveis. */
+    val bonuses: Flow<List<StreakBonus>> = streakDao.observeAll()
+
     suspend fun findByDate(epochDay: Long): DailyRecord? = recordDao.findByDate(epochDay)
     suspend fun upsert(record: DailyRecord) = recordDao.upsert(record)
     suspend fun allRecords(): List<DailyRecord> = recordDao.getAll()

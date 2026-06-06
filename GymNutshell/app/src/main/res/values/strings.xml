@@ -36,4 +36,20 @@
 
     <!-- Achievements -->
     <string name="achievements_empty">No records yet</string>
+
+    <!-- Progress -->
+    <string name="progress_days">Days</string>
+    <string name="progress_points">Points</string>
+    <string name="progress_bonuses">Bonuses</string>
+    <string name="progress_section_tiers">Achievements</string>
+    <string name="progress_section_activity">Activity</string>
+    <string name="progress_section_bonuses">Streak bonuses</string>
+    <string name="progress_tier_level">Level %1$d</string>
+    <string name="progress_activity_workout">Workout</string>
+    <string name="progress_activity_cardio">Cardio</string>
+    <string name="progress_bonus_weekly_strong">Weekly · Strong</string>
+    <string name="progress_bonus_weekly_expert">Weekly · Expert</string>
+    <string name="progress_bonus_monthly_strong">Monthly · Strong</string>
+    <string name="progress_bonus_monthly_expert">Monthly · Expert</string>
+    <string name="progress_days_count">%1$d days</string>
 </resources>
