@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.jonathaxs.gymnutshell.core.data.DailyRecordRepository
 import com.jonathaxs.gymnutshell.core.data.IntakeRepository
 import com.jonathaxs.gymnutshell.core.data.ProfileRepository
+import com.jonathaxs.gymnutshell.core.data.SettingsRepository
 import com.jonathaxs.gymnutshell.core.data.StreakBonus
 import com.jonathaxs.gymnutshell.core.data.TodayPreferencesRepository
 import com.jonathaxs.gymnutshell.core.domain.AppDateFormatters
@@ -66,6 +67,7 @@ class TodayViewModel(app: Application) : AndroidViewModel(app) {
     private val intakeRepo = IntakeRepository(app.applicationContext)
     private val todayPrefs = TodayPreferencesRepository(app.applicationContext)
     private val recordRepo = DailyRecordRepository(app.applicationContext)
+    private val settingsRepo = SettingsRepository(app.applicationContext)
 
     init {
         viewModelScope.launch { rolloverIfNeeded() }
@@ -88,15 +90,16 @@ class TodayViewModel(app: Application) : AndroidViewModel(app) {
         val profile = profileRepo.profile.first()
         val effective = if (profile.weightKg <= 0.0) DEMO_PROFILE else profile
         val result = GoalsProvider.goals(effective)
+        val theme = settingsRepo.theme.first()
 
-        // 1) grava o último dia com os intakes que ficaram
-        recordRepo.upsert(DailyRecordFactory.build(last, intakeRepo.intakes.first(), result))
+        // 1) grava o último dia com os intakes que ficaram (emoji do tema escolhido)
+        recordRepo.upsert(DailyRecordFactory.build(last, intakeRepo.intakes.first(), result, theme))
         // 2) zera os intakes pro novo dia
         intakeRepo.resetAllIntakes()
         // 3) preenche dias perdidos (last+1 .. today-1) com Level1
         var day = last + 1
         while (day < today) {
-            if (recordRepo.findByDate(day) == null) recordRepo.upsert(DailyRecordFactory.missed(day))
+            if (recordRepo.findByDate(day) == null) recordRepo.upsert(DailyRecordFactory.missed(day, theme))
             day++
         }
         // 4) marca hoje como dia ativo
@@ -120,7 +123,8 @@ class TodayViewModel(app: Application) : AndroidViewModel(app) {
             profileRepo.profile,
             intakeRepo.intakes,
             todayPrefs.collapsedCategories,
-        ) { profile, intakeMap, collapsed ->
+            settingsRepo.theme,
+        ) { profile, intakeMap, collapsed, theme ->
             // Enquanto não houver onboarding, usa um perfil-demo se nada foi salvo.
             val effective = if (profile.weightKg <= 0.0) DEMO_PROFILE else profile
             val builtins = BuiltInGoals.forResult(GoalsProvider.goals(effective))
@@ -140,7 +144,7 @@ class TodayViewModel(app: Application) : AndroidViewModel(app) {
             TodayUiState(
                 dateLabel = AppDateFormatters.longDate(LocalDate.now()),
                 overallPercent = floor(avg * 100).toInt(),
-                tierEmoji = DailyAchievement.from(avg).emoji,
+                tierEmoji = theme.emoji(DailyAchievement.from(avg)),
                 overallProgress = avg.toFloat(),
                 sections = sections,
             )

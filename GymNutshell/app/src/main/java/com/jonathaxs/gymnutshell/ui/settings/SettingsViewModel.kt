@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.jonathaxs.gymnutshell.core.data.ProfileRepository
 import com.jonathaxs.gymnutshell.core.data.SettingsRepository
+import com.jonathaxs.gymnutshell.core.domain.AppTheme
 import com.jonathaxs.gymnutshell.core.domain.Profile
 import com.jonathaxs.gymnutshell.core.theme.AccentColor
 import kotlinx.coroutines.flow.SharingStarted
@@ -34,8 +35,18 @@ class SettingsViewModel(app: Application) : AndroidViewModel(app) {
         initialValue = Profile(),
     )
 
+    val theme: StateFlow<AppTheme> = settingsRepo.theme.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = AppTheme.Default,
+    )
+
     fun setAccent(color: AccentColor) {
         viewModelScope.launch { settingsRepo.setAccentColor(color) }
+    }
+
+    fun setTheme(theme: AppTheme) {
+        viewModelScope.launch { settingsRepo.setTheme(theme) }
     }
 
     fun saveProfile(profile: Profile) {

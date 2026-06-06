@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.jonathaxs.gymnutshell.core.data.DailyRecordRepository
+import com.jonathaxs.gymnutshell.core.data.SettingsRepository
 import com.jonathaxs.gymnutshell.core.domain.DailyAchievement
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -34,9 +35,10 @@ data class ProgressUiState(
 class ProgressViewModel(app: Application) : AndroidViewModel(app) {
 
     private val recordRepo = DailyRecordRepository(app.applicationContext)
+    private val settingsRepo = SettingsRepository(app.applicationContext)
 
     val uiState: StateFlow<ProgressUiState> =
-        combine(recordRepo.records, recordRepo.bonuses) { records, bonuses ->
+        combine(recordRepo.records, recordRepo.bonuses, settingsRepo.theme) { records, bonuses, theme ->
             val countByTier = records.groupingBy { DailyAchievement.from(it.percent / 100.0) }.eachCount()
 
             ProgressUiState(
@@ -44,7 +46,7 @@ class ProgressViewModel(app: Application) : AndroidViewModel(app) {
                 totalPoints = records.sumOf { it.points } + bonuses.sumOf { it.bonusPoints },
                 bonusCount = bonuses.size,
                 tierCounts = DailyAchievement.entries.map { tier ->
-                    TierCountUi(emoji = tier.emoji, level = tier.ordinal + 1, days = countByTier[tier] ?: 0)
+                    TierCountUi(emoji = theme.emoji(tier), level = tier.ordinal + 1, days = countByTier[tier] ?: 0)
                 },
                 workoutDays = records.count { it.didWorkout },
                 cardioDays = records.count { it.didCardio },

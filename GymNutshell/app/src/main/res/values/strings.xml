@@ -86,4 +86,32 @@
     <string name="goal_cutting">Cutting</string>
     <string name="action_save">Save</string>
     <string name="cd_back">Back</string>
+
+    <!-- Temas -->
+    <string name="settings_theme">Theme</string>
+    <string name="theme_cat_sport">Sport</string>
+    <string name="theme_cat_animals">Animals</string>
+    <string name="theme_cat_warrior">Warrior</string>
+    <string name="theme_cat_space">Space</string>
+    <string name="theme_cat_elements">Elements</string>
+    <string name="theme_cat_competition">Competition</string>
+    <string name="theme_gym">Gym</string>
+    <string name="theme_running">Running</string>
+    <string name="theme_cat">Cat</string>
+    <string name="theme_dog">Dog</string>
+    <string name="theme_bear">Bear</string>
+    <string name="theme_dino">Dino</string>
+    <string name="theme_dragon">Dragon</string>
+    <string name="theme_horse">Horse</string>
+    <string name="theme_ocean">Ocean</string>
+    <string name="theme_monkey">Monkey</string>
+    <string name="theme_bird">Bird</string>
+    <string name="theme_doctor">Doctor</string>
+    <string name="theme_ninja">Ninja</string>
+    <string name="theme_fire">Fire</string>
+    <string name="theme_plant">Plant</string>
+    <string name="theme_astronaut">Astronaut</string>
+    <string name="theme_celestial">Celestial</string>
+    <string name="theme_champion">Champion</string>
+    <string name="theme_number">Number</string>
 </resources>

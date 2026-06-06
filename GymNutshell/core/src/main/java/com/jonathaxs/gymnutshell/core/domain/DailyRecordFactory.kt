@@ -10,8 +10,13 @@ import kotlin.math.floor
  */
 object DailyRecordFactory {
 
-    /** Registro de um dia concluído, com os intakes informados. */
-    fun build(epochDay: Long, intakes: Map<String, Int>, result: GoalsCalculator.Result): DailyRecord {
+    /** Registro de um dia concluído, com os intakes informados e o emoji do tema escolhido. */
+    fun build(
+        epochDay: Long,
+        intakes: Map<String, Int>,
+        result: GoalsCalculator.Result,
+        theme: AppTheme,
+    ): DailyRecord {
         val goals = BuiltInGoals.forResult(result)
         val avg = if (goals.isEmpty()) 0.0
         else goals.sumOf { ProgressHelpers.normalizedProgress(intakes[it.key] ?: 0, it.target) } / goals.size
@@ -28,18 +33,18 @@ object DailyRecordFactory {
             didWorkout = (intakes["tracking.workout"] ?: 0) > 0,
             didCardio = (intakes["tracking.cardio"] ?: 0) > 0,
             percent = floor(avg * 100).toInt(),
-            achievementEmoji = tier.emoji, // nome do tier (achievementTitle) vem com os temas (fatia 7)
+            achievementEmoji = theme.emoji(tier), // congela o emoji do tema no dia
             points = tier.points,
         )
     }
 
     /** Registro "vazio" de um dia perdido (Level1), igual ao sadRecord do iOS. */
-    fun missed(epochDay: Long): DailyRecord {
+    fun missed(epochDay: Long, theme: AppTheme): DailyRecord {
         val tier = DailyAchievement.Level1
         return DailyRecord(
             date = epochDay,
             percent = 0,
-            achievementEmoji = tier.emoji,
+            achievementEmoji = theme.emoji(tier),
             points = tier.points,
         )
     }

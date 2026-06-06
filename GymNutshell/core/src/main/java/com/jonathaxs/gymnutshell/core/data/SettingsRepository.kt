@@ -3,6 +3,7 @@ package com.jonathaxs.gymnutshell.core.data
 import android.content.Context
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.jonathaxs.gymnutshell.core.domain.AppTheme
 import com.jonathaxs.gymnutshell.core.theme.AccentColor
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -14,6 +15,7 @@ import kotlinx.coroutines.flow.map
 class SettingsRepository(private val context: Context) {
 
     private val accentKey = stringPreferencesKey(AccentColor.STORAGE_KEY)
+    private val themeKey = stringPreferencesKey("app.theme")
 
     /** Cor de destaque persistida; cai pra Default se nada salvo ou valor inválido. */
     val accentColor: Flow<AccentColor> = context.appPreferences.data.map { prefs ->
@@ -24,5 +26,14 @@ class SettingsRepository(private val context: Context) {
 
     suspend fun setAccentColor(color: AccentColor) {
         context.appPreferences.edit { prefs -> prefs[accentKey] = color.name }
+    }
+
+    /** Tema de mascote persistido; cai pro Default (gym) se nada salvo ou inválido. */
+    val theme: Flow<AppTheme> = context.appPreferences.data.map { prefs ->
+        AppTheme.fromRaw(prefs[themeKey])
+    }
+
+    suspend fun setTheme(theme: AppTheme) {
+        context.appPreferences.edit { prefs -> prefs[themeKey] = theme.rawValue }
     }
 }

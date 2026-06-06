@@ -12,7 +12,7 @@ class DailyRecordFactoryTest {
     @Test
     fun `build com todas as metas no alvo gera 100 por cento e tier Level4`() {
         val full = BuiltInGoals.forResult(result).associate { it.key to it.target }
-        val rec = DailyRecordFactory.build(epochDay = 100L, intakes = full, result = result)
+        val rec = DailyRecordFactory.build(epochDay = 100L, intakes = full, result = result, theme = AppTheme.Gym)
 
         assertEquals(100L, rec.date)
         assertEquals(100, rec.percent)
@@ -25,7 +25,7 @@ class DailyRecordFactoryTest {
 
     @Test
     fun `missed gera registro Level1 zerado sem atividade`() {
-        val rec = DailyRecordFactory.missed(epochDay = 50L)
+        val rec = DailyRecordFactory.missed(epochDay = 50L, theme = AppTheme.Gym)
         assertEquals(50L, rec.date)
         assertEquals(0, rec.percent)
         assertEquals(DailyAchievement.Level1.points, rec.points) // 0
