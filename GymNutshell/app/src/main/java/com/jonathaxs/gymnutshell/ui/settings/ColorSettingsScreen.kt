@@ -18,6 +18,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -39,30 +40,20 @@ import com.jonathaxs.gymnutshell.R
 import com.jonathaxs.gymnutshell.core.theme.AccentColor
 import com.jonathaxs.gymnutshell.ui.theme.color
 
-/** Aba Settings — porte (MVP) da SettingsView (iOS): começa pelo seletor de cor de destaque. */
+/** Sub-tela de cor de destaque — porte de ColorSettingsView (iOS): grade das 8 cores. */
 @Composable
-fun SettingsScreen(modifier: Modifier = Modifier, viewModel: SettingsViewModel = viewModel()) {
+fun ColorSettingsScreen(onBack: () -> Unit, viewModel: SettingsViewModel = viewModel()) {
     val selected by viewModel.accentColor.collectAsStateWithLifecycle()
-
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp),
-    ) {
-        Text(
-            stringResource(R.string.settings_appearance),
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-        )
-        Spacer(Modifier.height(4.dp))
-        Text(
-            stringResource(R.string.settings_accent_color),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-        Spacer(Modifier.height(16.dp))
-        ColorGrid(selected, onSelect = viewModel::setAccent)
+    Scaffold(topBar = { SettingsTopBar(stringResource(R.string.settings_accent_color), onBack) }) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp),
+        ) {
+            ColorGrid(selected, onSelect = viewModel::setAccent)
+        }
     }
 }
 
@@ -83,12 +74,7 @@ private fun ColorGrid(selected: AccentColor, onSelect: (AccentColor) -> Unit) {
 
 /** Um círculo de cor com nome; anel + checkmark quando selecionado. */
 @Composable
-private fun ColorSwatch(
-    accent: AccentColor,
-    isSelected: Boolean,
-    modifier: Modifier,
-    onClick: () -> Unit,
-) {
+private fun ColorSwatch(accent: AccentColor, isSelected: Boolean, modifier: Modifier, onClick: () -> Unit) {
     val name = stringResource(colorNameRes(accent))
     val stateDesc = stringResource(if (isSelected) R.string.a11y_selected else R.string.a11y_not_selected)
     Column(

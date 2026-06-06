@@ -1,5 +1,6 @@
 package com.jonathaxs.gymnutshell.ui
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
@@ -14,69 +15,83 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
-import androidx.annotation.StringRes
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import com.jonathaxs.gymnutshell.R
 import com.jonathaxs.gymnutshell.ui.achievements.AchievementsScreen
 import com.jonathaxs.gymnutshell.ui.progress.ProgressScreen
-import com.jonathaxs.gymnutshell.ui.settings.SettingsScreen
+import com.jonathaxs.gymnutshell.ui.settings.settingsGraph
 import com.jonathaxs.gymnutshell.ui.theme.color
 import com.jonathaxs.gymnutshell.ui.today.TodayScreen
 
 /**
- * Abas principais — espelha o enum MainView.Tab do iOS (índices 0..3).
- * Cada aba carrega o texto (string localizada) e o ícone do NavigationBar.
+ * Abas principais — espelha o enum MainView.Tab do iOS. `route` é o destino de navegação;
+ * o de Settings é o grafo aninhado (com sub-telas).
  */
-private enum class MainTab(@param:StringRes val labelRes: Int, val icon: ImageVector) {
-    Today(R.string.tab_today, Icons.Default.Check),
-    Achievements(R.string.tab_achievements, Icons.Default.DateRange),
-    Progress(R.string.tab_progress, Icons.Default.Star),
-    Settings(R.string.tab_settings, Icons.Default.Settings)
+private enum class MainTab(val route: String, @param:StringRes val labelRes: Int, val icon: ImageVector) {
+    Today("today", R.string.tab_today, Icons.Default.Check),
+    Achievements("achievements", R.string.tab_achievements, Icons.Default.DateRange),
+    Progress("progress", R.string.tab_progress, Icons.Default.Star),
+    Settings("settings", R.string.tab_settings, Icons.Default.Settings),
 }
 
 /**
- * Tela raiz do app: hospeda a barra de abas inferior e roteia pra tela selecionada.
- * Equivale ao TabView(selection:) do MainView.swift; o selectedTab persiste rotações
- * via rememberSaveable (≈ @AppStorage selectedTab no iOS, que persistiremos na Fase 2).
+ * Tela raiz: barra de abas inferior + NavHost. Cada aba é um destino de navegação;
+ * a aba Settings é um grafo aninhado com suas sub-telas. O back stack de cada aba é
+ * preservado (saveState/restoreState), espelhando o comportamento de NavigationStack por aba do iOS.
  */
 @Composable
 fun MainScreen(viewModel: MainViewModel = viewModel()) {
-    var selectedTab by rememberSaveable { mutableIntStateOf(0) }
-    val tabs = MainTab.entries
+    val navController = rememberNavController()
     val accent = viewModel.accentColor.collectAsStateWithLifecycle().value.color
 
     Scaffold(
         bottomBar = {
+            val backStackEntry by navController.currentBackStackEntryAsState()
+            val currentDestination = backStackEntry?.destination
             NavigationBar {
-                tabs.forEachIndexed { index, tab ->
+                MainTab.entries.forEach { tab ->
+                    val selected = currentDestination?.hierarchy?.any { it.route == tab.route } == true
                     NavigationBarItem(
-                        selected = selectedTab == index,
-                        onClick = { selectedTab = index },
+                        selected = selected,
+                        onClick = {
+                            navController.navigate(tab.route) {
+                                // Preserva/restaura o estado de cada aba e evita empilhar duplicatas.
+                                popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        },
                         icon = { Icon(tab.icon, contentDescription = null) },
                         label = { Text(stringResource(tab.labelRes)) },
                         colors = NavigationBarItemDefaults.colors(
                             selectedIconColor = accent,
                             selectedTextColor = accent,
-                            indicatorColor = accent.copy(alpha = 0.15f)
-                        )
+                            indicatorColor = accent.copy(alpha = 0.15f),
+                        ),
                     )
                 }
             }
-        }
+        },
     ) { innerPadding ->
-        val contentModifier = Modifier.padding(innerPadding)
-        when (tabs[selectedTab]) {
-            MainTab.Today -> TodayScreen(contentModifier)
-            MainTab.Achievements -> AchievementsScreen(contentModifier)
-            MainTab.Progress -> ProgressScreen(contentModifier)
-            MainTab.Settings -> SettingsScreen(contentModifier)
+        NavHost(
+            navController = navController,
+            startDestination = MainTab.Today.route,
+            modifier = Modifier.padding(innerPadding),
+        ) {
+            composable(MainTab.Today.route) { TodayScreen() }
+            composable(MainTab.Achievements.route) { AchievementsScreen() }
+            composable(MainTab.Progress.route) { ProgressScreen() }
+            settingsGraph(navController)
         }
     }
 }
