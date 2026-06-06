@@ -3,20 +3,20 @@ package com.jonathaxs.gymnutshell.ui.today
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.jonathaxs.gymnutshell.core.data.IntakeRepository
 import com.jonathaxs.gymnutshell.core.data.ProfileRepository
+import com.jonathaxs.gymnutshell.core.domain.AppDateFormatters
 import com.jonathaxs.gymnutshell.core.domain.BuiltInGoals
 import com.jonathaxs.gymnutshell.core.domain.DailyAchievement
 import com.jonathaxs.gymnutshell.core.domain.GoalsProvider
 import com.jonathaxs.gymnutshell.core.domain.Profile
 import com.jonathaxs.gymnutshell.core.domain.ProgressHelpers
 import com.jonathaxs.gymnutshell.core.domain.UserGoal
-import com.jonathaxs.gymnutshell.core.domain.AppDateFormatters
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 import kotlin.math.floor
 
@@ -43,18 +43,28 @@ data class TodayUiState(
 
 /**
  * ViewModel da TodayView — porte (MVP) do estado da TodayView (iOS).
- * Junta perfil → metas (GoalsProvider) + os intakes do dia, e calcula % geral e tier.
- * Por ora os intakes vivem em memória (resetam ao reabrir); persistência vem na fatia 2.
+ * Junta perfil → metas (GoalsProvider) + os intakes do dia (persistidos no DataStore),
+ * e calcula % geral e tier. Os intakes resetam quando vira o dia.
  */
 class TodayViewModel(app: Application) : AndroidViewModel(app) {
 
     private val profileRepo = ProfileRepository(app.applicationContext)
+    private val intakeRepo = IntakeRepository(app.applicationContext)
 
-    /** Ingestão do dia por chave de meta (em memória por enquanto). */
-    private val intakes = MutableStateFlow<Map<String, Int>>(emptyMap())
+    init {
+        // Ao abrir, se virou o dia, zera os intakes. (Fatia 6: salvar o DailyRecord do dia
+        // anterior ANTES de zerar; por ora só reseta.)
+        viewModelScope.launch {
+            val today = LocalDate.now().toEpochDay()
+            if (intakeRepo.lastActiveDay() != today) {
+                intakeRepo.resetAllIntakes()
+                intakeRepo.setLastActiveDay(today)
+            }
+        }
+    }
 
     val uiState: StateFlow<TodayUiState> =
-        combine(profileRepo.profile, intakes) { profile, intakeMap ->
+        combine(profileRepo.profile, intakeRepo.intakes) { profile, intakeMap ->
             // Enquanto não houver onboarding, usa um perfil-demo se nada foi salvo.
             val effective = if (profile.weightKg <= 0.0) DEMO_PROFILE else profile
             val result = GoalsProvider.goals(effective)
@@ -73,13 +83,13 @@ class TodayViewModel(app: Application) : AndroidViewModel(app) {
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), TodayUiState())
 
-    fun increment(goal: TodayGoalUi) = changeIntake(goal.key, goal.increment, goal.target)
-    fun decrement(goal: TodayGoalUi) = changeIntake(goal.key, -goal.increment, goal.target)
+    fun increment(goal: TodayGoalUi) = setIntake(goal, goal.intake + goal.increment)
+    fun decrement(goal: TodayGoalUi) = setIntake(goal, goal.intake - goal.increment)
 
-    // Limita o valor entre 0 e a meta (o slider do iOS também é limitado ao alvo).
-    private fun changeIntake(key: String, delta: Int, max: Int) {
-        intakes.update { current ->
-            current + (key to ((current[key] ?: 0) + delta).coerceIn(0, max))
+    // Persiste o valor, limitado entre 0 e a meta (o slider do iOS também é limitado ao alvo).
+    private fun setIntake(goal: TodayGoalUi, value: Int) {
+        viewModelScope.launch {
+            intakeRepo.setIntake(goal.key, value.coerceIn(0, goal.target))
         }
     }
 
