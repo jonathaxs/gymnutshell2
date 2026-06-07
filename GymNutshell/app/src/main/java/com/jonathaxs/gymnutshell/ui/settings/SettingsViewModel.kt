@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.jonathaxs.gymnutshell.core.data.ProfileRepository
 import com.jonathaxs.gymnutshell.core.data.SettingsRepository
 import com.jonathaxs.gymnutshell.core.domain.AppTheme
+import com.jonathaxs.gymnutshell.core.domain.MeasurementSystem
 import com.jonathaxs.gymnutshell.core.domain.Profile
 import com.jonathaxs.gymnutshell.core.theme.AccentColor
 import kotlinx.coroutines.flow.SharingStarted
@@ -47,6 +48,16 @@ class SettingsViewModel(app: Application) : AndroidViewModel(app) {
 
     fun setTheme(theme: AppTheme) {
         viewModelScope.launch { settingsRepo.setTheme(theme) }
+    }
+
+    val measurementSystem: StateFlow<MeasurementSystem> = settingsRepo.measurementSystem.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = MeasurementSystem.Metric,
+    )
+
+    fun setMeasurement(system: MeasurementSystem) {
+        viewModelScope.launch { settingsRepo.setMeasurementSystem(system) }
     }
 
     fun saveProfile(profile: Profile) {

@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.jonathaxs.gymnutshell.core.domain.AppTheme
+import com.jonathaxs.gymnutshell.core.domain.MeasurementSystem
 import com.jonathaxs.gymnutshell.core.theme.AccentColor
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -16,6 +17,7 @@ class SettingsRepository(private val context: Context) {
 
     private val accentKey = stringPreferencesKey(AccentColor.STORAGE_KEY)
     private val themeKey = stringPreferencesKey("app.theme")
+    private val measurementKey = stringPreferencesKey("profile.measurementSystem")
 
     /** Cor de destaque persistida; cai pra Default se nada salvo ou valor inválido. */
     val accentColor: Flow<AccentColor> = context.appPreferences.data.map { prefs ->
@@ -35,5 +37,14 @@ class SettingsRepository(private val context: Context) {
 
     suspend fun setTheme(theme: AppTheme) {
         context.appPreferences.edit { prefs -> prefs[themeKey] = theme.rawValue }
+    }
+
+    /** Sistema de medida persistido (Metric por padrão). */
+    val measurementSystem: Flow<MeasurementSystem> = context.appPreferences.data.map { prefs ->
+        MeasurementSystem.fromRaw(prefs[measurementKey])
+    }
+
+    suspend fun setMeasurementSystem(system: MeasurementSystem) {
+        context.appPreferences.edit { prefs -> prefs[measurementKey] = system.rawValue }
     }
 }

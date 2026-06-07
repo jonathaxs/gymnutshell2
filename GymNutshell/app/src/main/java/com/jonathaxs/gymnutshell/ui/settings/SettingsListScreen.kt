@@ -25,6 +25,7 @@ fun SettingsListScreen(
     onOpenGoal: () -> Unit,
     onOpenTheme: () -> Unit,
     onOpenCustomGoals: () -> Unit,
+    onOpenUnits: () -> Unit,
 ) {
     Scaffold(topBar = { SettingsTopBar(stringResource(R.string.tab_settings)) }) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
@@ -33,6 +34,8 @@ fun SettingsListScreen(
             SettingsRow(stringResource(R.string.settings_accent_color), onClick = onOpenColor)
             HorizontalDivider()
             SettingsRow(stringResource(R.string.settings_custom_goals), onClick = onOpenCustomGoals)
+            HorizontalDivider()
+            SettingsRow(stringResource(R.string.settings_units), onClick = onOpenUnits)
             HorizontalDivider()
             SettingsRow(stringResource(R.string.settings_physical_data), onClick = onOpenPhysical)
             HorizontalDivider()

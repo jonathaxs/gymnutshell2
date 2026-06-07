@@ -16,9 +16,11 @@ import com.jonathaxs.gymnutshell.core.domain.DailyAchievement
 import com.jonathaxs.gymnutshell.core.domain.DailyRecordFactory
 import com.jonathaxs.gymnutshell.core.domain.GoalCategory
 import com.jonathaxs.gymnutshell.core.domain.GoalsProvider
+import com.jonathaxs.gymnutshell.core.domain.MeasurementSystem
 import com.jonathaxs.gymnutshell.core.domain.Profile
 import com.jonathaxs.gymnutshell.core.domain.ProgressHelpers
 import com.jonathaxs.gymnutshell.core.domain.StreakBonusEvaluator
+import com.jonathaxs.gymnutshell.core.domain.UnitConverter
 import com.jonathaxs.gymnutshell.core.domain.UserGoal
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -28,6 +30,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import kotlin.math.floor
+import kotlin.math.roundToInt
 
 /** Uma meta da TodayView pronta pra exibição. */
 data class TodayGoalUi(
@@ -42,6 +45,8 @@ data class TodayGoalUi(
     val category: GoalCategory? = null,
     /** Título já resolvido (metas custom); null = built-in (UI resolve via string). */
     val title: String? = null,
+    /** Água no sistema US: exibida em fl oz, mas armazenada em ml. */
+    val unitIsFlOz: Boolean = false,
 ) {
     // Em dia de descanso a meta conta como 100%, sem precisar de intake.
     val progress: Double get() = if (isRestDay) 1.0 else ProgressHelpers.normalizedProgress(intake, target)
@@ -134,24 +139,33 @@ class TodayViewModel(app: Application) : AndroidViewModel(app) {
 
     val uiState: StateFlow<TodayUiState> =
         combine(
-            combine(profileRepo.profile, customGoalRepo.goals) { profile, custom -> profile to custom },
+            combine(profileRepo.profile, customGoalRepo.goals, settingsRepo.measurementSystem) { p, c, m ->
+                Triple(p, c, m)
+            },
             intakeRepo.intakes,
             todayPrefs.collapsedCategories,
             settingsRepo.theme,
             intakeRepo.restDays,
-        ) { (profile, customGoals), intakeMap, collapsed, theme, restDays ->
+        ) { (profile, customGoals, measurement), intakeMap, collapsed, theme, restDays ->
             // Enquanto não houver onboarding, usa um perfil-demo se nada foi salvo.
             val effective = if (profile.weightKg <= 0.0) DEMO_PROFILE else profile
 
-            // Metas fixas.
+            // Metas fixas. A água no sistema US é exibida em fl oz (armazenada em ml).
             val builtinGoals = BuiltInGoals.forResult(GoalsProvider.goals(effective)).map { g ->
                 val category = GoalCategory.defaultCategory(g.key)
+                val waterUs = g.key == "tracking.water" && measurement == MeasurementSystem.Us
+                val storedMl = intakeMap[g.key] ?: 0
                 TodayGoalUi(
-                    key = g.key, emoji = g.emoji, unit = g.unit, increment = g.increment,
-                    intake = intakeMap[g.key] ?: 0, target = g.target,
+                    key = g.key,
+                    emoji = g.emoji,
+                    unit = if (waterUs) "fl oz" else g.unit,
+                    increment = if (waterUs) 8 else g.increment,
+                    intake = if (waterUs) UnitConverter.mlToFlOz(storedMl.toDouble()).roundToInt() else storedMl,
+                    target = if (waterUs) UnitConverter.mlToFlOz(g.target.toDouble()).roundToInt() else g.target,
                     isRestDay = g.key in restDays,
                     supportsRestDay = category == GoalCategory.Treino,
                     category = category,
+                    unitIsFlOz = waterUs,
                 )
             }
             // Metas personalizadas (key "custom:<id>", título = nome).
@@ -191,11 +205,11 @@ class TodayViewModel(app: Application) : AndroidViewModel(app) {
     fun increment(goal: TodayGoalUi) = setIntake(goal, goal.intake + goal.increment)
     fun decrement(goal: TodayGoalUi) = setIntake(goal, goal.intake - goal.increment)
 
-    // Persiste o valor, limitado entre 0 e a meta (o slider do iOS também é limitado ao alvo).
+    // Persiste o valor, limitado entre 0 e a meta. Água em fl oz é convertida pra ml ao salvar.
     private fun setIntake(goal: TodayGoalUi, value: Int) {
-        viewModelScope.launch {
-            intakeRepo.setIntake(goal.key, value.coerceIn(0, goal.target))
-        }
+        val clamped = value.coerceIn(0, goal.target)
+        val toStore = if (goal.unitIsFlOz) UnitConverter.flOzToMl(clamped.toDouble()).roundToInt() else clamped
+        viewModelScope.launch { intakeRepo.setIntake(goal.key, toStore) }
     }
 
     fun toggleCategory(category: GoalCategory) {
