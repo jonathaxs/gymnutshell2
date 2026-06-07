@@ -202,12 +202,10 @@ class TodayViewModel(app: Application) : AndroidViewModel(app) {
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), TodayUiState())
 
-    fun increment(goal: TodayGoalUi) = setIntake(goal, goal.intake + goal.increment)
-    fun decrement(goal: TodayGoalUi) = setIntake(goal, goal.intake - goal.increment)
-
-    // Persiste o valor, limitado entre 0 e a meta. Água em fl oz é convertida pra ml ao salvar.
-    private fun setIntake(goal: TodayGoalUi, value: Int) {
-        val clamped = value.coerceIn(0, goal.target)
+    // Define o valor da meta (vindo do slider), limitado entre 0 e o alvo.
+    // Água em fl oz é convertida pra ml ao salvar (o armazenamento é sempre métrico).
+    fun updateIntake(goal: TodayGoalUi, displayValue: Int) {
+        val clamped = displayValue.coerceIn(0, goal.target)
         val toStore = if (goal.unitIsFlOz) UnitConverter.flOzToMl(clamped.toDouble()).roundToInt() else clamped
         viewModelScope.launch { intakeRepo.setIntake(goal.key, toStore) }
     }
