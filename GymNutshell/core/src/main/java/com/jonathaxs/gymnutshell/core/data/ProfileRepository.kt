@@ -1,6 +1,7 @@
 package com.jonathaxs.gymnutshell.core.data
 
 import android.content.Context
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.doublePreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
@@ -23,6 +24,15 @@ class ProfileRepository(private val context: Context) {
         val age = intPreferencesKey("profile.age")
         val sex = stringPreferencesKey("profile.sex")
         val goal = stringPreferencesKey("profile.userGoal")
+        val onboarding = booleanPreferencesKey("profile.didCompleteOnboarding")
+    }
+
+    /** Marca se o onboarding (Welcome) já foi concluído. */
+    val didCompleteOnboarding: Flow<Boolean> =
+        context.appPreferences.data.map { prefs -> prefs[Keys.onboarding] ?: false }
+
+    suspend fun setOnboardingComplete() {
+        context.appPreferences.edit { prefs -> prefs[Keys.onboarding] = true }
     }
 
     val profile: Flow<Profile> = context.appPreferences.data.map { prefs ->

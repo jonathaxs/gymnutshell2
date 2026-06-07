@@ -99,6 +99,18 @@
     <string name="action_save">Save</string>
     <string name="cd_back">Back</string>
 
+    <!-- Welcome / onboarding -->
+    <string name="welcome_start_title">Welcome to Gym Nutshell</string>
+    <string name="welcome_start_subtitle">Your gym progress, in a nutshell. Track daily goals and build streaks.</string>
+    <string name="welcome_goal_title">Your goal</string>
+    <string name="welcome_physical_title">About you</string>
+    <string name="welcome_theme_title">Pick a theme</string>
+    <string name="welcome_summary_title">Your daily goals</string>
+    <string name="action_next">Next</string>
+    <string name="action_back">Back</string>
+    <string name="action_finish">Finish</string>
+    <string name="action_get_started">Get started</string>
+
     <!-- Temas -->
     <string name="settings_theme">Theme</string>
     <string name="theme_cat_sport">Sport</string>
