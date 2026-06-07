@@ -23,6 +23,7 @@ object SettingsRoutes {
     const val PHYSICAL = "settings_physical"
     const val GOAL = "settings_goal"
     const val THEME = "settings_theme"
+    const val CUSTOM_GOALS = "settings_custom_goals"
 }
 
 /** Grafo aninhado da Settings: lista → sub-telas (cor, dados físicos). */
@@ -34,6 +35,7 @@ fun NavGraphBuilder.settingsGraph(navController: NavController) {
                 onOpenPhysical = { navController.navigate(SettingsRoutes.PHYSICAL) },
                 onOpenGoal = { navController.navigate(SettingsRoutes.GOAL) },
                 onOpenTheme = { navController.navigate(SettingsRoutes.THEME) },
+                onOpenCustomGoals = { navController.navigate(SettingsRoutes.CUSTOM_GOALS) },
             )
         }
         composable(SettingsRoutes.COLOR) {
@@ -47,6 +49,9 @@ fun NavGraphBuilder.settingsGraph(navController: NavController) {
         }
         composable(SettingsRoutes.THEME) {
             ThemeSettingsScreen(onBack = { navController.popBackStack() })
+        }
+        composable(SettingsRoutes.CUSTOM_GOALS) {
+            CustomGoalsScreen(onBack = { navController.popBackStack() })
         }
     }
 }

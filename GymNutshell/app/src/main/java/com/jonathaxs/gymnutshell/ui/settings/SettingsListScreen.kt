@@ -24,12 +24,15 @@ fun SettingsListScreen(
     onOpenPhysical: () -> Unit,
     onOpenGoal: () -> Unit,
     onOpenTheme: () -> Unit,
+    onOpenCustomGoals: () -> Unit,
 ) {
     Scaffold(topBar = { SettingsTopBar(stringResource(R.string.tab_settings)) }) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
             SettingsRow(stringResource(R.string.settings_theme), onClick = onOpenTheme)
             HorizontalDivider()
             SettingsRow(stringResource(R.string.settings_accent_color), onClick = onOpenColor)
+            HorizontalDivider()
+            SettingsRow(stringResource(R.string.settings_custom_goals), onClick = onOpenCustomGoals)
             HorizontalDivider()
             SettingsRow(stringResource(R.string.settings_physical_data), onClick = onOpenPhysical)
             HorizontalDivider()

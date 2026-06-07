@@ -18,6 +18,9 @@ object DatabaseProvider {
                 context.applicationContext,
                 GymNutshellDatabase::class.java,
                 "gymnutshell.db",
-            ).build().also { instance = it }
+            )
+                // Em dev, recria o banco quando o schema muda (sem migração manual ainda).
+                .fallbackToDestructiveMigration(dropAllTables = true)
+                .build().also { instance = it }
         }
 }

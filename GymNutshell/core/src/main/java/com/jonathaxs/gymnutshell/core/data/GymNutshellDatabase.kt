@@ -9,11 +9,12 @@ import androidx.room.RoomDatabase
  * exportSchema=false por ora (ligamos export quando formos cuidar de migrações).
  */
 @Database(
-    entities = [DailyRecord::class, StreakBonus::class],
-    version = 1,
+    entities = [DailyRecord::class, StreakBonus::class, CustomGoal::class],
+    version = 2,
     exportSchema = false,
 )
 abstract class GymNutshellDatabase : RoomDatabase() {
     abstract fun dailyRecordDao(): DailyRecordDao
     abstract fun streakBonusDao(): StreakBonusDao
+    abstract fun customGoalDao(): CustomGoalDao
 }
