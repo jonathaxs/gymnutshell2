@@ -1,8 +1,10 @@
 package com.jonathaxs.gymnutshell.ui.today
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -11,13 +13,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -27,6 +33,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
@@ -38,6 +46,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.jonathaxs.gymnutshell.R
 import com.jonathaxs.gymnutshell.core.domain.GoalCategory
+import com.jonathaxs.gymnutshell.core.domain.ProgressColors
 import kotlin.math.roundToInt
 
 /** Tela "Hoje" — porte (MVP) da TodayView (iOS): header com % do dia + metas agrupadas por categoria. */
@@ -121,6 +130,7 @@ private fun CategoryHeader(section: TodayCategoryUi, onToggle: () -> Unit) {
 }
 
 /** Linha de uma meta: emoji, título, valor/alvo, slider e, quando aplicável, dia de descanso. */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun GoalRow(goal: TodayGoalUi, onSet: (Int) -> Unit, onToggleRest: () -> Unit) {
     // Metas custom já trazem o título; built-in resolvem via string resource.
@@ -131,6 +141,10 @@ private fun GoalRow(goal: TodayGoalUi, onSet: (Int) -> Unit, onToggleRest: () ->
     var sliderValue by remember(goal.key) { mutableFloatStateOf(goal.intake.toFloat()) }
     LaunchedEffect(goal.intake) { sliderValue = goal.intake.toFloat() }
     val shownValue = snapToIncrement(sliderValue, goal.increment, goal.target)
+
+    // Cor do slider segue o progresso da meta (vermelho→laranja→verde→ciano→azul), como no iOS.
+    val progressFraction = if (goal.target > 0) shownValue.toFloat() / goal.target else 0f
+    val sliderColor = Color(ProgressColors.ringArgb(progressFraction.toDouble()))
 
     Card {
         Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)) {
@@ -151,6 +165,20 @@ private fun GoalRow(goal: TodayGoalUi, onSet: (Int) -> Unit, onToggleRest: () ->
                     onValueChange = { sliderValue = it },
                     onValueChangeFinished = { onSet(snapToIncrement(sliderValue, goal.increment, goal.target)) },
                     valueRange = 0f..goal.target.toFloat().coerceAtLeast(1f),
+                    colors = SliderDefaults.colors(
+                        thumbColor = sliderColor,
+                        activeTrackColor = sliderColor,
+                        inactiveTrackColor = sliderColor.copy(alpha = 0.24f),
+                    ),
+                    // Thumb redondo (em vez da "barrinha" padrão do Material 3), como no iOS.
+                    thumb = {
+                        Box(
+                            Modifier
+                                .size(20.dp)
+                                .clip(CircleShape)
+                                .background(sliderColor),
+                        )
+                    },
                 )
             }
             // Toggle de dia de descanso (só metas de Treino).
