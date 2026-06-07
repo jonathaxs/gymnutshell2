@@ -62,6 +62,15 @@ fun TodayScreen(modifier: Modifier = Modifier, viewModel: TodayViewModel = viewM
                     }
                 }
             }
+            // Metas personalizadas sem categoria, no fim.
+            items(state.uncategorizedGoals, key = { it.key }) { goal ->
+                GoalRow(
+                    goal = goal,
+                    onMinus = { viewModel.decrement(goal) },
+                    onPlus = { viewModel.increment(goal) },
+                    onToggleRest = { viewModel.toggleRestDay(goal) },
+                )
+            }
         }
     }
 }
@@ -111,7 +120,8 @@ private fun CategoryHeader(section: TodayCategoryUi, onToggle: () -> Unit) {
 /** Linha de uma meta: emoji, título, valor/alvo, botões –/+ e, quando aplicável, dia de descanso. */
 @Composable
 private fun GoalRow(goal: TodayGoalUi, onMinus: () -> Unit, onPlus: () -> Unit, onToggleRest: () -> Unit) {
-    val title = stringResource(titleRes(goal.key))
+    // Metas custom já trazem o título; built-in resolvem via string resource.
+    val title = goal.title ?: stringResource(titleRes(goal.key))
     val restLabel = stringResource(R.string.rest_day)
     Card {
         Column(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp)) {

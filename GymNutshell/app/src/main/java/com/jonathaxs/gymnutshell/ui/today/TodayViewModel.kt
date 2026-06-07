@@ -3,6 +3,7 @@ package com.jonathaxs.gymnutshell.ui.today
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.jonathaxs.gymnutshell.core.data.CustomGoalRepository
 import com.jonathaxs.gymnutshell.core.data.DailyRecordRepository
 import com.jonathaxs.gymnutshell.core.data.IntakeRepository
 import com.jonathaxs.gymnutshell.core.data.ProfileRepository
@@ -38,6 +39,9 @@ data class TodayGoalUi(
     val target: Int,
     val isRestDay: Boolean = false,
     val supportsRestDay: Boolean = false,
+    val category: GoalCategory? = null,
+    /** Título já resolvido (metas custom); null = built-in (UI resolve via string). */
+    val title: String? = null,
 ) {
     // Em dia de descanso a meta conta como 100%, sem precisar de intake.
     val progress: Double get() = if (isRestDay) 1.0 else ProgressHelpers.normalizedProgress(intake, target)
@@ -57,6 +61,8 @@ data class TodayUiState(
     val tierEmoji: String = "🐓",
     val overallProgress: Float = 0f,
     val sections: List<TodayCategoryUi> = emptyList(),
+    /** Metas personalizadas sem categoria, exibidas no fim da lista. */
+    val uncategorizedGoals: List<TodayGoalUi> = emptyList(),
 )
 
 /**
@@ -71,6 +77,7 @@ class TodayViewModel(app: Application) : AndroidViewModel(app) {
     private val todayPrefs = TodayPreferencesRepository(app.applicationContext)
     private val recordRepo = DailyRecordRepository(app.applicationContext)
     private val settingsRepo = SettingsRepository(app.applicationContext)
+    private val customGoalRepo = CustomGoalRepository(app.applicationContext)
 
     init {
         viewModelScope.launch { rolloverIfNeeded() }
@@ -95,9 +102,12 @@ class TodayViewModel(app: Application) : AndroidViewModel(app) {
         val result = GoalsProvider.goals(effective)
         val theme = settingsRepo.theme.first()
         val restDays = intakeRepo.restDays.first()
+        val customGoals = customGoalRepo.all()
 
-        // 1) grava o último dia com os intakes que ficaram (emoji do tema + dias de descanso)
-        recordRepo.upsert(DailyRecordFactory.build(last, intakeRepo.intakes.first(), result, theme, restDays))
+        // 1) grava o último dia com os intakes que ficaram (tema + dias de descanso + metas custom)
+        recordRepo.upsert(
+            DailyRecordFactory.build(last, intakeRepo.intakes.first(), result, theme, restDays, customGoals),
+        )
         // 2) zera os intakes pro novo dia
         intakeRepo.resetAllIntakes()
         // 3) preenche dias perdidos (last+1 .. today-1) com Level1
@@ -124,35 +134,47 @@ class TodayViewModel(app: Application) : AndroidViewModel(app) {
 
     val uiState: StateFlow<TodayUiState> =
         combine(
-            profileRepo.profile,
+            combine(profileRepo.profile, customGoalRepo.goals) { profile, custom -> profile to custom },
             intakeRepo.intakes,
             todayPrefs.collapsedCategories,
             settingsRepo.theme,
             intakeRepo.restDays,
-        ) { profile, intakeMap, collapsed, theme, restDays ->
+        ) { (profile, customGoals), intakeMap, collapsed, theme, restDays ->
             // Enquanto não houver onboarding, usa um perfil-demo se nada foi salvo.
             val effective = if (profile.weightKg <= 0.0) DEMO_PROFILE else profile
-            val builtins = BuiltInGoals.forResult(GoalsProvider.goals(effective))
 
-            val allGoals = builtins.map { g ->
+            // Metas fixas.
+            val builtinGoals = BuiltInGoals.forResult(GoalsProvider.goals(effective)).map { g ->
+                val category = GoalCategory.defaultCategory(g.key)
                 TodayGoalUi(
-                    key = g.key,
-                    emoji = g.emoji,
-                    unit = g.unit,
-                    increment = g.increment,
-                    intake = intakeMap[g.key] ?: 0,
-                    target = g.target,
+                    key = g.key, emoji = g.emoji, unit = g.unit, increment = g.increment,
+                    intake = intakeMap[g.key] ?: 0, target = g.target,
                     isRestDay = g.key in restDays,
-                    // Só metas de Treino (workout/cardio) aceitam dia de descanso.
-                    supportsRestDay = GoalCategory.defaultCategory(g.key) == GoalCategory.Treino,
+                    supportsRestDay = category == GoalCategory.Treino,
+                    category = category,
                 )
             }
-            // Agrupa por categoria na ordem da GoalCategory (Essencial → Nutrição → Treino → Suplemento).
+            // Metas personalizadas (key "custom:<id>", título = nome).
+            val customGoalsUi = customGoals.map { c ->
+                val category = GoalCategory.fromRaw(c.categoryRaw)
+                TodayGoalUi(
+                    key = c.intakeKey, emoji = c.emoji, unit = c.unit, increment = c.increment,
+                    intake = intakeMap[c.intakeKey] ?: 0, target = c.target,
+                    isRestDay = c.intakeKey in restDays,
+                    supportsRestDay = category == GoalCategory.Treino,
+                    category = category,
+                    title = c.name,
+                )
+            }
+            val allGoals = builtinGoals + customGoalsUi
+
+            // Agrupa por categoria (Essencial → … → Suplemento); custom sem categoria vão no fim.
             val sections = GoalCategory.entries.mapNotNull { category ->
-                val goals = allGoals.filter { GoalCategory.defaultCategory(it.key) == category }
+                val goals = allGoals.filter { it.category == category }
                 if (goals.isEmpty()) null
                 else TodayCategoryUi(category, goals, collapsed = category.rawValue in collapsed)
             }
+            val uncategorized = allGoals.filter { it.category == null }
 
             val avg = if (allGoals.isEmpty()) 0.0 else allGoals.sumOf { it.progress } / allGoals.size
 
@@ -162,6 +184,7 @@ class TodayViewModel(app: Application) : AndroidViewModel(app) {
                 tierEmoji = theme.emoji(DailyAchievement.from(avg)),
                 overallProgress = avg.toFloat(),
                 sections = sections,
+                uncategorizedGoals = uncategorized,
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), TodayUiState())
 

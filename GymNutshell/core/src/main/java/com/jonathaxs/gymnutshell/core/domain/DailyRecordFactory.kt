@@ -1,5 +1,6 @@
 package com.jonathaxs.gymnutshell.core.domain
 
+import com.jonathaxs.gymnutshell.core.data.CustomGoal
 import com.jonathaxs.gymnutshell.core.data.DailyRecord
 import kotlin.math.floor
 
@@ -17,13 +18,15 @@ object DailyRecordFactory {
         result: GoalsCalculator.Result,
         theme: AppTheme,
         restDays: Set<String> = emptySet(),
+        customGoals: List<CustomGoal> = emptyList(),
     ): DailyRecord {
-        val goals = BuiltInGoals.forResult(result)
         // Meta em dia de descanso conta como 100% (1.0), sem precisar de intake.
-        val avg = if (goals.isEmpty()) 0.0
-        else goals.sumOf { g ->
-            if (g.key in restDays) 1.0 else ProgressHelpers.normalizedProgress(intakes[g.key] ?: 0, g.target)
-        } / goals.size
+        fun progress(key: String, target: Int): Double =
+            if (key in restDays) 1.0 else ProgressHelpers.normalizedProgress(intakes[key] ?: 0, target)
+
+        val progresses = BuiltInGoals.forResult(result).map { progress(it.key, it.target) } +
+            customGoals.map { progress(it.intakeKey, it.target) }
+        val avg = if (progresses.isEmpty()) 0.0 else progresses.average()
         val tier = DailyAchievement.from(avg)
 
         return DailyRecord(
