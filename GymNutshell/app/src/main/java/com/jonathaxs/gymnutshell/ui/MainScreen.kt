@@ -1,7 +1,10 @@
 package com.jonathaxs.gymnutshell.ui
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.DateRange
@@ -15,8 +18,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -83,15 +88,21 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
             }
         },
     ) { innerPadding ->
-        NavHost(
-            navController = navController,
-            startDestination = MainTab.Today.route,
-            modifier = Modifier.padding(innerPadding),
+        // Em telas largas (tablet/landscape), limita o conteúdo a 600dp e centraliza.
+        Box(
+            modifier = Modifier.fillMaxSize().padding(innerPadding),
+            contentAlignment = Alignment.TopCenter,
         ) {
-            composable(MainTab.Today.route) { TodayScreen() }
-            composable(MainTab.Achievements.route) { AchievementsScreen() }
-            composable(MainTab.Progress.route) { ProgressScreen() }
-            settingsGraph(navController)
+            NavHost(
+                navController = navController,
+                startDestination = MainTab.Today.route,
+                modifier = Modifier.widthIn(max = 600.dp).fillMaxSize(),
+            ) {
+                composable(MainTab.Today.route) { TodayScreen() }
+                composable(MainTab.Achievements.route) { AchievementsScreen() }
+                composable(MainTab.Progress.route) { ProgressScreen() }
+                settingsGraph(navController)
+            }
         }
     }
 }
