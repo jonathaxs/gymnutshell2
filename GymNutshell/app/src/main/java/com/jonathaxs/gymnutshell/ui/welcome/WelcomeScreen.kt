@@ -18,6 +18,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -28,10 +31,14 @@ import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -39,16 +46,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.jonathaxs.gymnutshell.R
+import com.jonathaxs.gymnutshell.core.domain.AppDateFormatters
 import com.jonathaxs.gymnutshell.core.domain.AppTheme
 import com.jonathaxs.gymnutshell.core.domain.GoalsCalculator
 import com.jonathaxs.gymnutshell.core.domain.GoalsProvider
 import com.jonathaxs.gymnutshell.core.domain.Profile
 import com.jonathaxs.gymnutshell.core.domain.ThemeCategory
 import com.jonathaxs.gymnutshell.core.domain.UserGoal
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneOffset
+
+/** Nascimento padrão exibido até o usuário escolher (≈ 2001-01-01 do iOS). */
+private val DEFAULT_BIRTHDAY: LocalDate = LocalDate.of(2001, 1, 1)
 
 /** Etapas do onboarding — porte de WelcomeStep (iOS). */
 private enum class WelcomeStep(val emoji: String, @param:StringRes val titleRes: Int) {
@@ -66,25 +79,25 @@ fun WelcomeScreen(viewModel: WelcomeViewModel = viewModel()) {
     var stepIndex by rememberSaveable { mutableIntStateOf(0) }
     val step = steps[stepIndex]
 
-    var name by rememberSaveable { mutableStateOf("") }
     var weight by rememberSaveable { mutableStateOf("") }
     var height by rememberSaveable { mutableStateOf("") }
-    var age by rememberSaveable { mutableStateOf("") }
     var sex by rememberSaveable { mutableStateOf("male") }
+    var birthdayEpochDay by rememberSaveable { mutableLongStateOf(DEFAULT_BIRTHDAY.toEpochDay()) }
     var goalOrdinal by rememberSaveable { mutableIntStateOf(UserGoal.Maintenance.ordinal) }
     var themeOrdinal by rememberSaveable { mutableIntStateOf(AppTheme.Gym.ordinal) }
 
     val goal = UserGoal.entries[goalOrdinal]
     val theme = AppTheme.entries[themeOrdinal]
+    val birthday = LocalDate.ofEpochDay(birthdayEpochDay)
     val profile = Profile(
-        name = name.trim(),
+        name = "",
         weightKg = weight.toDoubleOrNull() ?: 0.0,
         heightCm = height.toIntOrNull() ?: 0,
-        age = age.toIntOrNull() ?: 0,
+        age = Profile.age(birthday),
         sex = sex,
         goal = goal,
     )
-    val physicalValid = profile.weightKg > 0 && profile.heightCm > 0 && profile.age > 0
+    val physicalValid = profile.weightKg > 0 && profile.heightCm > 0
 
     Scaffold { padding ->
         Column(Modifier.fillMaxSize().padding(padding).padding(24.dp)) {
@@ -93,7 +106,6 @@ fun WelcomeScreen(viewModel: WelcomeViewModel = viewModel()) {
                 modifier = Modifier.fillMaxWidth(),
             )
             Spacer(Modifier.height(16.dp))
-            // Cabeçalho da etapa
             Text(step.emoji, style = MaterialTheme.typography.displaySmall)
             Text(
                 stringResource(step.titleRes),
@@ -107,9 +119,9 @@ fun WelcomeScreen(viewModel: WelcomeViewModel = viewModel()) {
                     WelcomeStep.Start -> StartStep()
                     WelcomeStep.Goal -> GoalStep(goal) { goalOrdinal = it.ordinal }
                     WelcomeStep.Physical -> PhysicalStep(
-                        name, weight, height, age, sex,
-                        onName = { name = it }, onWeight = { weight = it },
-                        onHeight = { height = it }, onAge = { age = it }, onSex = { sex = it },
+                        weight = weight, height = height, sex = sex, birthday = birthday,
+                        onWeight = { weight = it }, onHeight = { height = it }, onSex = { sex = it },
+                        onBirthday = { birthdayEpochDay = it.toEpochDay() },
                     )
                     WelcomeStep.Theme -> ThemeStep(theme) { themeOrdinal = it.ordinal }
                     WelcomeStep.Summary -> SummaryStep(GoalsProvider.goals(profile), theme)
@@ -160,29 +172,17 @@ private fun GoalStep(selected: UserGoal, onSelect: (UserGoal) -> Unit) {
 
 @Composable
 private fun PhysicalStep(
-    name: String, weight: String, height: String, age: String, sex: String,
-    onName: (String) -> Unit, onWeight: (String) -> Unit, onHeight: (String) -> Unit,
-    onAge: (String) -> Unit, onSex: (String) -> Unit,
+    weight: String, height: String, sex: String, birthday: LocalDate,
+    onWeight: (String) -> Unit, onHeight: (String) -> Unit, onSex: (String) -> Unit,
+    onBirthday: (LocalDate) -> Unit,
 ) {
     Column(
         Modifier.fillMaxSize().verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        OutlinedTextField(name, onName, label = { Text(stringResource(R.string.field_name)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
-        OutlinedTextField(
-            weight, onWeight, label = { Text(stringResource(R.string.field_weight_kg)) }, singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal), modifier = Modifier.fillMaxWidth(),
-        )
-        OutlinedTextField(
-            height, onHeight, label = { Text(stringResource(R.string.field_height_cm)) }, singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), modifier = Modifier.fillMaxWidth(),
-        )
-        OutlinedTextField(
-            age, onAge, label = { Text(stringResource(R.string.field_age)) }, singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), modifier = Modifier.fillMaxWidth(),
-        )
+        // Sexo primeiro (Female · Male · Do not inform).
         Text(stringResource(R.string.field_sex), style = MaterialTheme.typography.labelLarge)
-        val sexes = listOf("male" to R.string.sex_male, "female" to R.string.sex_female, "other" to R.string.sex_other)
+        val sexes = listOf("female" to R.string.sex_female, "male" to R.string.sex_male, "other" to R.string.sex_other)
         SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
             sexes.forEachIndexed { index, (value, labelRes) ->
                 SegmentedButton(
@@ -191,6 +191,54 @@ private fun PhysicalStep(
                     shape = SegmentedButtonDefaults.itemShape(index, sexes.size),
                 ) { Text(stringResource(labelRes)) }
             }
+        }
+        OutlinedTextField(
+            weight, onWeight, label = { Text(stringResource(R.string.field_weight_kg)) }, singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal), modifier = Modifier.fillMaxWidth(),
+        )
+        OutlinedTextField(
+            height, onHeight, label = { Text(stringResource(R.string.field_height_cm)) }, singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), modifier = Modifier.fillMaxWidth(),
+        )
+        BirthdayField(birthday, onBirthday)
+    }
+}
+
+/** Campo de nascimento: abre o DatePicker do Material 3; a idade é derivada da data. */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun BirthdayField(birthday: LocalDate, onBirthday: (LocalDate) -> Unit) {
+    var show by remember { mutableStateOf(false) }
+    Box {
+        OutlinedTextField(
+            value = AppDateFormatters.mediumDate(birthday),
+            onValueChange = {},
+            readOnly = true,
+            label = { Text(stringResource(R.string.field_birthday)) },
+            modifier = Modifier.fillMaxWidth(),
+        )
+        // Overlay clicável (o TextField readOnly não recebe clique sozinho).
+        Box(Modifier.matchParentSize().clickable { show = true })
+    }
+    if (show) {
+        val state = rememberDatePickerState(
+            initialSelectedDateMillis = birthday.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli(),
+        )
+        DatePickerDialog(
+            onDismissRequest = { show = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    state.selectedDateMillis?.let {
+                        onBirthday(Instant.ofEpochMilli(it).atZone(ZoneOffset.UTC).toLocalDate())
+                    }
+                    show = false
+                }) { Text(stringResource(R.string.action_ok)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { show = false }) { Text(stringResource(R.string.action_cancel)) }
+            },
+        ) {
+            DatePicker(state = state)
         }
     }
 }

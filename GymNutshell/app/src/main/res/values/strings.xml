@@ -92,7 +92,10 @@
     <string name="cd_delete">Delete</string>
     <string name="sex_male">Male</string>
     <string name="sex_female">Female</string>
-    <string name="sex_other">Other</string>
+    <string name="sex_other">Do not inform</string>
+    <string name="field_birthday">Birthday</string>
+    <string name="action_ok">OK</string>
+    <string name="action_cancel">Cancel</string>
     <string name="goal_bulking">Bulking</string>
     <string name="goal_maintenance">Maintenance</string>
     <string name="goal_cutting">Cutting</string>

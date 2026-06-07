@@ -75,7 +75,7 @@ fun PhysicalDataSection(profile: Profile, onSave: (Profile) -> Unit) {
         )
 
         Text(stringResource(R.string.field_sex), style = MaterialTheme.typography.labelLarge)
-        val sexes = listOf("male" to R.string.sex_male, "female" to R.string.sex_female, "other" to R.string.sex_other)
+        val sexes = listOf("female" to R.string.sex_female, "male" to R.string.sex_male, "other" to R.string.sex_other)
         SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
             sexes.forEachIndexed { index, (value, labelRes) ->
                 SegmentedButton(
