@@ -28,6 +28,17 @@ class NotificationPreferencesRepository(private val context: Context) {
 
     // MARK: - Kind fixo
 
+    /**
+     * Todos os estados de "habilitado" num Flow só (pra tela de Ajustes reagir de uma vez).
+     * Chave = sufixo após "notifications.enabled." (ex.: "water", "custom.3").
+     */
+    val enabledStates: Flow<Map<String, Boolean>> = context.appPreferences.data.map { prefs ->
+        prefs.asMap()
+            .filter { (key, value) -> key.name.startsWith(ENABLED_PREFIX) && value is Boolean }
+            .map { (key, value) -> key.name.removePrefix(ENABLED_PREFIX) to (value as Boolean) }
+            .toMap()
+    }
+
     /** Se o kind está ativo (Flow reativo pra UI). */
     fun isEnabledFlow(kind: NotificationKind): Flow<Boolean> =
         context.appPreferences.data.map { it[enabledKey(kind)] ?: false }
@@ -146,4 +157,8 @@ class NotificationPreferencesRepository(private val context: Context) {
     private fun customIntervalKey(id: Long) = intPreferencesKey("notifications.intervalMinutes.custom.$id")
     private fun customSoundKey(id: Long) = stringPreferencesKey("notifications.sound.custom.$id")
     private val defaultsAppliedKey = booleanPreferencesKey("notifications.defaultsApplied")
+
+    private companion object {
+        const val ENABLED_PREFIX = "notifications.enabled."
+    }
 }

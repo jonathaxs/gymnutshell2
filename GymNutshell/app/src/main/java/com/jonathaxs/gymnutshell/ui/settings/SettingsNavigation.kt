@@ -11,8 +11,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
+import androidx.navigation.navArgument
 import com.jonathaxs.gymnutshell.R
 
 /** Rotas da Settings. GRAPH casa com o route da aba (MainTab.Settings). */
@@ -25,6 +27,8 @@ object SettingsRoutes {
     const val THEME = "settings_theme"
     const val CUSTOM_GOALS = "settings_custom_goals"
     const val UNITS = "settings_units"
+    const val NOTIFICATIONS = "settings_notifications"
+    const val NOTIF_EDIT = "settings_notif_edit" // + "/{target}"
 }
 
 /** Grafo aninhado da Settings: lista → sub-telas (cor, dados físicos). */
@@ -38,6 +42,7 @@ fun NavGraphBuilder.settingsGraph(navController: NavController) {
                 onOpenTheme = { navController.navigate(SettingsRoutes.THEME) },
                 onOpenCustomGoals = { navController.navigate(SettingsRoutes.CUSTOM_GOALS) },
                 onOpenUnits = { navController.navigate(SettingsRoutes.UNITS) },
+                onOpenNotifications = { navController.navigate(SettingsRoutes.NOTIFICATIONS) },
             )
         }
         composable(SettingsRoutes.COLOR) {
@@ -57,6 +62,21 @@ fun NavGraphBuilder.settingsGraph(navController: NavController) {
         }
         composable(SettingsRoutes.UNITS) {
             MeasurementScreen(onBack = { navController.popBackStack() })
+        }
+        composable(SettingsRoutes.NOTIFICATIONS) {
+            NotificationsSettingsScreen(
+                onBack = { navController.popBackStack() },
+                onEditTarget = { target -> navController.navigate("${SettingsRoutes.NOTIF_EDIT}/$target") },
+            )
+        }
+        composable(
+            route = "${SettingsRoutes.NOTIF_EDIT}/{target}",
+            arguments = listOf(navArgument("target") { type = NavType.StringType }),
+        ) { entry ->
+            NotificationIntervalEditScreen(
+                target = entry.arguments?.getString("target").orEmpty(),
+                onBack = { navController.popBackStack() },
+            )
         }
     }
 }

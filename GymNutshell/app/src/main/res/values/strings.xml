@@ -222,6 +222,19 @@
     <string name="notif_kind_cardio_footer">Periodic reminders stop once you hit your cardio goal.</string>
     <string name="notif_kind_creatine_footer">Periodic reminders stop once you log today\'s dose.</string>
 
+    <!-- Notificações: tela de Ajustes -->
+    <string name="settings_notifications">Notifications</string>
+    <string name="settings_notifications_section_system">System</string>
+    <string name="settings_notifications_section_goals">Goals</string>
+    <string name="settings_notifications_section_custom">Custom goals</string>
+    <string name="settings_notifications_authorize_button">Enable notifications</string>
+    <string name="settings_notifications_authorize_footer">Allow notifications to receive Gym Nutshell reminders. If you denied them before, enable in system settings.</string>
+    <string name="settings_notifications_interval_header">Interval between notifications</string>
+    <string name="settings_notifications_interval_value">Every %d min</string>
+    <string name="settings_notifications_sound_header">Sound</string>
+    <string name="settings_notifications_sound_footer">Default plays the channel\'s sound; Silent posts without sound. You can fine-tune each channel in system settings.</string>
+    <string name="cd_open_notification_settings">Open notification settings for %s</string>
+
     <!-- Notificações: metas personalizadas -->
     <string name="notif_custom_desc">Reminders to meet today\'s goal.</string>
     <string name="notif_custom_body">Time to log %s, keep moving toward today\'s goal.</string>
