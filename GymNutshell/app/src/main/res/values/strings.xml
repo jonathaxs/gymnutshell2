@@ -235,6 +235,15 @@
     <string name="settings_notifications_sound_footer">Default plays the channel\'s sound; Silent posts without sound. You can fine-tune each channel in system settings.</string>
     <string name="cd_open_notification_settings">Open notification settings for %s</string>
 
+    <!-- Notificações: histórico -->
+    <string name="notif_history_title">Notification history</string>
+    <string name="notif_history_today">Today</string>
+    <string name="notif_history_yesterday">Yesterday</string>
+    <string name="notif_history_empty_title">No notifications yet</string>
+    <string name="notif_history_empty_desc">Event reminders from the last 3 days show up here.</string>
+    <string name="notif_history_clear">Clear</string>
+    <string name="cd_notification_history">Notification history</string>
+
     <!-- Notificações: metas personalizadas -->
     <string name="notif_custom_desc">Reminders to meet today\'s goal.</string>
     <string name="notif_custom_body">Time to log %s, keep moving toward today\'s goal.</string>

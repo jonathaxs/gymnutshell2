@@ -11,10 +11,14 @@ import com.jonathaxs.gymnutshell.ui.welcome.WelcomeScreen
 
 /** Raiz do app: mostra o Welcome no primeiro uso, ou o app principal depois (reativo à flag). */
 @Composable
-fun RootScreen(viewModel: RootViewModel = viewModel()) {
+fun RootScreen(
+    viewModel: RootViewModel = viewModel(),
+    pendingRoute: String? = null,
+    onRouteConsumed: () -> Unit = {},
+) {
     val onboarded by viewModel.onboarded.collectAsStateWithLifecycle()
     when (onboarded) {
-        true -> MainScreen()
+        true -> MainScreen(pendingRoute = pendingRoute, onRouteConsumed = onRouteConsumed)
         false -> WelcomeScreen()
         null -> Box(Modifier.fillMaxSize()) {} // carregando a flag
     }

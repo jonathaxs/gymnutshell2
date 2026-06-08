@@ -1,6 +1,7 @@
 package com.jonathaxs.gymnutshell
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -8,16 +9,23 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.jonathaxs.gymnutshell.core.data.NotificationPreferencesRepository
+import com.jonathaxs.gymnutshell.notifications.GymNotifier
 import com.jonathaxs.gymnutshell.notifications.NotificationScheduler
 import com.jonathaxs.gymnutshell.ui.RootScreen
 import com.jonathaxs.gymnutshell.ui.theme.GymNutshellTheme
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
+
+    // Rota pendente vinda do toque numa notificação (deep-link), observada pelo Compose.
+    private var pendingRoute by mutableStateOf<String?>(null)
 
     // Resultado do pedido de permissão de notificações (Android 13+). Ao conceder, aplica os defaults.
     private val requestNotificationsPermission =
@@ -29,11 +37,22 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         maybeRequestNotificationsPermission()
+        pendingRoute = intent?.getStringExtra(GymNotifier.EXTRA_ROUTE)
         setContent {
             GymNutshellTheme {
-                RootScreen()
+                RootScreen(
+                    pendingRoute = pendingRoute,
+                    onRouteConsumed = { pendingRoute = null },
+                )
             }
         }
+    }
+
+    // App já aberto (launchMode singleTop): captura a rota do novo Intent.
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        pendingRoute = intent.getStringExtra(GymNotifier.EXTRA_ROUTE)
     }
 
     /**

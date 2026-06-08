@@ -11,6 +11,7 @@ import androidx.core.app.NotificationManagerCompat
 import com.jonathaxs.gymnutshell.MainActivity
 import com.jonathaxs.gymnutshell.R
 import com.jonathaxs.gymnutshell.core.data.CustomGoal
+import com.jonathaxs.gymnutshell.core.data.NotificationHistoryRepository
 import com.jonathaxs.gymnutshell.core.data.NotificationPreferencesRepository
 import com.jonathaxs.gymnutshell.core.domain.NotificationKind
 import com.jonathaxs.gymnutshell.core.domain.NotificationRoute
@@ -36,60 +37,55 @@ class GymNotifier(context: Context) {
     private val appContext = context.applicationContext
     private val manager = NotificationManagerCompat.from(appContext)
     private val prefs = NotificationPreferencesRepository(appContext)
+    private val history = NotificationHistoryRepository(appContext)
 
     // MARK: - Eventos
 
     /** Conquista do dia ("Você terminou o dia como …"). Porte de fireAchievementUnlocked (iOS). */
     suspend fun fireAchievementUnlocked(tierName: String, emoji: String, achievementEpochDay: Long?) {
-        if (!prefs.isEnabled(NotificationKind.Achievement)) return
-        post(
-            kind = NotificationKind.Achievement,
-            title = appContext.getString(R.string.notif_kind_achievement_title),
-            body = appContext.getString(R.string.notif_event_achievement_body, emoji, tierName),
-            achievementEpochDay = achievementEpochDay,
-            sound = prefs.sound(NotificationKind.Achievement),
-        )
+        val kind = NotificationKind.Achievement
+        if (!prefs.isEnabled(kind)) return
+        val title = appContext.getString(R.string.notif_kind_achievement_title)
+        val body = appContext.getString(R.string.notif_event_achievement_body, emoji, tierName)
+        post(kind, title, body, achievementEpochDay, prefs.sound(kind))
+        history.append(kind.rawValue, title, body, kind.route.rawValue, achievementEpochDay)
     }
 
     /** Bônus de sequência (semanal/mensal). Porte de fireStreakBonus (iOS). */
     suspend fun fireStreakBonus(emoji: String, points: Int) {
-        if (!prefs.isEnabled(NotificationKind.StreakBonus)) return
-        post(
-            kind = NotificationKind.StreakBonus,
-            title = appContext.getString(R.string.notif_kind_streak_title),
-            body = appContext.getString(R.string.notif_event_streak_body, emoji, points),
-            sound = prefs.sound(NotificationKind.StreakBonus),
-        )
+        val kind = NotificationKind.StreakBonus
+        if (!prefs.isEnabled(kind)) return
+        val title = appContext.getString(R.string.notif_kind_streak_title)
+        val body = appContext.getString(R.string.notif_event_streak_body, emoji, points)
+        post(kind, title, body, sound = prefs.sound(kind))
+        history.append(kind.rawValue, title, body, kind.route.rawValue)
     }
 
     enum class HealthLogKind { Cardio, Workout, Sleep }
 
     /** Confirmação de dado sincronizado do Health Connect. Porte de fireHealthLogged (iOS). */
     suspend fun fireHealthLogged(kind: HealthLogKind, value: Int, activityName: String? = null) {
-        if (!prefs.isEnabled(NotificationKind.HealthSync)) return
+        val notifKind = NotificationKind.HealthSync
+        if (!prefs.isEnabled(notifKind)) return
         val activity = activityName ?: appContext.getString(R.string.health_activity_other)
         val body = when (kind) {
             HealthLogKind.Cardio -> appContext.getString(R.string.notif_event_health_body_cardio, value, activity)
             HealthLogKind.Workout -> appContext.getString(R.string.notif_event_health_body_workout, value, activity)
             HealthLogKind.Sleep -> appContext.getString(R.string.notif_event_health_body_sleep, value)
         }
-        post(
-            kind = NotificationKind.HealthSync,
-            title = appContext.getString(R.string.notif_kind_health_title),
-            body = body,
-            sound = prefs.sound(NotificationKind.HealthSync),
-        )
+        val title = appContext.getString(R.string.notif_kind_health_title)
+        post(notifKind, title, body, sound = prefs.sound(notifKind))
+        history.append(notifKind.rawValue, title, body, notifKind.route.rawValue)
     }
 
     /** Backup concluído. Porte de fireBackupCompleted (iOS). */
     suspend fun fireBackupCompleted() {
-        if (!prefs.isEnabled(NotificationKind.Backup)) return
-        post(
-            kind = NotificationKind.Backup,
-            title = appContext.getString(R.string.notif_kind_backup_title),
-            body = appContext.getString(R.string.notif_event_backup_body),
-            sound = prefs.sound(NotificationKind.Backup),
-        )
+        val kind = NotificationKind.Backup
+        if (!prefs.isEnabled(kind)) return
+        val title = appContext.getString(R.string.notif_kind_backup_title)
+        val body = appContext.getString(R.string.notif_event_backup_body)
+        post(kind, title, body, sound = prefs.sound(kind))
+        history.append(kind.rawValue, title, body, kind.route.rawValue)
     }
 
     // MARK: - Lembretes por intervalo (agendados via WorkManager, fatia 5A-3)
@@ -97,25 +93,20 @@ class GymNotifier(context: Context) {
     /** Lembrete recorrente de um kind fixo (água, proteína, …). Postado pelo ReminderWorker. */
     suspend fun postReminder(kind: NotificationKind) {
         val sound = prefs.sound(kind)
-        postRaw(
-            channelId = ensureChannel(kind, sound),
-            title = appContext.getString(NotificationStrings.titleRes(kind)),
-            body = appContext.getString(NotificationStrings.bodyRes(kind)),
-            route = kind.route,
-            sound = sound,
-        )
+        val title = appContext.getString(NotificationStrings.titleRes(kind))
+        val body = appContext.getString(NotificationStrings.bodyRes(kind))
+        postRaw(ensureChannel(kind, sound), title, body, kind.route, sound = sound)
+        history.append(kind.rawValue, title, body, kind.route.rawValue)
     }
 
     /** Lembrete recorrente de uma meta personalizada. Postado pelo ReminderWorker. */
     suspend fun postCustomReminder(goal: CustomGoal) {
         val sound = prefs.customSound(goal.id)
-        postRaw(
-            channelId = ensureCustomChannel(goal, sound),
-            title = "${goal.emoji} ${goal.name}",
-            body = appContext.getString(R.string.notif_custom_body, goal.name),
-            route = NotificationRoute.Today,
-            sound = sound,
-        )
+        val title = "${goal.emoji} ${goal.name}"
+        val body = appContext.getString(R.string.notif_custom_body, goal.name)
+        postRaw(ensureCustomChannel(goal, sound), title, body, NotificationRoute.Today, sound = sound)
+        // kindRaw "custom" não resolve pra um NotificationKind (ícone cai no sino; o emoji já vai no título).
+        history.append("custom", title, body, NotificationRoute.Today.rawValue)
     }
 
     // MARK: - Núcleo de postagem

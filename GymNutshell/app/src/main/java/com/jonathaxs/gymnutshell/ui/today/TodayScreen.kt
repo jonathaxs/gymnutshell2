@@ -21,6 +21,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
@@ -51,10 +52,21 @@ import kotlin.math.roundToInt
 
 /** Tela "Hoje" — porte (MVP) da TodayView (iOS): header com % do dia + metas agrupadas por categoria. */
 @Composable
-fun TodayScreen(modifier: Modifier = Modifier, viewModel: TodayViewModel = viewModel()) {
+fun TodayScreen(
+    modifier: Modifier = Modifier,
+    onOpenHistory: () -> Unit = {},
+    viewModel: TodayViewModel = viewModel(),
+) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val historyDesc = stringResource(R.string.cd_notification_history)
 
     Column(modifier.fillMaxSize()) {
+        // Sino que abre o histórico de notificações (porte do botão na TodayHeroView do iOS).
+        Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp), horizontalArrangement = Arrangement.End) {
+            IconButton(onClick = onOpenHistory, modifier = Modifier.semantics { contentDescription = historyDesc }) {
+                Text("🔔", style = MaterialTheme.typography.titleLarge)
+            }
+        }
         TodayHeader(state)
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
