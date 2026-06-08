@@ -105,6 +105,17 @@ class NotificationPreferencesRepository(private val context: Context) {
     // MARK: - Defaults do onboarding
 
     /**
+     * Aplica os defaults só uma vez no app (guardado por flag) — chamado no primeiro grant de
+     * permissão. Evita resobrescrever as escolhas do usuário em grants seguintes.
+     */
+    suspend fun applyDefaultEnabledKindsOnce() {
+        val already = context.appPreferences.data.first()[defaultsAppliedKey] ?: false
+        if (already) return
+        applyDefaultEnabledKinds()
+        context.appPreferences.edit { it[defaultsAppliedKey] = true }
+    }
+
+    /**
      * Aplica os kinds ligados por padrão na primeira autorização — porte de applyDefaultEnabledKinds (iOS).
      * Liga Progresso, Conquista, Bônus e Água; deixa o resto desligado.
      */
@@ -134,4 +145,5 @@ class NotificationPreferencesRepository(private val context: Context) {
     private fun customEnabledKey(id: Long) = booleanPreferencesKey("notifications.enabled.custom.$id")
     private fun customIntervalKey(id: Long) = intPreferencesKey("notifications.intervalMinutes.custom.$id")
     private fun customSoundKey(id: Long) = stringPreferencesKey("notifications.sound.custom.$id")
+    private val defaultsAppliedKey = booleanPreferencesKey("notifications.defaultsApplied")
 }

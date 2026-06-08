@@ -1,0 +1,11 @@
+<!-- Ícone pequeno da notificação: halter branco monocromático (a barra + 4 anilhas).
+     A status bar tinge automaticamente; por isso fica chapado em branco. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M7,11 H17 V13 H7 Z M5,8 H7 V16 H5 Z M17,8 H19 V16 H17 Z M3,10 H5 V14 H3 Z M19,10 H21 V14 H19 Z" />
+</vector>

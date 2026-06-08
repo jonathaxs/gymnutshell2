@@ -3,6 +3,8 @@ package com.jonathaxs.gymnutshell.ui.today
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.jonathaxs.gymnutshell.R
+import com.jonathaxs.gymnutshell.notifications.GymNotifier
 import com.jonathaxs.gymnutshell.core.data.CustomGoalRepository
 import com.jonathaxs.gymnutshell.core.data.DailyRecordRepository
 import com.jonathaxs.gymnutshell.core.data.IntakeRepository
@@ -83,6 +85,7 @@ class TodayViewModel(app: Application) : AndroidViewModel(app) {
     private val recordRepo = DailyRecordRepository(app.applicationContext)
     private val settingsRepo = SettingsRepository(app.applicationContext)
     private val customGoalRepo = CustomGoalRepository(app.applicationContext)
+    private val notifier = GymNotifier(app.applicationContext)
 
     init {
         viewModelScope.launch { rolloverIfNeeded() }
@@ -110,9 +113,12 @@ class TodayViewModel(app: Application) : AndroidViewModel(app) {
         val customGoals = customGoalRepo.all()
 
         // 1) grava o último dia com os intakes que ficaram (tema + dias de descanso + metas custom)
-        recordRepo.upsert(
-            DailyRecordFactory.build(last, intakeRepo.intakes.first(), result, theme, restDays, customGoals),
-        )
+        val finalized = DailyRecordFactory.build(last, intakeRepo.intakes.first(), result, theme, restDays, customGoals)
+        recordRepo.upsert(finalized)
+        // Notifica a conquista do dia que virou (porte da notificação de meia-noite do iOS).
+        val tier = DailyAchievement.from(finalized.percent / 100.0)
+        val tierName = getApplication<Application>().getString(R.string.notification_tier_level, tier.ordinal + 1)
+        notifier.fireAchievementUnlocked(tierName, finalized.achievementEmoji, last)
         // 2) zera os intakes pro novo dia
         intakeRepo.resetAllIntakes()
         // 3) preenche dias perdidos (last+1 .. today-1) com Level1
@@ -134,6 +140,8 @@ class TodayViewModel(app: Application) : AndroidViewModel(app) {
                     bonusEmoji = award.emoji,
                 ),
             )
+            // Notifica cada bônus de sequência conquistado (porte de fireStreakBonus do iOS).
+            notifier.fireStreakBonus(award.emoji, award.points)
         }
     }
 

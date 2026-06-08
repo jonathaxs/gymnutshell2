@@ -10,9 +10,6 @@ enum class NotificationSound(val rawValue: String) {
     Default("default"),
     Silent("silent");
 
-    /** Chave de localização do nome exibido na UI (strings.xml). */
-    val titleKey: String get() = "notifications.sound.$rawValue"
-
     companion object {
         /** Resolve a partir do rawValue persistido; cai pra Default se inválido. */
         fun fromRaw(raw: String?): NotificationSound = entries.firstOrNull { it.rawValue == raw } ?: Default

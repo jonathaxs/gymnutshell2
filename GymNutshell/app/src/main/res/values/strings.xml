@@ -141,4 +141,89 @@
     <string name="theme_celestial">Celestial</string>
     <string name="theme_champion">Champion</string>
     <string name="theme_number">Number</string>
+
+    <!-- Notificações: grupos de canais (espelham as seções de Ajustes) -->
+    <string name="notif_group_reminders">Reminders</string>
+    <string name="notif_group_system">System</string>
+
+    <!-- Notificações: som -->
+    <string name="notif_sound_default">Default</string>
+    <string name="notif_sound_silent">Silent</string>
+
+    <!-- Notificações: tier (placeholder até nomes localizados) e atividade de saúde -->
+    <string name="notification_tier_level">Level %d</string>
+    <string name="health_activity_other">Exercise</string>
+
+    <!-- Notificações: títulos por kind (também viram o nome do canal) -->
+    <string name="notif_kind_progress_title">Progress</string>
+    <string name="notif_kind_achievement_title">Daily achievement</string>
+    <string name="notif_kind_streak_title">Streak bonus</string>
+    <string name="notif_kind_health_title">Health Connect</string>
+    <string name="notif_kind_backup_title">Backup</string>
+    <string name="notif_kind_sleep_title">Sleep</string>
+    <string name="notif_kind_water_title">Water</string>
+    <string name="notif_kind_calories_title">Calories</string>
+    <string name="notif_kind_protein_title">Protein</string>
+    <string name="notif_kind_carbs_title">Carbs</string>
+    <string name="notif_kind_goodfat_title">Good Fats</string>
+    <string name="notif_kind_fiber_title">Fiber</string>
+    <string name="notif_kind_workout_title">Strength</string>
+    <string name="notif_kind_cardio_title">Cardio</string>
+    <string name="notif_kind_creatine_title">Creatine</string>
+
+    <!-- Notificações: descrições (lista de Ajustes + descrição do canal) -->
+    <string name="notif_kind_progress_desc">How much is left to your next daily achievement.</string>
+    <string name="notif_kind_achievement_desc">Notifies the achievement you finished the day with.</string>
+    <string name="notif_kind_streak_desc">Alerts when you earn a weekly or monthly bonus.</string>
+    <string name="notif_kind_health_desc">Confirms entries synced with Health Connect.</string>
+    <string name="notif_kind_backup_desc">Confirms each automatic backup.</string>
+    <string name="notif_kind_sleep_desc">Suggests a nap when you haven\'t hit your sleep goal (only between 10 AM and 7 PM).</string>
+    <string name="notif_kind_water_desc">Reminders to drink a glass of water until you hit your daily goal.</string>
+    <string name="notif_kind_calories_desc">Reminders to meet your daily calorie goal.</string>
+    <string name="notif_kind_protein_desc">Reminders to meet your daily protein goal.</string>
+    <string name="notif_kind_carbs_desc">Reminders to meet your daily carbs goal.</string>
+    <string name="notif_kind_goodfat_desc">Reminders to meet your daily good-fat goal.</string>
+    <string name="notif_kind_fiber_desc">Reminders to meet your daily fiber goal.</string>
+    <string name="notif_kind_workout_desc">Reminders to complete today\'s strength training.</string>
+    <string name="notif_kind_cardio_desc">Reminders to complete today\'s cardio.</string>
+    <string name="notif_kind_creatine_desc">Reminders for your daily creatine dose.</string>
+
+    <!-- Notificações: corpo dos lembretes recorrentes (metas + progresso) -->
+    <string name="notif_kind_progress_body">Keep going! Every goal counts toward your next achievement.</string>
+    <string name="notif_kind_sleep_body">How about a nap to reach your sleep goal today?</string>
+    <string name="notif_kind_water_body">Time for a glass of water? Keep moving toward your daily goal.</string>
+    <string name="notif_kind_calories_body">Time to log your meals to reach today\'s calorie goal.</string>
+    <string name="notif_kind_protein_body">Time to add some protein to reach today\'s goal.</string>
+    <string name="notif_kind_carbs_body">How about a solid source of carbs to keep your energy up?</string>
+    <string name="notif_kind_goodfat_body">Don\'t forget good fats today (olive oil, nuts, avocado).</string>
+    <string name="notif_kind_fiber_body">Add a portion of fiber to your next meal.</string>
+    <string name="notif_kind_workout_body">Your strength workout is waiting. Let\'s go!</string>
+    <string name="notif_kind_cardio_body">Cardio time! A bit of movement makes a difference.</string>
+    <string name="notif_kind_creatine_body">Have you taken your creatine today?</string>
+
+    <!-- Notificações: corpo dos eventos -->
+    <string name="notif_event_achievement_body">%1$s You finished the day as %2$s!</string>
+    <string name="notif_event_streak_body">%1$s Streak complete! +%2$d points.</string>
+    <string name="notif_event_health_body_cardio">Logged %1$d min of Cardio (%2$s).</string>
+    <string name="notif_event_health_body_workout">Logged %1$d min of Strength (%2$s).</string>
+    <string name="notif_event_health_body_sleep">Logged %d h of sleep.</string>
+    <string name="notif_event_backup_body">Backup completed successfully.</string>
+
+    <!-- Notificações: rodapé explicativo do editor de intervalo -->
+    <string name="notif_kind_progress_footer">Periodic reminders showing how much is left to level up today.</string>
+    <string name="notif_kind_sleep_footer">Every X minutes the app suggests resting until you meet the daily goal. No reminders are sent before 10 AM or after 7 PM.</string>
+    <string name="notif_kind_water_footer">Every X minutes the app reminds you to drink water. Reminders stop once you reach your daily goal.</string>
+    <string name="notif_kind_calories_footer">Periodic reminders stop once you hit your calorie goal.</string>
+    <string name="notif_kind_protein_footer">Periodic reminders stop once you hit your protein goal.</string>
+    <string name="notif_kind_carbs_footer">Periodic reminders stop once you hit your carbs goal.</string>
+    <string name="notif_kind_goodfat_footer">Periodic reminders stop once you hit your good-fat goal.</string>
+    <string name="notif_kind_fiber_footer">Periodic reminders stop once you hit your fiber goal.</string>
+    <string name="notif_kind_workout_footer">Periodic reminders stop once you hit your strength goal.</string>
+    <string name="notif_kind_cardio_footer">Periodic reminders stop once you hit your cardio goal.</string>
+    <string name="notif_kind_creatine_footer">Periodic reminders stop once you log today\'s dose.</string>
+
+    <!-- Notificações: metas personalizadas -->
+    <string name="notif_custom_desc">Reminders to meet today\'s goal.</string>
+    <string name="notif_custom_body">Time to log %s, keep moving toward today\'s goal.</string>
+    <string name="notif_custom_footer">Periodic reminders stop once you hit today\'s goal for this custom tracker.</string>
 </resources>

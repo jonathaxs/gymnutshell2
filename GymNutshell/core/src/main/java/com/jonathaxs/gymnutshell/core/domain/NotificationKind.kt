@@ -111,18 +111,6 @@ enum class NotificationKind(val rawValue: String) {
             else -> null
         }
 
-    /** Chave de localização do título exibido (ex.: "Progresso", "Água"). */
-    val titleKey: String get() = "notifications.kind.$rawValue.title"
-
-    /** Chave de localização da descrição curta abaixo do título na lista de Ajustes. */
-    val descriptionKey: String get() = "notifications.kind.$rawValue.description"
-
-    /** Chave de localização do corpo do lembrete recorrente. */
-    val bodyKey: String get() = "notifications.kind.$rawValue.body"
-
-    /** Chave de localização do rodapé explicativo no editor de intervalo. */
-    val footerKey: String get() = "notifications.kind.$rawValue.footer"
-
     companion object {
         /** Resolve a partir do rawValue persistido; null se desconhecido. */
         fun fromRaw(raw: String?): NotificationKind? = entries.firstOrNull { it.rawValue == raw }
