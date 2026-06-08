@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.jonathaxs.gymnutshell.R
 import com.jonathaxs.gymnutshell.notifications.GymNotifier
+import com.jonathaxs.gymnutshell.notifications.NotificationScheduler
 import com.jonathaxs.gymnutshell.core.data.CustomGoalRepository
 import com.jonathaxs.gymnutshell.core.data.DailyRecordRepository
 import com.jonathaxs.gymnutshell.core.data.IntakeRepository
@@ -19,6 +20,7 @@ import com.jonathaxs.gymnutshell.core.domain.DailyRecordFactory
 import com.jonathaxs.gymnutshell.core.domain.GoalCategory
 import com.jonathaxs.gymnutshell.core.domain.GoalsProvider
 import com.jonathaxs.gymnutshell.core.domain.MeasurementSystem
+import com.jonathaxs.gymnutshell.core.domain.NotificationKind
 import com.jonathaxs.gymnutshell.core.domain.Profile
 import com.jonathaxs.gymnutshell.core.domain.ProgressHelpers
 import com.jonathaxs.gymnutshell.core.domain.StreakBonusEvaluator
@@ -86,6 +88,7 @@ class TodayViewModel(app: Application) : AndroidViewModel(app) {
     private val settingsRepo = SettingsRepository(app.applicationContext)
     private val customGoalRepo = CustomGoalRepository(app.applicationContext)
     private val notifier = GymNotifier(app.applicationContext)
+    private val scheduler = NotificationScheduler(app.applicationContext)
 
     init {
         viewModelScope.launch { rolloverIfNeeded() }
@@ -215,7 +218,10 @@ class TodayViewModel(app: Application) : AndroidViewModel(app) {
     fun updateIntake(goal: TodayGoalUi, displayValue: Int) {
         val clamped = displayValue.coerceIn(0, goal.target)
         val toStore = if (goal.unitIsFlOz) UnitConverter.flOzToMl(clamped.toDouble()).roundToInt() else clamped
-        viewModelScope.launch { intakeRepo.setIntake(goal.key, toStore) }
+        viewModelScope.launch {
+            intakeRepo.setIntake(goal.key, toStore)
+            rescheduleReminder(goal.key)
+        }
     }
 
     fun toggleCategory(category: GoalCategory) {
@@ -223,7 +229,20 @@ class TodayViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     fun toggleRestDay(goal: TodayGoalUi) {
-        viewModelScope.launch { intakeRepo.toggleRestDay(goal.key) }
+        viewModelScope.launch {
+            intakeRepo.toggleRestDay(goal.key)
+            rescheduleReminder(goal.key)
+        }
+    }
+
+    /** Re-arma (ou cancela) o lembrete da meta quando o intake/descanso muda. */
+    private suspend fun rescheduleReminder(goalKey: String) {
+        val kind = NotificationKind.fromTrackingKey(goalKey)
+        if (kind != null) {
+            scheduler.reschedule(kind)
+        } else if (goalKey.startsWith("custom:")) {
+            goalKey.removePrefix("custom:").toLongOrNull()?.let { scheduler.rescheduleCustom(it) }
+        }
     }
 
     companion object {

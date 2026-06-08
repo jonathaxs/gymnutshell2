@@ -12,6 +12,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.jonathaxs.gymnutshell.core.data.NotificationPreferencesRepository
+import com.jonathaxs.gymnutshell.notifications.NotificationScheduler
 import com.jonathaxs.gymnutshell.ui.RootScreen
 import com.jonathaxs.gymnutshell.ui.theme.GymNutshellTheme
 import kotlinx.coroutines.launch
@@ -56,6 +57,8 @@ class MainActivity : ComponentActivity() {
     private fun applyNotificationDefaults() {
         lifecycleScope.launch {
             NotificationPreferencesRepository(applicationContext).applyDefaultEnabledKindsOnce()
+            // Re-arma os lembretes por intervalo a cada launch (cobre a virada de dia).
+            NotificationScheduler(applicationContext).rescheduleAllActive()
         }
     }
 }

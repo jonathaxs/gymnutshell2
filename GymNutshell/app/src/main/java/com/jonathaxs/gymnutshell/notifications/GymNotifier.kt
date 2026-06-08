@@ -10,6 +10,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.jonathaxs.gymnutshell.MainActivity
 import com.jonathaxs.gymnutshell.R
+import com.jonathaxs.gymnutshell.core.data.CustomGoal
 import com.jonathaxs.gymnutshell.core.data.NotificationPreferencesRepository
 import com.jonathaxs.gymnutshell.core.domain.NotificationKind
 import com.jonathaxs.gymnutshell.core.domain.NotificationRoute
@@ -91,6 +92,32 @@ class GymNotifier(context: Context) {
         )
     }
 
+    // MARK: - Lembretes por intervalo (agendados via WorkManager, fatia 5A-3)
+
+    /** Lembrete recorrente de um kind fixo (água, proteína, …). Postado pelo ReminderWorker. */
+    suspend fun postReminder(kind: NotificationKind) {
+        val sound = prefs.sound(kind)
+        postRaw(
+            channelId = ensureChannel(kind, sound),
+            title = appContext.getString(NotificationStrings.titleRes(kind)),
+            body = appContext.getString(NotificationStrings.bodyRes(kind)),
+            route = kind.route,
+            sound = sound,
+        )
+    }
+
+    /** Lembrete recorrente de uma meta personalizada. Postado pelo ReminderWorker. */
+    suspend fun postCustomReminder(goal: CustomGoal) {
+        val sound = prefs.customSound(goal.id)
+        postRaw(
+            channelId = ensureCustomChannel(goal, sound),
+            title = "${goal.emoji} ${goal.name}",
+            body = appContext.getString(R.string.notif_custom_body, goal.name),
+            route = NotificationRoute.Today,
+            sound = sound,
+        )
+    }
+
     // MARK: - Núcleo de postagem
 
     /** Posta uma notificação imediata no canal do kind/som, com deep-link via PendingIntent. */
@@ -101,13 +128,24 @@ class GymNotifier(context: Context) {
         achievementEpochDay: Long? = null,
         sound: NotificationSound,
     ) {
+        postRaw(ensureChannel(kind, sound), title, body, kind.route, achievementEpochDay, sound)
+    }
+
+    /** Postagem genérica: canal + deep-link via PendingIntent. */
+    private fun postRaw(
+        channelId: String,
+        title: String,
+        body: String,
+        route: NotificationRoute,
+        achievementEpochDay: Long? = null,
+        sound: NotificationSound,
+    ) {
         if (!manager.areNotificationsEnabled()) return
-        val channelId = ensureChannel(kind, sound)
         val notifId = idCounter.incrementAndGet()
 
         val intent = Intent(appContext, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
-            putExtra(EXTRA_ROUTE, kind.route.rawValue)
+            putExtra(EXTRA_ROUTE, route.rawValue)
             achievementEpochDay?.let { putExtra(EXTRA_ACHIEVEMENT_DAY, it) }
         }
         // requestCode único (= notifId) evita que PendingIntents colidam e percam os extras.
@@ -155,6 +193,26 @@ class GymNotifier(context: Context) {
         val channel = NotificationChannel(channelId, name, importance).apply {
             description = appContext.getString(NotificationStrings.descRes(kind))
             group = if (kind in EVENT_KINDS) GROUP_SYSTEM else GROUP_REMINDERS
+            if (silent) setSound(null, null)
+        }
+        manager.createNotificationChannel(channel)
+        return channelId
+    }
+
+    /** Garante o canal de uma meta personalizada (grupo Lembretes) e devolve o channelId. */
+    private fun ensureCustomChannel(goal: CustomGoal, sound: NotificationSound): String {
+        manager.createNotificationChannelGroup(
+            NotificationChannelGroup(GROUP_REMINDERS, appContext.getString(R.string.notif_group_reminders)),
+        )
+        val silent = sound == NotificationSound.Silent
+        val channelId = "custom.${goal.id}" + if (silent) ".silent" else ""
+        val baseName = "${goal.emoji} ${goal.name}"
+        val name = if (silent) "$baseName (${appContext.getString(R.string.notif_sound_silent)})" else baseName
+        val importance = if (silent) NotificationManager.IMPORTANCE_LOW else NotificationManager.IMPORTANCE_DEFAULT
+
+        val channel = NotificationChannel(channelId, name, importance).apply {
+            description = appContext.getString(R.string.notif_custom_desc)
+            group = GROUP_REMINDERS
             if (silent) setSound(null, null)
         }
         manager.createNotificationChannel(channel)
