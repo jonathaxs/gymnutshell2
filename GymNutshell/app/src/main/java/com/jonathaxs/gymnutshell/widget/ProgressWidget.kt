@@ -1,7 +1,6 @@
 package com.jonathaxs.gymnutshell.widget
 
 import android.content.Context
-import android.content.Intent
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceId
@@ -32,13 +31,11 @@ import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
-import com.jonathaxs.gymnutshell.MainActivity
 import com.jonathaxs.gymnutshell.core.domain.AppDateFormatters
 import com.jonathaxs.gymnutshell.core.domain.NotificationRoute
 import com.jonathaxs.gymnutshell.core.domain.ProgressColors
 import com.jonathaxs.gymnutshell.core.widget.WidgetSnapshot
 import com.jonathaxs.gymnutshell.core.widget.WidgetSnapshotBuilder
-import com.jonathaxs.gymnutshell.notifications.GymNotifier
 import java.time.Instant
 import java.time.ZoneId
 
@@ -72,7 +69,7 @@ class ProgressWidget : GlanceAppWidget() {
                 .appWidgetBackground()
                 .background(GlanceTheme.colors.widgetBackground)
                 .cornerRadius(16.dp)
-                .clickable(actionStartActivity(todayIntent(context)))
+                .clickable(actionStartActivity(appIntent(context, NotificationRoute.Today)))
                 .padding(12.dp),
             contentAlignment = Alignment.Center,
         ) {
@@ -142,12 +139,4 @@ class ProgressWidget : GlanceAppWidget() {
         val date = Instant.ofEpochMilli(epochMillis).atZone(ZoneId.systemDefault()).toLocalDate()
         return AppDateFormatters.mediumDate(date)
     }
-
-    /** Intent que abre a MainActivity na tela Hoje (mesmo mecanismo das notificações). */
-    private fun todayIntent(context: Context): Intent =
-        Intent(context, MainActivity::class.java).apply {
-            action = Intent.ACTION_VIEW
-            putExtra(GymNotifier.EXTRA_ROUTE, NotificationRoute.Today.rawValue)
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-        }
 }
