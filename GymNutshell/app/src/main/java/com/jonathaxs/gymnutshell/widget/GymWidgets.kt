@@ -18,9 +18,10 @@ object GymWidgets {
         CoroutineScope(Dispatchers.Default).launch { updateAll(appContext) }
     }
 
-    /** Atualiza todos os widgets do app. (Metas entra aqui na fatia 6D.) */
+    /** Atualiza todos os widgets do app. */
     suspend fun updateAll(context: Context) {
         ProgressWidget().updateAll(context)
         CalendarWidget().updateAll(context)
+        GoalsWidget().updateAll(context)
     }
 }

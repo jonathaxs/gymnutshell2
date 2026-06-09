@@ -296,4 +296,8 @@
     <!-- Widget: Calendário -->
     <string name="widget_calendar_label">Calendar</string>
     <string name="widget_calendar_description">Today\'s progress and your month at a glance.</string>
+
+    <!-- Widget: Metas -->
+    <string name="widget_goals_label">Goals</string>
+    <string name="widget_goals_description">Individual progress of your active goals.</string>
 </resources>

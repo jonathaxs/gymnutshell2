@@ -61,5 +61,8 @@ data class WidgetSnapshot(
 /** Resumo de um dia na janela recente: epoch-day + % final. */
 data class DaySummary(val epochDay: Long, val percent: Int)
 
-/** Progresso de uma meta no widget. `key` resolve o rótulo localizado na camada de UI. */
-data class GoalProgress(val key: String, val emoji: String, val percent: Int)
+/**
+ * Progresso de uma meta no widget.
+ * `label` traz o nome de metas personalizadas; pra metas fixas é null (a UI resolve via string por [key]).
+ */
+data class GoalProgress(val key: String, val emoji: String, val percent: Int, val label: String? = null)

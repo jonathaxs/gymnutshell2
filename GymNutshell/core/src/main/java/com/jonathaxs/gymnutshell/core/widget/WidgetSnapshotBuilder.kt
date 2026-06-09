@@ -69,8 +69,9 @@ object WidgetSnapshotBuilder {
         val builtin = BuiltInGoals.forResult(result)
 
         // Metas ativas na mesma ordem da Today: fixas (por categoria) + personalizadas no fim.
+        // Metas custom carregam o próprio nome em `label`; as fixas deixam null (a UI resolve por key).
         val goals = builtin.map { GoalProgress(it.key, it.emoji, percent(progress(it.key, it.target))) } +
-            customGoals.map { GoalProgress(it.intakeKey, it.emoji, percent(progress(it.intakeKey, it.target))) }
+            customGoals.map { GoalProgress(it.intakeKey, it.emoji, percent(progress(it.intakeKey, it.target)), label = it.name) }
 
         // Progresso geral = média das metas ativas (mesma conta da Today/DailyRecordFactory).
         val progresses = builtin.map { progress(it.key, it.target) } +

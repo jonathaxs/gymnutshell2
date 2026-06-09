@@ -9,6 +9,7 @@ import com.jonathaxs.gymnutshell.core.domain.GoalsCalculator
 import com.jonathaxs.gymnutshell.core.domain.UserGoal
 import com.jonathaxs.gymnutshell.core.theme.AccentColor
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Test
 
 /** Cobre o núcleo puro do builder do snapshot do widget. */
@@ -71,6 +72,8 @@ class WidgetSnapshotBuilderTest {
         assertEquals(BuiltInGoals.forResult(result).size + 1, snap.goals.size)
         assertEquals("custom:7", snap.goals.last().key) // personalizada no fim
         assertEquals(50, snap.goals.last().percent)
+        assertEquals("Ler", snap.goals.last().label) // custom carrega o próprio nome
+        assertNull(snap.goals.first().label) // fixa não tem label (resolve por key na UI)
     }
 
     @Test
