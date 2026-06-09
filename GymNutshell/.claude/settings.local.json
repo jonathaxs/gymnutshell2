@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./gradlew:*)",
+      "Bash(adb:*)",
+      "Bash(find:*)",
+      "Bash(grep:*)",
+      "Bash(javap:*)",
+      "Bash(unzip:*)",
+      "Edit",
+      "Write",
+      "Read"
+    ]
+  }
+}
