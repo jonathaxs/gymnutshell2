@@ -4,10 +4,12 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.jonathaxs.gymnutshell.R
+import com.jonathaxs.gymnutshell.health.HealthConnectManager
 import com.jonathaxs.gymnutshell.notifications.GymNotifier
 import com.jonathaxs.gymnutshell.notifications.NotificationScheduler
 import com.jonathaxs.gymnutshell.core.data.CustomGoalRepository
 import com.jonathaxs.gymnutshell.core.data.DailyRecordRepository
+import com.jonathaxs.gymnutshell.core.data.HealthPreferencesRepository
 import com.jonathaxs.gymnutshell.core.data.IntakeRepository
 import com.jonathaxs.gymnutshell.core.data.ProfileRepository
 import com.jonathaxs.gymnutshell.core.data.SettingsRepository
@@ -89,9 +91,15 @@ class TodayViewModel(app: Application) : AndroidViewModel(app) {
     private val customGoalRepo = CustomGoalRepository(app.applicationContext)
     private val notifier = GymNotifier(app.applicationContext)
     private val scheduler = NotificationScheduler(app.applicationContext)
+    private val healthPrefs = HealthPreferencesRepository(app.applicationContext)
+    private val healthConnect = HealthConnectManager(app.applicationContext)
 
     init {
-        viewModelScope.launch { rolloverIfNeeded() }
+        viewModelScope.launch {
+            rolloverIfNeeded()
+            // Após a virada (intakes zerados), tenta preencher Treino/Cardio com o que veio do Health Connect.
+            checkWorkoutsFromHealth()
+        }
     }
 
     /**
@@ -116,8 +124,16 @@ class TodayViewModel(app: Application) : AndroidViewModel(app) {
         val customGoals = customGoalRepo.all()
 
         // 1) grava o último dia com os intakes que ficaram (tema + dias de descanso + metas custom)
-        val finalized = DailyRecordFactory.build(last, intakeRepo.intakes.first(), result, theme, restDays, customGoals)
+        val intakes = intakeRepo.intakes.first()
+        val finalized = DailyRecordFactory.build(last, intakes, result, theme, restDays, customGoals)
         recordRepo.upsert(finalized)
+        // Grava o sono do dia que virou no Health Connect, se o usuário habilitou o sync (porte do writeSleepIfNeeded).
+        val sleepHours = intakes["tracking.sleep"] ?: 0
+        if (sleepHours > 0 && healthPrefs.syncSleepEnabled()) {
+            if (healthConnect.writeSleep(LocalDate.ofEpochDay(last), sleepHours)) {
+                notifier.fireHealthLogged(GymNotifier.HealthLogKind.Sleep, sleepHours)
+            }
+        }
         // Notifica a conquista do dia que virou (porte da notificação de meia-noite do iOS).
         val tier = DailyAchievement.from(finalized.percent / 100.0)
         val tierName = getApplication<Application>().getString(R.string.notification_tier_level, tier.ordinal + 1)
@@ -232,6 +248,41 @@ class TodayViewModel(app: Application) : AndroidViewModel(app) {
         viewModelScope.launch {
             intakeRepo.toggleRestDay(goal.key)
             rescheduleReminder(goal.key)
+        }
+    }
+
+    /**
+     * Auto check-in dos treinos do Health Connect — porte de checkWorkoutsFromHealth (iOS).
+     * Lê os treinos de hoje e preenche as metas de Treino/Cardio só quando ainda estão zeradas
+     * (nunca sobrescreve o que o usuário já registrou). Gateado pelo toggle `autoWorkoutCheckin`.
+     */
+    private suspend fun checkWorkoutsFromHealth() {
+        if (!healthPrefs.autoWorkoutCheckin()) return
+        val summary = healthConnect.readTodayWorkouts()
+        if (summary.workoutMinutes == 0 && summary.cardioMinutes == 0) return
+
+        val intakes = intakeRepo.intakes.first()
+        val profile = profileRepo.profile.first()
+        val effective = if (profile.weightKg <= 0.0) DEMO_PROFILE else profile
+        val targets = BuiltInGoals.forResult(GoalsProvider.goals(effective)).associate { it.key to it.target }
+
+        // Treino de musculação (força): só preenche se a meta está zerada.
+        if ((intakes["tracking.workout"] ?: 0) == 0) {
+            val value = summary.workoutMinutes.coerceAtMost(targets["tracking.workout"] ?: 0)
+            if (value > 0) {
+                intakeRepo.setIntake("tracking.workout", value)
+                val name = summary.workoutNameRes?.let { getApplication<Application>().getString(it) }
+                notifier.fireHealthLogged(GymNotifier.HealthLogKind.Workout, value, name)
+            }
+        }
+        // Cardio: idem.
+        if ((intakes["tracking.cardio"] ?: 0) == 0) {
+            val value = summary.cardioMinutes.coerceAtMost(targets["tracking.cardio"] ?: 0)
+            if (value > 0) {
+                intakeRepo.setIntake("tracking.cardio", value)
+                val name = summary.cardioNameRes?.let { getApplication<Application>().getString(it) }
+                notifier.fireHealthLogged(GymNotifier.HealthLogKind.Cardio, value, name)
+            }
         }
     }
 
