@@ -6,6 +6,8 @@ import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.records.ExerciseSessionRecord
 import androidx.health.connect.client.records.SleepSessionRecord
+import androidx.health.connect.client.records.metadata.Device
+import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.request.ReadRecordsRequest
 import androidx.health.connect.client.time.TimeRangeFilter
 import java.time.Duration
@@ -103,6 +105,35 @@ class HealthConnectManager(context: Context) {
         }
 
         return WorkoutSummary(workoutMinutes, cardioMinutes, workoutNameRes, cardioNameRes)
+    }
+
+    /**
+     * Grava uma sessão de sono no Health Connect (das 00h do dia até `hours` horas depois) —
+     * porte mecânico do `writeSleepIfNeeded` (iOS). NÃO checa o toggle `syncSleepEnabled` nem
+     * dispara notificação: isso fica a cargo de quem chama (TodayViewModel, na 5B-5).
+     * Retorna true quando a gravação aconteceu; false se indisponível, sem permissão ou horas <= 0.
+     */
+    suspend fun writeSleep(date: LocalDate, hours: Int): Boolean {
+        if (hours <= 0) return false
+        val hc = client ?: return false
+        if (!hasSleepPermission()) return false
+
+        val zone = ZoneId.systemDefault()
+        val start = date.atStartOfDay(zone)
+        val end = start.plusHours(hours.toLong())
+        val record = SleepSessionRecord(
+            startTime = start.toInstant(),
+            startZoneOffset = start.offset,
+            endTime = end.toInstant(),
+            endZoneOffset = end.offset,
+            // Sono é digitado à mão pelo usuário, então marcamos como entrada manual (vinda do celular).
+            metadata = Metadata.manualEntry(Device(type = Device.TYPE_PHONE)),
+            title = null,
+            notes = null,
+            stages = emptyList(),
+        )
+        hc.insertRecords(listOf(record))
+        return true
     }
 }
 
