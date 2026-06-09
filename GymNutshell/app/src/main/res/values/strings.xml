@@ -248,4 +248,22 @@
     <string name="notif_custom_desc">Reminders to meet today\'s goal.</string>
     <string name="notif_custom_body">Time to log %s, keep moving toward today\'s goal.</string>
     <string name="notif_custom_footer">Periodic reminders stop once you hit today\'s goal for this custom tracker.</string>
+
+    <!-- Health Connect: nomes de exibição das atividades (auto check-in de treino) -->
+    <string name="health_activity_running">Running</string>
+    <string name="health_activity_walking">Walking</string>
+    <string name="health_activity_cycling">Cycling</string>
+    <string name="health_activity_swimming">Swimming</string>
+    <string name="health_activity_elliptical">Elliptical</string>
+    <string name="health_activity_rowing">Rowing</string>
+    <string name="health_activity_stair_climbing">Stair climbing</string>
+    <string name="health_activity_hiking">Hiking</string>
+    <string name="health_activity_dance">Dancing</string>
+    <string name="health_activity_strength_training">Strength training</string>
+    <string name="health_activity_functional_training">Functional training</string>
+    <string name="health_activity_cross_training">Cross training</string>
+    <string name="health_activity_hiit">HIIT</string>
+    <string name="health_activity_boxing">Boxing</string>
+    <string name="health_activity_martial_arts">Martial arts</string>
+    <string name="health_activity_climbing">Climbing</string>
 </resources>

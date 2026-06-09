@@ -1,10 +1,17 @@
 package com.jonathaxs.gymnutshell.health
 
 import android.content.Context
+import androidx.annotation.StringRes
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.records.ExerciseSessionRecord
 import androidx.health.connect.client.records.SleepSessionRecord
+import androidx.health.connect.client.request.ReadRecordsRequest
+import androidx.health.connect.client.time.TimeRangeFilter
+import java.time.Duration
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
 
 /**
  * Centraliza o acesso ao Health Connect — porte do HealthKitManager (iOS).
@@ -56,4 +63,56 @@ class HealthConnectManager(context: Context) {
     /** true quando a permissão de gravação de sono já foi concedida. */
     suspend fun hasSleepPermission(): Boolean =
         grantedPermissions().containsAll(sleepPermissions)
+
+    /**
+     * Lê os treinos de hoje, soma os minutos por categoria (força/cardio) e captura o nome da
+     * primeira atividade de cada uma — porte do `checkTodayWorkouts` (iOS).
+     * Retorna um resumo zerado quando indisponível ou sem permissão de leitura.
+     */
+    suspend fun readTodayWorkouts(): WorkoutSummary {
+        val hc = client ?: return WorkoutSummary()
+        if (!hasWorkoutPermission()) return WorkoutSummary()
+
+        val zone = ZoneId.systemDefault()
+        val startOfDay = LocalDate.now(zone).atStartOfDay(zone).toInstant()
+        val response = hc.readRecords(
+            ReadRecordsRequest(
+                recordType = ExerciseSessionRecord::class,
+                timeRangeFilter = TimeRangeFilter.between(startOfDay, Instant.now()),
+            ),
+        )
+
+        var workoutMinutes = 0
+        var cardioMinutes = 0
+        var workoutNameRes: Int? = null
+        var cardioNameRes: Int? = null
+
+        for (record in response.records) {
+            val minutes = Duration.between(record.startTime, record.endTime).toMinutes().toInt()
+            when (ExerciseClassifier.categoryOf(record.exerciseType)) {
+                WorkoutCategory.Strength -> {
+                    workoutMinutes += minutes
+                    if (workoutNameRes == null) workoutNameRes = ExerciseClassifier.displayNameRes(record.exerciseType)
+                }
+                WorkoutCategory.Cardio -> {
+                    cardioMinutes += minutes
+                    if (cardioNameRes == null) cardioNameRes = ExerciseClassifier.displayNameRes(record.exerciseType)
+                }
+                null -> Unit // tipo não classificado, ignorado
+            }
+        }
+
+        return WorkoutSummary(workoutMinutes, cardioMinutes, workoutNameRes, cardioNameRes)
+    }
 }
+
+/**
+ * Resumo dos treinos de hoje lidos do Health Connect. Os nomes vêm como @StringRes
+ * pra serem resolvidos na camada de UI/notificação (que tem o Context).
+ */
+data class WorkoutSummary(
+    val workoutMinutes: Int = 0,
+    val cardioMinutes: Int = 0,
+    @param:StringRes val workoutNameRes: Int? = null,
+    @param:StringRes val cardioNameRes: Int? = null,
+)
