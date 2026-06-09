@@ -30,6 +30,7 @@ object SettingsRoutes {
     const val NOTIFICATIONS = "settings_notifications"
     const val NOTIF_EDIT = "settings_notif_edit" // + "/{target}"
     const val HEALTH = "settings_health"
+    const val BACKUP = "settings_backup"
 }
 
 /** Grafo aninhado da Settings: lista → sub-telas (cor, dados físicos). */
@@ -45,6 +46,7 @@ fun NavGraphBuilder.settingsGraph(navController: NavController) {
                 onOpenUnits = { navController.navigate(SettingsRoutes.UNITS) },
                 onOpenNotifications = { navController.navigate(SettingsRoutes.NOTIFICATIONS) },
                 onOpenHealth = { navController.navigate(SettingsRoutes.HEALTH) },
+                onOpenBackup = { navController.navigate(SettingsRoutes.BACKUP) },
             )
         }
         composable(SettingsRoutes.COLOR) {
@@ -73,6 +75,9 @@ fun NavGraphBuilder.settingsGraph(navController: NavController) {
         }
         composable(SettingsRoutes.HEALTH) {
             HealthSettingsScreen(onBack = { navController.popBackStack() })
+        }
+        composable(SettingsRoutes.BACKUP) {
+            BackupScreen(onBack = { navController.popBackStack() })
         }
         composable(
             route = "${SettingsRoutes.NOTIF_EDIT}/{target}",

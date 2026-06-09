@@ -38,6 +38,7 @@ import com.jonathaxs.gymnutshell.core.domain.NotificationRoute
 import com.jonathaxs.gymnutshell.ui.achievements.AchievementsScreen
 import com.jonathaxs.gymnutshell.ui.history.NotificationHistoryScreen
 import com.jonathaxs.gymnutshell.ui.progress.ProgressScreen
+import com.jonathaxs.gymnutshell.ui.settings.SettingsRoutes
 import com.jonathaxs.gymnutshell.ui.settings.settingsGraph
 import com.jonathaxs.gymnutshell.ui.theme.color
 import com.jonathaxs.gymnutshell.ui.today.TodayScreen
@@ -133,16 +134,16 @@ fun MainScreen(
 
 private const val HISTORY_ROUTE = "history"
 
-/** Troca pra aba alvo de uma rota de notificação (Today / Achievements / Settings→Backup). */
+/** Leva ao destino de uma rota de notificação (Today / Achievements / tela de Backup na Settings). */
 private fun navigateForRoute(navController: NavController, routeRaw: String) {
-    val tabRoute = when (NotificationRoute.fromRaw(routeRaw)) {
+    val target = when (NotificationRoute.fromRaw(routeRaw)) {
         NotificationRoute.Today -> MainTab.Today.route
         NotificationRoute.AchievementsToday -> MainTab.Achievements.route
-        // A tela de Backup chega na Fase 5C; por ora a rota abre a aba Settings.
-        NotificationRoute.Backup -> MainTab.Settings.route
+        // Vai direto pra tela de Backup (dentro do grafo da Settings; a aba acende sozinha pela hierarquia).
+        NotificationRoute.Backup -> SettingsRoutes.BACKUP
         null -> return
     }
-    navController.navigate(tabRoute) {
+    navController.navigate(target) {
         popUpTo(navController.graph.findStartDestination().id) { saveState = true }
         launchSingleTop = true
         restoreState = true

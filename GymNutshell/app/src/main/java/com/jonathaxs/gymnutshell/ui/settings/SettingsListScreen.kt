@@ -28,12 +28,15 @@ fun SettingsListScreen(
     onOpenUnits: () -> Unit,
     onOpenNotifications: () -> Unit,
     onOpenHealth: () -> Unit,
+    onOpenBackup: () -> Unit,
 ) {
     Scaffold(topBar = { SettingsTopBar(stringResource(R.string.tab_settings)) }) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
             SettingsRow(stringResource(R.string.settings_notifications), onClick = onOpenNotifications)
             HorizontalDivider()
             SettingsRow(stringResource(R.string.settings_health), onClick = onOpenHealth)
+            HorizontalDivider()
+            SettingsRow(stringResource(R.string.settings_backup), onClick = onOpenBackup)
             HorizontalDivider()
             SettingsRow(stringResource(R.string.settings_theme), onClick = onOpenTheme)
             HorizontalDivider()

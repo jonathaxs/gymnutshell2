@@ -275,4 +275,17 @@
     <string name="settings_health_unavailable_title">Health Connect not available</string>
     <string name="settings_health_unavailable_desc">Install or set up Health Connect to sync sleep and auto-detect workouts.</string>
     <string name="settings_health_unavailable_button">Set up Health Connect</string>
+
+    <!-- Ajustes: backup -->
+    <string name="settings_backup">Backup</string>
+    <string name="backup_description">Export your data as a JSON file, or restore from one. Android also backs up the app automatically to your Google account.</string>
+    <string name="backup_export">Export backup</string>
+    <string name="backup_import">Restore backup</string>
+    <string name="backup_import_confirm_title">Replace all data?</string>
+    <string name="backup_import_confirm_message">Restoring replaces your current profile, settings, goals and history with the backup\'s contents. This can\'t be undone.</string>
+    <string name="backup_import_confirm_button">Restore</string>
+    <string name="backup_cancel">Cancel</string>
+    <string name="backup_status_exported">Backup exported.</string>
+    <string name="backup_status_imported">Backup restored.</string>
+    <string name="backup_status_error">Something went wrong. Please try again.</string>
 </resources>
