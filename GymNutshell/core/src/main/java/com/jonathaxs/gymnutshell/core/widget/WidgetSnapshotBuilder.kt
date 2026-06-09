@@ -8,6 +8,7 @@ import com.jonathaxs.gymnutshell.core.data.DailyRecordRepository
 import com.jonathaxs.gymnutshell.core.data.IntakeRepository
 import com.jonathaxs.gymnutshell.core.data.ProfileRepository
 import com.jonathaxs.gymnutshell.core.data.SettingsRepository
+import com.jonathaxs.gymnutshell.core.data.WidgetBackgroundRepository
 import com.jonathaxs.gymnutshell.core.domain.AppTheme
 import com.jonathaxs.gymnutshell.core.domain.BuiltInGoals
 import com.jonathaxs.gymnutshell.core.domain.DailyAchievement
@@ -35,6 +36,8 @@ object WidgetSnapshotBuilder {
         val settings = SettingsRepository(context)
         val intakeRepo = IntakeRepository(context)
 
+        val bgRepo = WidgetBackgroundRepository(context)
+
         // Mesmo fallback da TodayViewModel: sem peso salvo, usa o perfil-demo pra não zerar as metas.
         val effective = if (profile.weightKg <= 0.0) DEMO_PROFILE else profile
         return compute(
@@ -45,6 +48,8 @@ object WidgetSnapshotBuilder {
             records = DailyRecordRepository(context).allRecords(),
             theme = settings.theme.first(),
             accentArgb = settings.accentColor.first().argb,
+            backgroundMode = bgRepo.mode(),
+            customBackgroundArgb = bgRepo.customColor(),
         )
     }
 
@@ -57,6 +62,8 @@ object WidgetSnapshotBuilder {
         records: List<DailyRecord>,
         theme: AppTheme,
         accentArgb: Long,
+        backgroundMode: WidgetBackgroundMode = WidgetBackgroundMode.Default,
+        customBackgroundArgb: Long = WidgetBackground.DEFAULT_CUSTOM_ARGB,
         today: Long = LocalDate.now().toEpochDay(),
         nowMillis: Long = System.currentTimeMillis(),
     ): WidgetSnapshot {
@@ -95,6 +102,8 @@ object WidgetSnapshotBuilder {
             updatedAtEpochMillis = nowMillis,
             recentDays = recentDays,
             goals = goals,
+            backgroundMode = backgroundMode,
+            customBackgroundArgb = customBackgroundArgb,
         )
     }
 

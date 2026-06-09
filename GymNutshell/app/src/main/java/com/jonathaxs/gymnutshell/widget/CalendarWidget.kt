@@ -66,7 +66,7 @@ class CalendarWidget : GlanceAppWidget() {
 
     @androidx.compose.runtime.Composable
     private fun Content(context: Context, snapshot: WidgetSnapshot) {
-        val textColor = GlanceTheme.colors.onSurface
+        val textColor = widgetTextColor(snapshot)
         val accent = Color(snapshot.accentArgb)
         val (weekdays, weeks) = buildMonth(snapshot.recentDays)
 
@@ -74,7 +74,7 @@ class CalendarWidget : GlanceAppWidget() {
             modifier = GlanceModifier
                 .fillMaxSize()
                 .appWidgetBackground()
-                .background(GlanceTheme.colors.widgetBackground)
+                .then(widgetBackgroundModifier(snapshot))
                 .cornerRadius(16.dp)
                 .padding(12.dp),
         ) {

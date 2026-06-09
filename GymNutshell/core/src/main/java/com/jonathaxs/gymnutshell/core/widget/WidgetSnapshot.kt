@@ -26,6 +26,10 @@ data class WidgetSnapshot(
     val recentDays: List<DaySummary>,
     /** Metas ativas com progresso individual, na ordem da TodayView (fixas + personalizadas). */
     val goals: List<GoalProgress>,
+    /** Modo de fundo escolhido pelo usuário (Padrão/Destaque/Personalizado). */
+    val backgroundMode: WidgetBackgroundMode = WidgetBackgroundMode.Default,
+    /** Cor personalizada do fundo (ARGB), usada quando o modo é Custom. */
+    val customBackgroundArgb: Long = WidgetBackground.DEFAULT_CUSTOM_ARGB,
 ) {
     /** % inteiro, arredondado pra baixo (igual TodayView). */
     val progressPercent: Int get() = floor(progressNormalized * 100).toInt()

@@ -300,4 +300,15 @@
     <!-- Widget: Metas -->
     <string name="widget_goals_label">Goals</string>
     <string name="widget_goals_description">Individual progress of your active goals.</string>
+
+    <!-- Ajustes: fundo do widget -->
+    <string name="settings_widget_background">Widget background</string>
+    <string name="widget_bg_mode_system">Default</string>
+    <string name="widget_bg_mode_accent">Accent</string>
+    <string name="widget_bg_mode_custom">Custom</string>
+    <string name="widget_bg_footer_system">Widgets use the system background (light or dark).</string>
+    <string name="widget_bg_footer_accent">Widgets use your app accent color.</string>
+    <string name="widget_bg_footer_custom">Widgets use a color you pick.</string>
+    <string name="widget_bg_preview">Preview</string>
+    <string name="widget_bg_pick_color">Pick a color</string>
 </resources>

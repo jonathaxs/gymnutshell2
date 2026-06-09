@@ -16,7 +16,6 @@ import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.appwidget.appWidgetBackground
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.provideContent
-import androidx.glance.background
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
 import androidx.glance.layout.Column
@@ -65,12 +64,12 @@ class GoalsWidget : GlanceAppWidget() {
 
     @androidx.compose.runtime.Composable
     private fun Content(context: Context, snapshot: WidgetSnapshot) {
-        val textColor = GlanceTheme.colors.onSurface
+        val textColor = widgetTextColor(snapshot)
         Column(
             modifier = GlanceModifier
                 .fillMaxSize()
                 .appWidgetBackground()
-                .background(GlanceTheme.colors.widgetBackground)
+                .then(widgetBackgroundModifier(snapshot))
                 .cornerRadius(16.dp)
                 .clickable(actionStartActivity(appIntent(context, NotificationRoute.Today)))
                 .padding(12.dp),
