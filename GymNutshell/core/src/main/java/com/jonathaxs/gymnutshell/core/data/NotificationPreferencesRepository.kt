@@ -148,6 +148,33 @@ class NotificationPreferencesRepository(private val context: Context) {
         }
     }
 
+    // MARK: - Backup (snapshots por prefixo + restauração)
+
+    /** Mapa id→valor de cada prefixo (id = sufixo após o prefixo, ex.: "water", "custom.3"). */
+    suspend fun enabledSnapshot(): Map<String, Boolean> = snapshot(ENABLED_PREFIX)
+    suspend fun intervalSnapshot(): Map<String, Int> = snapshot(INTERVAL_PREFIX)
+    suspend fun soundSnapshot(): Map<String, String> = snapshot(SOUND_PREFIX)
+
+    @Suppress("UNCHECKED_CAST")
+    private suspend fun <T> snapshot(prefix: String): Map<String, T> =
+        context.appPreferences.data.first().asMap()
+            .filter { (key, _) -> key.name.startsWith(prefix) }
+            .map { (key, value) -> key.name.removePrefix(prefix) to (value as T) }
+            .toMap()
+
+    /** Reescreve as preferências de notificação vindas de um backup (ignora mapas nulos). */
+    suspend fun restoreFromBackup(
+        enabled: Map<String, Boolean>?,
+        interval: Map<String, Int>?,
+        sound: Map<String, String>?,
+    ) {
+        context.appPreferences.edit { prefs ->
+            enabled?.forEach { (id, v) -> prefs[booleanPreferencesKey("$ENABLED_PREFIX$id")] = v }
+            interval?.forEach { (id, v) -> prefs[intPreferencesKey("$INTERVAL_PREFIX$id")] = v }
+            sound?.forEach { (id, v) -> prefs[stringPreferencesKey("$SOUND_PREFIX$id")] = v }
+        }
+    }
+
     // MARK: - Chaves
 
     private fun enabledKey(kind: NotificationKind) = booleanPreferencesKey("notifications.enabled.${kind.rawValue}")
@@ -160,5 +187,7 @@ class NotificationPreferencesRepository(private val context: Context) {
 
     private companion object {
         const val ENABLED_PREFIX = "notifications.enabled."
+        const val INTERVAL_PREFIX = "notifications.intervalMinutes."
+        const val SOUND_PREFIX = "notifications.sound."
     }
 }

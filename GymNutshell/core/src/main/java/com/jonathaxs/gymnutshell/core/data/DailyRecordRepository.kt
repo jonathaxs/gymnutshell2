@@ -23,6 +23,9 @@ class DailyRecordRepository(context: Context) {
     suspend fun upsert(record: DailyRecord) = recordDao.upsert(record)
     suspend fun allRecords(): List<DailyRecord> = recordDao.getAll()
 
+    /** Substitui todo o histórico (restauração de backup). */
+    suspend fun replaceAll(records: List<DailyRecord>) = recordDao.replaceAll(records)
+
     suspend fun awardedAnchors(): Set<Long> = streakDao.awardedAnchorDays().toSet()
     suspend fun insertBonus(bonus: StreakBonus) = streakDao.insert(bonus)
 }

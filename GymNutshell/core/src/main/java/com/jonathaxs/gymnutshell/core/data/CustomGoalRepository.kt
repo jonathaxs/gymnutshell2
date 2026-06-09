@@ -13,4 +13,7 @@ class CustomGoalRepository(context: Context) {
     suspend fun all(): List<CustomGoal> = dao.getAll()
     suspend fun add(goal: CustomGoal) = dao.insert(goal)
     suspend fun delete(goal: CustomGoal) = dao.delete(goal)
+
+    /** Substitui todas as metas personalizadas (restauração de backup). */
+    suspend fun replaceAll(goals: List<CustomGoal>) = dao.replaceAll(goals)
 }

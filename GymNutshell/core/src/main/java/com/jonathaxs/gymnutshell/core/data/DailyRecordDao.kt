@@ -2,7 +2,10 @@ package com.jonathaxs.gymnutshell.core.data
 
 import androidx.room.Dao
 import androidx.room.Delete
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 
@@ -32,4 +35,17 @@ interface DailyRecordDao {
 
     @Query("DELETE FROM daily_record WHERE date = :date")
     suspend fun deleteByDate(date: Long)
+
+    @Query("DELETE FROM daily_record")
+    suspend fun deleteAll()
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(records: List<DailyRecord>)
+
+    /** Substitui todo o histórico de uma vez (usado na restauração de backup). */
+    @Transaction
+    suspend fun replaceAll(records: List<DailyRecord>) {
+        deleteAll()
+        insertAll(records)
+    }
 }
