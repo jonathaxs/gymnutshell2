@@ -29,6 +29,7 @@ object SettingsRoutes {
     const val UNITS = "settings_units"
     const val NOTIFICATIONS = "settings_notifications"
     const val NOTIF_EDIT = "settings_notif_edit" // + "/{target}"
+    const val HEALTH = "settings_health"
 }
 
 /** Grafo aninhado da Settings: lista → sub-telas (cor, dados físicos). */
@@ -43,6 +44,7 @@ fun NavGraphBuilder.settingsGraph(navController: NavController) {
                 onOpenCustomGoals = { navController.navigate(SettingsRoutes.CUSTOM_GOALS) },
                 onOpenUnits = { navController.navigate(SettingsRoutes.UNITS) },
                 onOpenNotifications = { navController.navigate(SettingsRoutes.NOTIFICATIONS) },
+                onOpenHealth = { navController.navigate(SettingsRoutes.HEALTH) },
             )
         }
         composable(SettingsRoutes.COLOR) {
@@ -68,6 +70,9 @@ fun NavGraphBuilder.settingsGraph(navController: NavController) {
                 onBack = { navController.popBackStack() },
                 onEditTarget = { target -> navController.navigate("${SettingsRoutes.NOTIF_EDIT}/$target") },
             )
+        }
+        composable(SettingsRoutes.HEALTH) {
+            HealthSettingsScreen(onBack = { navController.popBackStack() })
         }
         composable(
             route = "${SettingsRoutes.NOTIF_EDIT}/{target}",

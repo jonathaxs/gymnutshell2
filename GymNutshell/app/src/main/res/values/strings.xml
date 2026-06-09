@@ -266,4 +266,13 @@
     <string name="health_activity_boxing">Boxing</string>
     <string name="health_activity_martial_arts">Martial arts</string>
     <string name="health_activity_climbing">Climbing</string>
+
+    <!-- Ajustes: integração com o Health Connect -->
+    <string name="settings_health">Health Connect</string>
+    <string name="settings_health_sync_sleep">Sync sleep to Health Connect</string>
+    <string name="settings_health_auto_checkin">Auto-detect workouts</string>
+    <string name="settings_health_footer">Sleep hours you log are written to Health Connect. Workouts and cardio recorded today are detected automatically and fill in your Training goals. Permissions are requested when you turn each option on.</string>
+    <string name="settings_health_unavailable_title">Health Connect not available</string>
+    <string name="settings_health_unavailable_desc">Install or set up Health Connect to sync sleep and auto-detect workouts.</string>
+    <string name="settings_health_unavailable_button">Set up Health Connect</string>
 </resources>
