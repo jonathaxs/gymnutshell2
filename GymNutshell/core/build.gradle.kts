@@ -2,6 +2,8 @@ plugins {
     // AGP 9 traz suporte Kotlin embutido — não aplicamos plugin Kotlin separado.
     alias(libs.plugins.android.library)
     alias(libs.plugins.ksp)
+    // Plugin de compilador do kotlinx.serialization (igual ao compose, roda sobre o Kotlin embutido).
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -24,6 +26,7 @@ dependencies {
     ksp(libs.androidx.room.compiler)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.datastore.preferences)
+    implementation(libs.kotlinx.serialization.json)
 
     testImplementation(libs.junit)
 }
