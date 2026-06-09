@@ -20,6 +20,7 @@ import com.jonathaxs.gymnutshell.notifications.GymNotifier
 import com.jonathaxs.gymnutshell.notifications.NotificationScheduler
 import com.jonathaxs.gymnutshell.ui.RootScreen
 import com.jonathaxs.gymnutshell.ui.theme.GymNutshellTheme
+import com.jonathaxs.gymnutshell.widget.GymWidgets
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -53,6 +54,12 @@ class MainActivity : ComponentActivity() {
         super.onNewIntent(intent)
         setIntent(intent)
         pendingRoute = intent.getStringExtra(GymNotifier.EXTRA_ROUTE)
+    }
+
+    // Ao sair do app, atualiza os widgets com o estado mais recente — espelha o "scenePhase background" do iOS.
+    override fun onStop() {
+        super.onStop()
+        GymWidgets.update(applicationContext)
     }
 
     /**

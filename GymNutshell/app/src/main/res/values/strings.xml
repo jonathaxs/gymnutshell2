@@ -288,4 +288,8 @@
     <string name="backup_status_exported">Backup exported.</string>
     <string name="backup_status_imported">Backup restored.</string>
     <string name="backup_status_error">Something went wrong. Please try again.</string>
+
+    <!-- Widget: Progresso -->
+    <string name="widget_progress_label">Progress</string>
+    <string name="widget_progress_description">Track your daily progress.</string>
 </resources>
