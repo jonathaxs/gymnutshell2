@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Gym Nutshell</string>
+
+    <!-- Títulos provisórios das páginas (substituídos pelo conteúdo real nas próximas fatias). -->
+    <string name="wear_page_stats">Stats</string>
+    <string name="wear_page_today">Today</string>
+    <string name="wear_page_notifications">Notifications</string>
+</resources>
