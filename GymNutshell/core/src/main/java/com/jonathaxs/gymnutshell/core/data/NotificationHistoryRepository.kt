@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.jonathaxs.gymnutshell.core.domain.NotificationHistoryEntry
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import org.json.JSONArray
 import org.json.JSONObject
@@ -59,6 +60,19 @@ class NotificationHistoryRepository(private val context: Context) {
     suspend fun clear() {
         context.appPreferences.edit { prefs -> prefs.remove(historyKey) }
     }
+
+    /** Snapshot pontual do histórico (montagem do payload pro relógio). */
+    suspend fun snapshot(): List<NotificationHistoryEntry> = prune(decode(currentRaw()))
+
+    /** Substitui todo o histórico (aplicação do snapshot vindo do celular). */
+    suspend fun replaceAll(entries: List<NotificationHistoryEntry>) {
+        context.appPreferences.edit { prefs ->
+            prefs[historyKey] = encode(prune(entries))
+        }
+    }
+
+    private suspend fun currentRaw(): String? =
+        context.appPreferences.data.first()[historyKey]
 
     // MARK: - JSON
 

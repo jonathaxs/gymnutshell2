@@ -3,10 +3,16 @@ package com.jonathaxs.gymnutshell.core.sync
 import android.content.Context
 import com.jonathaxs.gymnutshell.core.data.CustomGoal
 import com.jonathaxs.gymnutshell.core.data.CustomGoalRepository
+import com.jonathaxs.gymnutshell.core.data.DailyRecord
+import com.jonathaxs.gymnutshell.core.data.DailyRecordRepository
 import com.jonathaxs.gymnutshell.core.data.IntakeRepository
+import com.jonathaxs.gymnutshell.core.data.NotificationHistoryRepository
 import com.jonathaxs.gymnutshell.core.data.ProfileRepository
 import com.jonathaxs.gymnutshell.core.data.SettingsRepository
+import com.jonathaxs.gymnutshell.core.data.WearStatsRepository
 import com.jonathaxs.gymnutshell.core.domain.AppTheme
+import com.jonathaxs.gymnutshell.core.domain.DailyAchievement
+import com.jonathaxs.gymnutshell.core.domain.NotificationHistoryEntry
 import com.jonathaxs.gymnutshell.core.domain.Profile
 import com.jonathaxs.gymnutshell.core.domain.UserGoal
 import com.jonathaxs.gymnutshell.core.theme.AccentColor
@@ -20,11 +26,40 @@ import java.time.LocalDate
  */
 object WearSnapshotSync {
 
+    /**
+     * Calcula o resumo de estatísticas a partir dos registros — porte do init de
+     * WatchStatsSummary (iOS). Pura (testável); tier derivado do percent, que é
+     * estável entre temas (o emoji gravado varia com o tema da época).
+     */
+    fun computeStats(
+        records: List<DailyRecord>,
+        bonusPoints: Int,
+        today: Long = LocalDate.now().toEpochDay(),
+    ): WearStatsSummary {
+        fun tierOf(record: DailyRecord) = DailyAchievement.from(record.percent / 100.0)
+        return WearStatsSummary(
+            totalDays = records.size,
+            totalPoints = records.sumOf { it.points } + bonusPoints,
+            level1Days = records.count { tierOf(it) == DailyAchievement.Level1 },
+            level2Days = records.count { tierOf(it) == DailyAchievement.Level2 },
+            level3Days = records.count { tierOf(it) == DailyAchievement.Level3 },
+            level4Days = records.count { tierOf(it) == DailyAchievement.Level4 },
+            workoutDays = records.count { it.didWorkout },
+            cardioDays = records.count { it.didCardio },
+            last7Days = ((today - 6)..today).map { day ->
+                records.firstOrNull { it.date == day }
+                    ?.let { WearDayEntry(it.achievementEmoji, it.percent) }
+                    ?: WearDayEntry("", 0)
+            },
+        )
+    }
+
     /** Lê o estado atual dos repos e monta o snapshot (lado celular). */
     suspend fun build(context: Context, nowMillis: Long = System.currentTimeMillis()): WearSnapshot {
         val profile = ProfileRepository(context).profile.first()
         val settings = SettingsRepository(context)
         val intakeRepo = IntakeRepository(context)
+        val recordRepo = DailyRecordRepository(context)
 
         return WearSnapshot(
             sentAtMillis = nowMillis,
@@ -50,6 +85,17 @@ object WearSnapshotSync {
                     target = c.target,
                     increment = c.increment,
                     categoryRaw = c.categoryRaw,
+                )
+            },
+            stats = computeStats(recordRepo.allRecords(), recordRepo.allBonuses().sumOf { it.bonusPoints }),
+            notificationHistory = NotificationHistoryRepository(context).snapshot().map { e ->
+                WearNotificationEntry(
+                    id = e.id,
+                    kindRaw = e.kindRaw,
+                    title = e.title,
+                    body = e.body,
+                    timestampMillis = e.timestampMillis,
+                    routeRaw = e.routeRaw,
                 )
             },
         )
@@ -96,5 +142,22 @@ object WearSnapshotSync {
                 )
             },
         )
+
+        // Resumo de estatísticas e histórico de notificações (páginas Stats/Notifications).
+        snapshot.stats?.let { WearStatsRepository(context).save(it) }
+        snapshot.notificationHistory?.let { history ->
+            NotificationHistoryRepository(context).replaceAll(
+                history.map { e ->
+                    NotificationHistoryEntry(
+                        id = e.id,
+                        kindRaw = e.kindRaw,
+                        title = e.title,
+                        body = e.body,
+                        timestampMillis = e.timestampMillis,
+                        routeRaw = e.routeRaw,
+                    )
+                },
+            )
+        }
     }
 }

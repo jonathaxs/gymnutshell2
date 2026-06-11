@@ -33,6 +33,15 @@ object WatchWearSync {
         runCatching { Wearable.getDataClient(context).putDataItem(request) }
     }
 
+    /** Publica a exclusão de uma entrada do histórico — porte do sendHistoryDelete (iOS). */
+    fun sendHistoryDelete(context: Context, entryId: String) {
+        val request = PutDataMapRequest
+            .create(WearSyncContract.HISTDELETE_PATH_PREFIX + entryId)
+            .apply { dataMap.putLong(WearSyncContract.KEY_SENT_AT, System.currentTimeMillis()) }
+            .asPutDataRequest().setUrgent()
+        runCatching { Wearable.getDataClient(context).putDataItem(request) }
+    }
+
     /** Carimba dia (descarte de deltas velhos no celular) e horário (bytes sempre mudam). */
     private fun stampCommonFields(request: PutDataMapRequest) {
         request.dataMap.putLong(WearSyncContract.KEY_EPOCH_DAY, LocalDate.now().toEpochDay())

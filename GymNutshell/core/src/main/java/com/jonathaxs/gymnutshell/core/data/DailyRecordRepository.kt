@@ -28,4 +28,5 @@ class DailyRecordRepository(context: Context) {
 
     suspend fun awardedAnchors(): Set<Long> = streakDao.awardedAnchorDays().toSet()
     suspend fun insertBonus(bonus: StreakBonus) = streakDao.insert(bonus)
+    suspend fun allBonuses(): List<StreakBonus> = streakDao.getAll()
 }

@@ -2,11 +2,6 @@
 <resources>
     <string name="app_name">Gym Nutshell</string>
 
-    <!-- Títulos provisórios das páginas (substituídos pelo conteúdo real nas próximas fatias). -->
-    <string name="wear_page_stats">Stats</string>
-    <string name="wear_page_today">Today</string>
-    <string name="wear_page_notifications">Notifications</string>
-
     <!-- Metas built-in (mesmos textos do celular). -->
     <string name="wear_goal_workout">Workout</string>
     <string name="wear_goal_cardio">Cardio</string>
@@ -24,4 +19,20 @@
     <string name="cd_increase">Increase %1$s</string>
     <string name="cd_decrease">Decrease %1$s</string>
     <string name="cd_rest_day">Toggle rest day for %1$s</string>
+
+    <!-- Página Stats. -->
+    <string name="wear_stats_points">Points</string>
+    <string name="wear_stats_days">Days</string>
+    <string name="wear_stats_tiers">Tiers</string>
+    <string name="wear_stats_activity">Activity</string>
+    <string name="wear_stats_recent">Last 7 days</string>
+    <string name="wear_stats_days_format">%1$d days</string>
+    <string name="wear_stats_syncing">Open Gym Nutshell on your phone to sync.</string>
+    <string name="wear_tier_level">Level %1$d</string>
+
+    <!-- Página Notifications. -->
+    <string name="wear_notif_empty">No notifications yet.</string>
+    <string name="wear_notif_today">Today</string>
+    <string name="wear_notif_yesterday">Yesterday</string>
+    <string name="wear_notif_delete">Delete</string>
 </resources>

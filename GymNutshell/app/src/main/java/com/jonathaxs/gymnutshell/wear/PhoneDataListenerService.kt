@@ -5,6 +5,7 @@ import com.google.android.gms.wearable.DataEventBuffer
 import com.google.android.gms.wearable.DataMapItem
 import com.google.android.gms.wearable.WearableListenerService
 import com.jonathaxs.gymnutshell.core.data.IntakeRepository
+import com.jonathaxs.gymnutshell.core.data.NotificationHistoryRepository
 import com.jonathaxs.gymnutshell.core.domain.NotificationKind
 import com.jonathaxs.gymnutshell.core.sync.WearSyncContract
 import com.jonathaxs.gymnutshell.notifications.NotificationScheduler
@@ -30,6 +31,13 @@ class PhoneDataListenerService : WearableListenerService() {
             if (event.type != DataEvent.TYPE_CHANGED) continue
             val path = event.dataItem.uri.path ?: continue
             val dataMap = DataMapItem.fromDataItem(event.dataItem).dataMap
+
+            // Exclusão de histórico não tem carimbo de dia (apagar entrada velha é sempre válido).
+            val deleteId = WearSyncContract.goalKeyFromPath(path, WearSyncContract.HISTDELETE_PATH_PREFIX)
+            if (deleteId != null) {
+                runBlocking { NotificationHistoryRepository(applicationContext).delete(deleteId) }
+                continue
+            }
 
             // Deltas de outro dia (relógio ficou offline) são descartados:
             // aplicar o valor de ontem em cima do dia de hoje corromperia o registro.

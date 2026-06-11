@@ -15,6 +15,9 @@ interface StreakBonusDao {
     @Query("SELECT DISTINCT anchorDate FROM streak_bonus")
     suspend fun awardedAnchorDays(): List<Long>
 
+    @Query("SELECT * FROM streak_bonus")
+    suspend fun getAll(): List<StreakBonus>
+
     @Insert
     suspend fun insert(bonus: StreakBonus)
 }
