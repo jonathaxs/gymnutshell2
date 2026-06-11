@@ -15,6 +15,7 @@ import com.jonathaxs.gymnutshell.core.domain.Profile
 import com.jonathaxs.gymnutshell.core.domain.ProgressHelpers
 import com.jonathaxs.gymnutshell.core.domain.UserGoal
 import com.jonathaxs.gymnutshell.core.theme.AccentColor
+import com.jonathaxs.gymnutshell.wear.sync.WatchWearSync
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -139,14 +140,24 @@ class WearTodayViewModel(app: Application) : AndroidViewModel(app) {
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), WearTodayUiState())
 
-    /** Soma/subtrai um incremento, limitado entre 0 e o alvo (igual ao WatchGoalCard do iOS). */
+    /**
+     * Soma/subtrai um incremento, limitado entre 0 e o alvo (igual ao WatchGoalCard
+     * do iOS), e publica o delta pro celular via Data Layer.
+     */
     fun adjustIntake(goal: WearGoalUi, direction: Int) {
         val next = (goal.intake + direction * goal.increment).coerceIn(0, goal.target)
-        viewModelScope.launch { intakeRepo.setIntake(goal.key, next) }
+        viewModelScope.launch {
+            intakeRepo.setIntake(goal.key, next)
+            WatchWearSync.sendIntake(getApplication(), goal.key, next)
+        }
     }
 
     fun toggleRestDay(goal: WearGoalUi) {
-        viewModelScope.launch { intakeRepo.toggleRestDay(goal.key) }
+        val nowActive = !goal.isRestDay
+        viewModelScope.launch {
+            intakeRepo.toggleRestDay(goal.key)
+            WatchWearSync.sendRestDay(getApplication(), goal.key, nowActive)
+        }
     }
 
     private companion object {

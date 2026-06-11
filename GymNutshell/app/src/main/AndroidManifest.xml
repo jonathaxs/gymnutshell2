@@ -88,6 +88,20 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/goals_widget_info" />
         </receiver>
+
+        <!-- Recebe os deltas de intake/descanso vindos do relógio (Data Layer),
+             mesmo com o app fechado. -->
+        <service
+            android:name=".wear.PhoneDataListenerService"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.google.android.gms.wearable.DATA_CHANGED" />
+                <data
+                    android:scheme="wear"
+                    android:host="*"
+                    android:pathPrefix="/gymnutshell" />
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>

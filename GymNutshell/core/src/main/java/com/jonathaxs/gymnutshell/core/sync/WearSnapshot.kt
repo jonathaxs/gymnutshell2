@@ -75,4 +75,23 @@ object WearSyncContract {
 
     /** Chave do JSON dentro do DataMap. */
     const val KEY_PAYLOAD = "payload"
+
+    // Deltas relógio → celular (porte do sendIntakeUpdate do iOS). Um DataItem por
+    // meta: persistente e "último valor vence por chave" — cobre de uma vez o
+    // sendMessage (imediato) e o transferUserInfo (fila) do WatchConnectivity.
+    const val INTAKE_PATH_PREFIX = "$PATH_PREFIX/intake/"
+    const val RESTDAY_PATH_PREFIX = "$PATH_PREFIX/restday/"
+    const val KEY_VALUE = "value"
+    const val KEY_ACTIVE = "active"
+    /** Dia (epoch-day) do delta; o celular descarta deltas de outro dia (relógio offline). */
+    const val KEY_EPOCH_DAY = "epochDay"
+    /** Momento do envio; garante que cada envio altere os bytes do DataItem. */
+    const val KEY_SENT_AT = "sentAt"
+
+    fun intakePath(goalKey: String): String = INTAKE_PATH_PREFIX + goalKey
+    fun restDayPath(goalKey: String): String = RESTDAY_PATH_PREFIX + goalKey
+
+    /** Extrai a chave da meta de um path de delta; null se o prefixo não casa. */
+    fun goalKeyFromPath(path: String, prefix: String): String? =
+        path.takeIf { it.startsWith(prefix) }?.removePrefix(prefix)?.takeIf { it.isNotEmpty() }
 }

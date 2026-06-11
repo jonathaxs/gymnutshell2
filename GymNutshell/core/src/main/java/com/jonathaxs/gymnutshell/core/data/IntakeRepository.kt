@@ -42,6 +42,14 @@ class IntakeRepository(private val context: Context) {
         }
     }
 
+    /** Define o estado de "dia de descanso" de forma idempotente (aplicação de delta do relógio). */
+    suspend fun setRestDay(goalKey: String, active: Boolean) {
+        context.appPreferences.edit { prefs ->
+            val current = prefs[restDaysKey] ?: emptySet()
+            prefs[restDaysKey] = if (active) current + goalKey else current - goalKey
+        }
+    }
+
     /**
      * Substitui todos os intakes e dias de descanso de uma vez (sync com o relógio).
      * Chaves locais ausentes do mapa recebido são removidas — o snapshot é a verdade.
