@@ -20,6 +20,7 @@ import com.jonathaxs.gymnutshell.notifications.GymNotifier
 import com.jonathaxs.gymnutshell.notifications.NotificationScheduler
 import com.jonathaxs.gymnutshell.ui.RootScreen
 import com.jonathaxs.gymnutshell.ui.theme.GymNutshellTheme
+import com.jonathaxs.gymnutshell.wear.PhoneWearSync
 import com.jonathaxs.gymnutshell.widget.GymWidgets
 import kotlinx.coroutines.launch
 
@@ -56,10 +57,12 @@ class MainActivity : ComponentActivity() {
         pendingRoute = intent.getStringExtra(GymNotifier.EXTRA_ROUTE)
     }
 
-    // Ao sair do app, atualiza os widgets com o estado mais recente — espelha o "scenePhase background" do iOS.
+    // Ao sair do app, atualiza os widgets e publica o snapshot pro relógio com o
+    // estado mais recente — espelha o "scenePhase background" do iOS.
     override fun onStop() {
         super.onStop()
         GymWidgets.update(applicationContext)
+        PhoneWearSync.push(applicationContext)
     }
 
     /**

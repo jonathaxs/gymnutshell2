@@ -42,6 +42,22 @@ class IntakeRepository(private val context: Context) {
         }
     }
 
+    /**
+     * Substitui todos os intakes e dias de descanso de uma vez (sync com o relógio).
+     * Chaves locais ausentes do mapa recebido são removidas — o snapshot é a verdade.
+     */
+    suspend fun replaceAll(intakes: Map<String, Int>, restDays: Set<String>) {
+        context.appPreferences.edit { prefs ->
+            prefs.asMap().keys
+                .filter { it.name.startsWith(INTAKE_PREFIX) }
+                .forEach { prefs.remove(it) }
+            intakes.forEach { (goalKey, value) ->
+                prefs[intPreferencesKey(INTAKE_PREFIX + goalKey)] = value
+            }
+            prefs[restDaysKey] = restDays
+        }
+    }
+
     /** Apaga todos os intakes e dias de descanso (usado ao virar o dia). */
     suspend fun resetAllIntakes() {
         context.appPreferences.edit { prefs ->
