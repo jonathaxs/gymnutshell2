@@ -16,6 +16,7 @@ import com.jonathaxs.gymnutshell.core.domain.ProgressHelpers
 import com.jonathaxs.gymnutshell.core.domain.UserGoal
 import com.jonathaxs.gymnutshell.core.theme.AccentColor
 import com.jonathaxs.gymnutshell.wear.sync.WatchWearSync
+import com.jonathaxs.gymnutshell.wear.tile.ProgressTileService
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -149,6 +150,8 @@ class WearTodayViewModel(app: Application) : AndroidViewModel(app) {
         viewModelScope.launch {
             intakeRepo.setIntake(goal.key, next)
             WatchWearSync.sendIntake(getApplication(), goal.key, next)
+            // Tile acompanha incrementos feitos no próprio relógio (igual à complication do iOS).
+            ProgressTileService.requestUpdate(getApplication())
         }
     }
 
@@ -157,6 +160,7 @@ class WearTodayViewModel(app: Application) : AndroidViewModel(app) {
         viewModelScope.launch {
             intakeRepo.toggleRestDay(goal.key)
             WatchWearSync.sendRestDay(getApplication(), goal.key, nowActive)
+            ProgressTileService.requestUpdate(getApplication())
         }
     }
 

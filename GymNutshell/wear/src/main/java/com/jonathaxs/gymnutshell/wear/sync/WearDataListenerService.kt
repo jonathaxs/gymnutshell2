@@ -7,6 +7,7 @@ import com.google.android.gms.wearable.WearableListenerService
 import com.jonathaxs.gymnutshell.core.sync.WearSnapshotCodec
 import com.jonathaxs.gymnutshell.core.sync.WearSnapshotSync
 import com.jonathaxs.gymnutshell.core.sync.WearSyncContract
+import com.jonathaxs.gymnutshell.wear.tile.ProgressTileService
 import kotlinx.coroutines.runBlocking
 
 /**
@@ -29,6 +30,9 @@ class WearDataListenerService : WearableListenerService() {
             // onDataChanged roda em thread de background própria do service;
             // bloquear aqui é seguro e garante a aplicação antes do service morrer.
             runBlocking { WearSnapshotSync.apply(applicationContext, snapshot) }
+
+            // Tile reflete o estado novo (porte do reloadAllTimelines pós-snapshot do iOS).
+            ProgressTileService.requestUpdate(applicationContext)
         }
     }
 }
