@@ -13,6 +13,7 @@ import androidx.wear.compose.material3.AppScaffold
 import androidx.wear.compose.material3.HorizontalPagerScaffold
 import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.material3.Text
+import com.jonathaxs.gymnutshell.wear.today.WearTodayScreen
 
 /**
  * Container de navegação por página — porte da WatchRootView (iOS).
@@ -27,7 +28,7 @@ fun WearRootScreen() {
             HorizontalPager(state = pagerState) { page ->
                 when (page) {
                     0 -> PlaceholderScreen(stringResource(R.string.wear_page_stats))
-                    1 -> PlaceholderScreen(stringResource(R.string.wear_page_today))
+                    1 -> WearTodayScreen()
                     else -> PlaceholderScreen(stringResource(R.string.wear_page_notifications))
                 }
             }

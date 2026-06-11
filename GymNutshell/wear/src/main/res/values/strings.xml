@@ -6,4 +6,22 @@
     <string name="wear_page_stats">Stats</string>
     <string name="wear_page_today">Today</string>
     <string name="wear_page_notifications">Notifications</string>
+
+    <!-- Metas built-in (mesmos textos do celular). -->
+    <string name="wear_goal_workout">Workout</string>
+    <string name="wear_goal_cardio">Cardio</string>
+    <string name="wear_goal_sleep">Sleep</string>
+    <string name="wear_goal_water">Water</string>
+    <string name="wear_goal_calories">Calories</string>
+    <string name="wear_goal_protein">Protein</string>
+    <string name="wear_goal_carbs">Carbs</string>
+    <string name="wear_goal_good_fat">Fats</string>
+    <string name="wear_goal_fiber">Fiber</string>
+    <string name="wear_goal_creatine">Creatine</string>
+    <string name="rest_day">Rest day</string>
+
+    <!-- Acessibilidade (TalkBack). -->
+    <string name="cd_increase">Increase %1$s</string>
+    <string name="cd_decrease">Decrease %1$s</string>
+    <string name="cd_rest_day">Toggle rest day for %1$s</string>
 </resources>
