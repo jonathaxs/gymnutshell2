@@ -6,18 +6,29 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.jonathaxs.gymnutshell.R
+import com.jonathaxs.gymnutshell.ui.theme.color
 
-/** Lista raiz da Settings — porte da SettingsView (iOS): linhas que abrem sub-telas. */
+/**
+ * Lista raiz da Settings — porte da SettingsView (iOS): mesmas seções, na mesma ordem
+ * (Profile → Preferences → System), com headers coloridos pela cor de destaque.
+ * Itens do iOS ainda sem equivalente aqui: Orientation, Language e a seção About.
+ */
 @Composable
 fun SettingsListScreen(
     onOpenColor: () -> Unit,
@@ -30,30 +41,59 @@ fun SettingsListScreen(
     onOpenHealth: () -> Unit,
     onOpenBackup: () -> Unit,
     onOpenWidgetBackground: () -> Unit,
+    viewModel: SettingsViewModel = viewModel(),
 ) {
+    val accent by viewModel.accentColor.collectAsStateWithLifecycle()
+
     Scaffold(topBar = { SettingsTopBar(stringResource(R.string.tab_settings)) }) { padding ->
-        Column(Modifier.fillMaxSize().padding(padding)) {
-            SettingsRow(stringResource(R.string.settings_notifications), onClick = onOpenNotifications)
-            HorizontalDivider()
-            SettingsRow(stringResource(R.string.settings_health), onClick = onOpenHealth)
-            HorizontalDivider()
-            SettingsRow(stringResource(R.string.settings_backup), onClick = onOpenBackup)
-            HorizontalDivider()
-            SettingsRow(stringResource(R.string.settings_theme), onClick = onOpenTheme)
-            HorizontalDivider()
-            SettingsRow(stringResource(R.string.settings_accent_color), onClick = onOpenColor)
-            HorizontalDivider()
-            SettingsRow(stringResource(R.string.settings_widget_background), onClick = onOpenWidgetBackground)
-            HorizontalDivider()
-            SettingsRow(stringResource(R.string.settings_custom_goals), onClick = onOpenCustomGoals)
-            HorizontalDivider()
-            SettingsRow(stringResource(R.string.settings_units), onClick = onOpenUnits)
-            HorizontalDivider()
-            SettingsRow(stringResource(R.string.settings_physical_data), onClick = onOpenPhysical)
-            HorizontalDivider()
-            SettingsRow(stringResource(R.string.settings_fitness_goal), onClick = onOpenGoal)
+        Column(
+            Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .verticalScroll(rememberScrollState()),
+        ) {
+            // Seção Profile: dados físicos, objetivo fitness e metas (settings.section.edit do iOS).
+            SettingsSection(stringResource(R.string.settings_section_profile), accent.color) {
+                SettingsRow(stringResource(R.string.settings_physical_data), onClick = onOpenPhysical)
+                HorizontalDivider()
+                SettingsRow(stringResource(R.string.settings_fitness_goal), onClick = onOpenGoal)
+                HorizontalDivider()
+                SettingsRow(stringResource(R.string.settings_custom_goals), onClick = onOpenCustomGoals)
+            }
+
+            // Seção Preferences: tema, cor, widgets e unidades.
+            SettingsSection(stringResource(R.string.settings_section_preferences), accent.color) {
+                SettingsRow(stringResource(R.string.settings_theme), onClick = onOpenTheme)
+                HorizontalDivider()
+                SettingsRow(stringResource(R.string.settings_accent_color), onClick = onOpenColor)
+                HorizontalDivider()
+                SettingsRow(stringResource(R.string.settings_widget_background), onClick = onOpenWidgetBackground)
+                HorizontalDivider()
+                SettingsRow(stringResource(R.string.settings_units), onClick = onOpenUnits)
+            }
+
+            // Seção System: notificações, Health Connect e backup.
+            SettingsSection(stringResource(R.string.settings_section_system), accent.color) {
+                SettingsRow(stringResource(R.string.settings_notifications), onClick = onOpenNotifications)
+                HorizontalDivider()
+                SettingsRow(stringResource(R.string.settings_health), onClick = onOpenHealth)
+                HorizontalDivider()
+                SettingsRow(stringResource(R.string.settings_backup), onClick = onOpenBackup)
+            }
         }
     }
+}
+
+/** Header colorido pela accent + linhas da seção, espelhando a Section do iOS. */
+@Composable
+private fun SettingsSection(title: String, accent: Color, content: @Composable () -> Unit) {
+    Text(
+        title,
+        style = MaterialTheme.typography.titleSmall,
+        color = accent,
+        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 24.dp, bottom = 4.dp),
+    )
+    content()
 }
 
 /** Linha clicável: título à esquerda, chevron à direita. */

@@ -55,6 +55,10 @@
     <string name="progress_days_count">%1$d days</string>
 
     <!-- Settings -->
+    <!-- Headers das seções da lista raiz (mesma organização da SettingsView do iOS). -->
+    <string name="settings_section_profile">Profile</string>
+    <string name="settings_section_preferences">Preferences</string>
+    <string name="settings_section_system">System</string>
     <string name="settings_appearance">Appearance</string>
     <string name="settings_accent_color">Accent color</string>
     <string name="a11y_selected">Selected</string>
