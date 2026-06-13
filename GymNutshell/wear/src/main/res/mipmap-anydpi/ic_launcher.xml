@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Ícone do Wear: mesma arte azul do watchOS (a Apple rejeitou a versão preta por se
-     misturar com o fundo do relógio — mesmo risco no launcher escuro do Wear OS).
-     A arte já vem composta pro recorte circular da máscara (círculo de 72/108dp). -->
-<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
-    <background android:drawable="@drawable/ic_launcher_art" />
-    <foreground android:drawable="@android:color/transparent" />
-</adaptive-icon>

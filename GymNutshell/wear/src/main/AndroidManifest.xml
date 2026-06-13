@@ -4,8 +4,12 @@
     <!-- Declara que este APK só roda em relógios Wear OS. -->
     <uses-feature android:name="android.hardware.type.watch" />
 
+    <!-- Ícone circular azul (mesma arte do watchOS, que a Apple aprovou após rejeitar
+         a versão preta por se misturar com o fundo do relógio). Raster em todas as
+         densidades — o Wear OS recorta em círculo e renderiza de forma previsível. -->
     <application
         android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
         android:label="@string/app_name"
         android:theme="@android:style/Theme.DeviceDefault">
 
