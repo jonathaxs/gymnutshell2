@@ -1,6 +1,6 @@
 package com.jonathaxs.gymnutshell.ui.settings
 
-import android.widget.ImageView
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,15 +19,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.jonathaxs.gymnutshell.R
@@ -40,10 +38,6 @@ import com.jonathaxs.gymnutshell.ui.theme.color
 @Composable
 fun WearInstructionsScreen(onBack: () -> Unit, viewModel: SettingsViewModel = viewModel()) {
     val accent = viewModel.accentColor.collectAsStateWithLifecycle().value.color
-    val context = LocalContext.current
-
-    // Ícone redondo, no padrão dos apps de relógio (mesmo clip circular do iOS).
-    val drawable = remember { context.packageManager.getApplicationIcon(context.packageName) }
 
     Scaffold(topBar = { SettingsTopBar(stringResource(R.string.wear_sheet_title), onBack) }) { padding ->
         Column(
@@ -54,8 +48,11 @@ fun WearInstructionsScreen(onBack: () -> Unit, viewModel: SettingsViewModel = vi
                 .padding(horizontal = 16.dp),
         ) {
             Spacer(Modifier.height(24.dp))
-            AndroidView(
-                factory = { ImageView(it).apply { setImageDrawable(drawable) } },
+            // Ícone azul do relógio, redondo — mesma arte do watchOS/Wear OS (não o ícone
+            // preto do app do celular). Espelha o Image("AppleWatchIcon") do iOS.
+            Image(
+                painter = painterResource(R.drawable.ic_wear_app),
+                contentDescription = stringResource(R.string.a11y_app_icon),
                 modifier = Modifier
                     .size(80.dp)
                     .clip(CircleShape)
