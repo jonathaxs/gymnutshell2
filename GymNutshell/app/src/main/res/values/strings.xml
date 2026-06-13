@@ -59,7 +59,58 @@
     <string name="settings_section_profile">Profile</string>
     <string name="settings_section_preferences">Preferences</string>
     <string name="settings_section_system">System</string>
+    <string name="settings_section_about">About</string>
     <string name="settings_appearance">Appearance</string>
+
+    <!-- Seção About: páginas informativas (mesmos textos do iOS) -->
+    <string name="settings_about_link">Gym Nutshell</string>
+    <string name="settings_about_title">About the App</string>
+    <string name="settings_about_version">Version</string>
+    <string name="settings_about_description">Gym Nutshell is your gym daily goals in a nutshell.\n\nSet goals, track them, and watch consistency turn into results.</string>
+    <string name="settings_about_developer_header">Talk to the developer</string>
+    <string name="settings_about_feedback">Send Feedback</string>
+    <string name="settings_about_website">Developer Website</string>
+    <string name="a11y_app_icon">App icon</string>
+
+    <!-- Instruções de instalação no relógio (porte da página Apple Watch do iOS) -->
+    <string name="settings_wear_os">Wear OS</string>
+    <string name="wear_sheet_title">Install on Wear OS</string>
+    <string name="wear_sheet_intro">To install Gym Nutshell on your Wear OS watch, follow the steps below:</string>
+    <string name="wear_sheet_step1">Open the Play Store on your watch</string>
+    <string name="wear_sheet_step2">Search for \"Gym Nutshell\"</string>
+    <string name="wear_sheet_step3">Tap Install</string>
+    <string name="wear_sheet_note">You can also open the Gym Nutshell page in the Play Store on your phone and install it on your watch from there.</string>
+
+    <!-- Página do anel de progresso -->
+    <string name="settings_about_progress_ring">Progress Ring</string>
+    <string name="ring_info_intro">The ring shows the average percentage of your goals that you have completed.</string>
+    <string name="ring_info_section_colors">Ring colors</string>
+    <string name="ring_info_color_red">Just starting</string>
+    <string name="ring_info_color_orange">On your way</string>
+    <string name="ring_info_color_green">Doing great</string>
+    <string name="ring_info_color_cyan">Almost there</string>
+    <string name="ring_info_color_blue">Goal complete</string>
+    <string name="tier_info_range_suffix">" of progress"</string>
+    <string name="ring_info_level_label">Level %1$d</string>
+
+    <!-- Página de conquistas (tiers) -->
+    <string name="settings_about_achievement">Achievement</string>
+    <string name="tier_info_intro">Your achievement is recorded at the end of the day, at midnight.</string>
+    <string name="tier_info_section_levels">Achievements</string>
+    <string name="tier_info_change_theme">Change Theme</string>
+
+    <!-- Página dos bônus de sequência -->
+    <string name="settings_about_streak_bonus">Streak Bonuses</string>
+    <string name="streak_bonus_info_intro">Streak Bonuses are points awarded when you reach Level 3 or 4 every day of a week or month.</string>
+    <string name="streak_bonus_weekly_l3_title">Fitness Week</string>
+    <string name="streak_bonus_weekly_l4_title">Muscular Week</string>
+    <string name="streak_bonus_monthly_l3_title">Fitness Month</string>
+    <string name="streak_bonus_monthly_l4_title">Muscular Month</string>
+    <string name="streak_bonus_weekly_l3_desc">All days of the week with level 3 or 4 achievements.</string>
+    <string name="streak_bonus_weekly_l4_desc">All days of the week with level 4 achievements.</string>
+    <string name="streak_bonus_monthly_l3_desc">All days of the month with level 3 or 4 achievements.</string>
+    <string name="streak_bonus_monthly_l4_desc">All days of the month with 4 achievements.</string>
+    <string name="streak_bonus_points_format">+%1$d pts</string>
     <string name="settings_accent_color">Accent color</string>
     <string name="a11y_selected">Selected</string>
     <string name="a11y_not_selected">Not selected</string>

@@ -41,6 +41,11 @@ fun SettingsListScreen(
     onOpenHealth: () -> Unit,
     onOpenBackup: () -> Unit,
     onOpenWidgetBackground: () -> Unit,
+    onOpenAbout: () -> Unit,
+    onOpenWear: () -> Unit,
+    onOpenRingInfo: () -> Unit,
+    onOpenTierInfo: () -> Unit,
+    onOpenBonusInfo: () -> Unit,
     viewModel: SettingsViewModel = viewModel(),
 ) {
     val accent by viewModel.accentColor.collectAsStateWithLifecycle()
@@ -79,6 +84,19 @@ fun SettingsListScreen(
                 SettingsRow(stringResource(R.string.settings_health), onClick = onOpenHealth)
                 HorizontalDivider()
                 SettingsRow(stringResource(R.string.settings_backup), onClick = onOpenBackup)
+            }
+
+            // Seção About: páginas informativas (app, relógio, anel, tiers e bônus).
+            SettingsSection(stringResource(R.string.settings_section_about), accent.color) {
+                SettingsRow(stringResource(R.string.settings_about_link), onClick = onOpenAbout)
+                HorizontalDivider()
+                SettingsRow(stringResource(R.string.settings_wear_os), onClick = onOpenWear)
+                HorizontalDivider()
+                SettingsRow(stringResource(R.string.settings_about_progress_ring), onClick = onOpenRingInfo)
+                HorizontalDivider()
+                SettingsRow(stringResource(R.string.settings_about_achievement), onClick = onOpenTierInfo)
+                HorizontalDivider()
+                SettingsRow(stringResource(R.string.settings_about_streak_bonus), onClick = onOpenBonusInfo)
             }
         }
     }

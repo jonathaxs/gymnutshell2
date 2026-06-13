@@ -32,6 +32,11 @@ object SettingsRoutes {
     const val HEALTH = "settings_health"
     const val BACKUP = "settings_backup"
     const val WIDGET_BG = "settings_widget_bg"
+    const val ABOUT = "settings_about"
+    const val WEAR = "settings_wear"
+    const val RING_INFO = "settings_ring_info"
+    const val TIER_INFO = "settings_tier_info"
+    const val BONUS_INFO = "settings_bonus_info"
 }
 
 /** Grafo aninhado da Settings: lista → sub-telas (cor, dados físicos). */
@@ -49,6 +54,11 @@ fun NavGraphBuilder.settingsGraph(navController: NavController) {
                 onOpenHealth = { navController.navigate(SettingsRoutes.HEALTH) },
                 onOpenBackup = { navController.navigate(SettingsRoutes.BACKUP) },
                 onOpenWidgetBackground = { navController.navigate(SettingsRoutes.WIDGET_BG) },
+                onOpenAbout = { navController.navigate(SettingsRoutes.ABOUT) },
+                onOpenWear = { navController.navigate(SettingsRoutes.WEAR) },
+                onOpenRingInfo = { navController.navigate(SettingsRoutes.RING_INFO) },
+                onOpenTierInfo = { navController.navigate(SettingsRoutes.TIER_INFO) },
+                onOpenBonusInfo = { navController.navigate(SettingsRoutes.BONUS_INFO) },
             )
         }
         composable(SettingsRoutes.COLOR) {
@@ -83,6 +93,24 @@ fun NavGraphBuilder.settingsGraph(navController: NavController) {
         }
         composable(SettingsRoutes.WIDGET_BG) {
             WidgetBackgroundScreen(onBack = { navController.popBackStack() })
+        }
+        composable(SettingsRoutes.ABOUT) {
+            AboutScreen(onBack = { navController.popBackStack() })
+        }
+        composable(SettingsRoutes.WEAR) {
+            WearInstructionsScreen(onBack = { navController.popBackStack() })
+        }
+        composable(SettingsRoutes.RING_INFO) {
+            ProgressRingInfoScreen(onBack = { navController.popBackStack() })
+        }
+        composable(SettingsRoutes.TIER_INFO) {
+            TierInfoScreen(
+                onBack = { navController.popBackStack() },
+                onOpenTheme = { navController.navigate(SettingsRoutes.THEME) },
+            )
+        }
+        composable(SettingsRoutes.BONUS_INFO) {
+            StreakBonusInfoScreen(onBack = { navController.popBackStack() })
         }
         composable(
             route = "${SettingsRoutes.NOTIF_EDIT}/{target}",
