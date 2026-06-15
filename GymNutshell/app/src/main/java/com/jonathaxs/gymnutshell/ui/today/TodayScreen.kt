@@ -58,6 +58,12 @@ import com.jonathaxs.gymnutshell.core.domain.GoalCategory
 import com.jonathaxs.gymnutshell.core.domain.ProgressColors
 import kotlin.math.roundToInt
 
+/**
+ * Largura máxima do conteúdo da Today (hero, headers, metas), centralizado — parity com o iOS (330pt).
+ * Também afasta o slider das bordas da tela, onde o gesto de "voltar" do sistema captura o arraste.
+ */
+private val TodayContentMaxWidth = 330.dp
+
 /** Tela "Hoje" — porte (MVP) da TodayView (iOS): header com % do dia + metas agrupadas por categoria. */
 @Composable
 fun TodayScreen(
@@ -68,11 +74,12 @@ fun TodayScreen(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
-    Column(modifier.fillMaxSize()) {
+    Column(modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
         // A data de hoje é o próprio botão que abre o histórico de notificações (porte do botão de data da TodayHeroView do iOS).
         TodayHeader(state, accent = accent, onOpenHistory = onOpenHistory)
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
@@ -113,7 +120,10 @@ private fun TodayHeader(state: TodayUiState, accent: Color, onOpenHistory: () ->
     val tierDesc = stringResource(R.string.cd_daily_tier, state.tierLevel)
     val historyDesc = stringResource(R.string.cd_notification_history)
     Column(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
+        modifier = Modifier
+            .widthIn(max = TodayContentMaxWidth)
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 12.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         // Data de hoje: botão com borda arredondada na cor de destaque que abre o histórico de notificações.
@@ -122,8 +132,8 @@ private fun TodayHeader(state: TodayUiState, accent: Color, onOpenHistory: () ->
             style = MaterialTheme.typography.titleMedium,
             textAlign = TextAlign.Center,
             modifier = Modifier
+                .widthIn(max = TodayContentMaxWidth)
                 .fillMaxWidth()
-                .widthIn(max = 330.dp)
                 .clip(RoundedCornerShape(18.dp))
                 .clickable(onClick = onOpenHistory)
                 .border(1.5.dp, accent.copy(alpha = 0.33f), RoundedCornerShape(18.dp))
@@ -221,6 +231,7 @@ private fun CategoryHeader(section: TodayCategoryUi, accent: Color, onToggle: ()
     )
     Row(
         modifier = Modifier
+            .widthIn(max = TodayContentMaxWidth)
             .fillMaxWidth()
             .clip(shape)
             .background(bg)
@@ -259,7 +270,7 @@ private fun GoalRow(goal: TodayGoalUi, onSet: (Int) -> Unit, onToggleRest: () ->
     val progressFraction = if (goal.target > 0) shownValue.toFloat() / goal.target else 0f
     val sliderColor = Color(ProgressColors.ringArgb(progressFraction.toDouble()))
 
-    Card {
+    Card(Modifier.widthIn(max = TodayContentMaxWidth).fillMaxWidth()) {
         Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(goal.emoji, style = MaterialTheme.typography.titleLarge)
