@@ -19,6 +19,9 @@
     <string name="today_fiber">Fiber</string>
     <string name="today_creatine">Creatine</string>
     <string name="rest_day">Rest day</string>
+    <!-- Rótulos do hero (porte de TodayHeroView do iOS): acima do anel e da conquista -->
+    <string name="today_ring_label">Progress</string>
+    <string name="today_tier_label">Achievement</string>
 
     <!-- Categorias de metas -->
     <string name="category_essencial">Essential</string>
@@ -32,6 +35,7 @@
     <string name="state_collapsed">Collapsed</string>
     <string name="state_expanded">Expanded</string>
     <string name="cd_daily_progress">Daily progress, %1$d percent</string>
+    <string name="cd_daily_tier">Daily achievement, level %1$d</string>
     <string name="cd_prev_month">Previous month</string>
     <string name="cd_next_month">Next month</string>
 

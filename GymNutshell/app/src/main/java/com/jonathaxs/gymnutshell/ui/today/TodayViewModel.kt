@@ -70,6 +70,8 @@ data class TodayUiState(
     val dateLabel: String = "",
     val overallPercent: Int = 0,
     val tierEmoji: String = "🐓",
+    /** Nível do tier (1–4), usado no rótulo "Level N" da conquista no hero. */
+    val tierLevel: Int = 1,
     val overallProgress: Float = 0f,
     val sections: List<TodayCategoryUi> = emptyList(),
     /** Metas personalizadas sem categoria, exibidas no fim da lista. */
@@ -218,11 +220,13 @@ class TodayViewModel(app: Application) : AndroidViewModel(app) {
             val uncategorized = allGoals.filter { it.category == null }
 
             val avg = if (allGoals.isEmpty()) 0.0 else allGoals.sumOf { it.progress } / allGoals.size
+            val tier = DailyAchievement.from(avg)
 
             TodayUiState(
                 dateLabel = AppDateFormatters.longDate(LocalDate.now()),
                 overallPercent = floor(avg * 100).toInt(),
-                tierEmoji = theme.emoji(DailyAchievement.from(avg)),
+                tierEmoji = theme.emoji(tier),
+                tierLevel = tier.ordinal + 1,
                 overallProgress = avg.toFloat(),
                 sections = sections,
                 uncategorizedGoals = uncategorized,

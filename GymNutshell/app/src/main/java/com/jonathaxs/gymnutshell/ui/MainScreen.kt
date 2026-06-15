@@ -116,7 +116,7 @@ fun MainScreen(
                 modifier = Modifier.widthIn(max = 600.dp).fillMaxSize(),
             ) {
                 composable(MainTab.Today.route) {
-                    TodayScreen(onOpenHistory = { navController.navigate(HISTORY_ROUTE) })
+                    TodayScreen(accent = accent, onOpenHistory = { navController.navigate(HISTORY_ROUTE) })
                 }
                 composable(MainTab.Achievements.route) { AchievementsScreen() }
                 composable(MainTab.Progress.route) { ProgressScreen() }
