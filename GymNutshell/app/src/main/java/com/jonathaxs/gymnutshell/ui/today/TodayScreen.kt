@@ -1,6 +1,7 @@
 package com.jonathaxs.gymnutshell.ui.today
 
 import androidx.annotation.StringRes
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -76,7 +77,7 @@ fun TodayScreen(
         ) {
             state.sections.forEach { section ->
                 item(key = "cat_${section.category.name}") {
-                    CategoryHeader(section) { viewModel.toggleCategory(section.category) }
+                    CategoryHeader(section, accent = accent) { viewModel.toggleCategory(section.category) }
                 }
                 if (!section.collapsed) {
                     items(section.goals, key = { it.key }) { goal ->
@@ -191,25 +192,52 @@ private fun HeroLabel(text: String) {
     )
 }
 
-/** Cabeçalho de categoria, clicável pra abrir/fechar. O chevron indica o estado. */
+/**
+ * Cabeçalho de categoria, clicável pra abrir/fechar — porte do TodayCategoryHeader (iOS).
+ * Texto centralizado e fundo arredondado que sinaliza o estado: expandido arredonda só em CIMA
+ * (cor de destaque, "conecta" com as metas que aparecem abaixo); colapsado arredonda só EMBAIXO (cinza).
+ */
 @Composable
-private fun CategoryHeader(section: TodayCategoryUi, onToggle: () -> Unit) {
+private fun CategoryHeader(section: TodayCategoryUi, accent: Color, onToggle: () -> Unit) {
     val title = stringResource(categoryTitleRes(section.category))
     val stateDesc = stringResource(
         if (section.collapsed) R.string.state_collapsed else R.string.state_expanded,
     )
+    // Cantos arredondados conforme o estado (UnevenRoundedRectangle no iOS).
+    val shape = if (section.collapsed) {
+        RoundedCornerShape(bottomStart = 14.dp, bottomEnd = 14.dp)
+    } else {
+        RoundedCornerShape(topStart = 14.dp, topEnd = 14.dp)
+    }
+    // Cor do fundo (anima a troca cinza↔destaque na expansão/colapso).
+    val bg by animateColorAsState(
+        targetValue = if (section.collapsed) {
+            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.20f)
+        } else {
+            accent.copy(alpha = 0.22f)
+        },
+        label = "categoryHeaderBg",
+    )
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .clip(shape)
+            .background(bg)
             .clickable(onClick = onToggle)
             .semantics { stateDescription = stateDesc }
-            .padding(vertical = 10.dp, horizontal = 4.dp),
+            .padding(vertical = 6.dp, horizontal = 10.dp),
+        horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
     ) {
         // chevron visual escondido do TalkBack (o estado já vem pelo stateDescription)
         Text(if (section.collapsed) "▸" else "▾", modifier = Modifier.clearAndSetSemantics {})
-        Spacer(Modifier.width(8.dp))
-        Text(title, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+        Spacer(Modifier.width(6.dp))
+        Text(
+            title.uppercase(),
+            style = MaterialTheme.typography.labelMedium,
+            fontWeight = FontWeight.Bold,
+            letterSpacing = 0.5.sp,
+        )
     }
 }
 
