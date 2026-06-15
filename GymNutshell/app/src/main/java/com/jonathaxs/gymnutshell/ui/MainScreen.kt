@@ -36,7 +36,6 @@ import androidx.navigation.compose.rememberNavController
 import com.jonathaxs.gymnutshell.R
 import com.jonathaxs.gymnutshell.core.domain.NotificationRoute
 import com.jonathaxs.gymnutshell.ui.achievements.AchievementsScreen
-import com.jonathaxs.gymnutshell.ui.history.NotificationHistoryScreen
 import com.jonathaxs.gymnutshell.ui.progress.ProgressScreen
 import com.jonathaxs.gymnutshell.ui.settings.SettingsRoutes
 import com.jonathaxs.gymnutshell.ui.settings.settingsGraph
@@ -116,23 +115,20 @@ fun MainScreen(
                 modifier = Modifier.widthIn(max = 600.dp).fillMaxSize(),
             ) {
                 composable(MainTab.Today.route) {
-                    TodayScreen(accent = accent, onOpenHistory = { navController.navigate(HISTORY_ROUTE) })
+                    // O histórico de notificações abre como bottom sheet dentro da própria Today (ao tocar na data);
+                    // aqui só passamos a navegação para quando o usuário toca numa entrada do histórico.
+                    TodayScreen(
+                        accent = accent,
+                        onOpenRoute = { route, _ -> navigateForRoute(navController, route) },
+                    )
                 }
                 composable(MainTab.Achievements.route) { AchievementsScreen() }
                 composable(MainTab.Progress.route) { ProgressScreen() }
                 settingsGraph(navController)
-                composable(HISTORY_ROUTE) {
-                    NotificationHistoryScreen(
-                        onBack = { navController.popBackStack() },
-                        onOpenRoute = { route, _ -> navigateForRoute(navController, route) },
-                    )
-                }
             }
         }
     }
 }
-
-private const val HISTORY_ROUTE = "history"
 
 /** Leva ao destino de uma rota de notificação (Today / Achievements / tela de Backup na Settings). */
 private fun navigateForRoute(navController: NavController, routeRaw: String) {
