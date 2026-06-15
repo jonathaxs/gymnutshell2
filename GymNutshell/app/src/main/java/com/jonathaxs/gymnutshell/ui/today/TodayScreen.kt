@@ -40,6 +40,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -272,23 +273,43 @@ private fun GoalRow(goal: TodayGoalUi, onSet: (Int) -> Unit, onToggleRest: () ->
             }
             // Slider pra ajustar o valor (oculto no dia de descanso, que já vale 100%).
             if (!goal.isRestDay) {
+                val maxTarget = goal.target.toFloat().coerceAtLeast(1f)
                 Slider(
                     value = sliderValue,
                     onValueChange = { sliderValue = it },
                     onValueChangeFinished = { onSet(snapToIncrement(sliderValue, goal.increment, goal.target)) },
-                    valueRange = 0f..goal.target.toFloat().coerceAtLeast(1f),
+                    valueRange = 0f..maxTarget,
                     colors = SliderDefaults.colors(
                         thumbColor = sliderColor,
                         activeTrackColor = sliderColor,
                         inactiveTrackColor = sliderColor.copy(alpha = 0.24f),
                     ),
-                    // Thumb redondo (em vez da "barrinha" padrão do Material 3), como no iOS.
+                    // Track fino e contínuo (sem os segmentos do Material 3 expressive) + thumb circular com
+                    // leve sombra: visual sóbrio, próximo dos sliders do próprio sistema Android.
+                    track = {
+                        val fraction = (sliderValue / maxTarget).coerceIn(0f, 1f)
+                        Box(
+                            Modifier
+                                .fillMaxWidth()
+                                .height(4.dp)
+                                .clip(CircleShape)
+                                .background(sliderColor.copy(alpha = 0.24f)),
+                        ) {
+                            Box(
+                                Modifier
+                                    .fillMaxWidth(fraction)
+                                    .height(4.dp)
+                                    .clip(CircleShape)
+                                    .background(sliderColor),
+                            )
+                        }
+                    },
                     thumb = {
                         Box(
                             Modifier
                                 .size(20.dp)
-                                .clip(CircleShape)
-                                .background(sliderColor),
+                                .shadow(2.dp, CircleShape)
+                                .background(sliderColor, CircleShape),
                         )
                     },
                 )
