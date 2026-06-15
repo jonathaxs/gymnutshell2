@@ -22,6 +22,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.systemGestureExclusion
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
@@ -286,6 +287,8 @@ private fun GoalRow(goal: TodayGoalUi, onSet: (Int) -> Unit, onToggleRest: () ->
             if (!goal.isRestDay) {
                 val maxTarget = goal.target.toFloat().coerceAtLeast(1f)
                 Slider(
+                    // Exclui a área do slider do gesto de "voltar" do sistema (arraste pela borda), evitando sair do app.
+                    modifier = Modifier.systemGestureExclusion(),
                     value = sliderValue,
                     onValueChange = { sliderValue = it },
                     onValueChangeFinished = { onSet(snapToIncrement(sliderValue, goal.increment, goal.target)) },
