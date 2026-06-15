@@ -32,7 +32,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -55,7 +54,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.jonathaxs.gymnutshell.R
 import com.jonathaxs.gymnutshell.core.domain.GoalCategory
 import com.jonathaxs.gymnutshell.core.domain.ProgressColors
-import com.jonathaxs.gymnutshell.ui.history.NotificationHistorySheet
 import kotlin.math.roundToInt
 
 /** Tela "Hoje" — porte (MVP) da TodayView (iOS): header com % do dia + metas agrupadas por categoria. */
@@ -63,17 +61,14 @@ import kotlin.math.roundToInt
 fun TodayScreen(
     modifier: Modifier = Modifier,
     accent: Color = MaterialTheme.colorScheme.primary,
-    /** Navega pra rota de uma notificação tocada no histórico (vem do MainScreen, que tem o navController). */
-    onOpenRoute: (routeRaw: String, achievementEpochDay: Long?) -> Unit = { _, _ -> },
+    onOpenHistory: () -> Unit = {},
     viewModel: TodayViewModel = viewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    // Controla a exibição do bottom sheet do histórico de notificações (aberto pela data de hoje).
-    var showHistory by remember { mutableStateOf(false) }
 
     Column(modifier.fillMaxSize()) {
         // A data de hoje é o próprio botão que abre o histórico de notificações (porte do botão de data da TodayHeroView do iOS).
-        TodayHeader(state, accent = accent, onOpenHistory = { showHistory = true })
+        TodayHeader(state, accent = accent, onOpenHistory = onOpenHistory)
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
@@ -102,14 +97,6 @@ fun TodayScreen(
                 )
             }
         }
-    }
-
-    // Bottom sheet do histórico de notificações, aberto pela data de hoje.
-    if (showHistory) {
-        NotificationHistorySheet(
-            onDismiss = { showHistory = false },
-            onOpenRoute = onOpenRoute,
-        )
     }
 }
 
