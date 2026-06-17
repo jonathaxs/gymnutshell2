@@ -1,7 +1,15 @@
 package com.jonathaxs.gymnutshell.ui.today
 
 import androidx.annotation.StringRes
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -44,6 +52,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
@@ -98,16 +107,37 @@ fun TodayScreen(
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             state.sections.forEach { section ->
+                // Header + metas no mesmo item pra animar o grupo ao expandir/recolher,
+                // porte da .transition(.scale 0.92, anchor .top + opacity) do iOS (easeInOut 0.2s).
                 item(key = "cat_${section.category.name}") {
-                    CategoryHeader(section, accent = accent) { viewModel.toggleCategory(section.category) }
-                }
-                if (!section.collapsed) {
-                    items(section.goals, key = { it.key }) { goal ->
-                        GoalRow(
-                            goal = goal,
-                            onSet = { viewModel.updateIntake(goal, it) },
-                            onToggleRest = { viewModel.toggleRestDay(goal) },
-                        )
+                    Column(
+                        Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        CategoryHeader(section, accent = accent) { viewModel.toggleCategory(section.category) }
+                        AnimatedVisibility(
+                            visible = !section.collapsed,
+                            enter = fadeIn(tween(220)) +
+                                expandVertically(tween(220), expandFrom = Alignment.Top) +
+                                scaleIn(tween(220), initialScale = 0.92f, transformOrigin = TransformOrigin(0.5f, 0f)),
+                            exit = fadeOut(tween(220)) +
+                                shrinkVertically(tween(220), shrinkTowards = Alignment.Top) +
+                                scaleOut(tween(220), targetScale = 0.92f, transformOrigin = TransformOrigin(0.5f, 0f)),
+                        ) {
+                            Column(
+                                Modifier.fillMaxWidth().padding(top = 8.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.spacedBy(8.dp),
+                            ) {
+                                section.goals.forEach { goal ->
+                                    GoalRow(
+                                        goal = goal,
+                                        onSet = { viewModel.updateIntake(goal, it) },
+                                        onToggleRest = { viewModel.toggleRestDay(goal) },
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
             }
