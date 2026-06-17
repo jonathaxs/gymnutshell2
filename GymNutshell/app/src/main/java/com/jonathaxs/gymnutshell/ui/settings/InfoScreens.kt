@@ -15,12 +15,16 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,6 +38,7 @@ import com.jonathaxs.gymnutshell.R
 import com.jonathaxs.gymnutshell.core.domain.DailyAchievement
 import com.jonathaxs.gymnutshell.core.domain.ProgressColors
 import com.jonathaxs.gymnutshell.ui.theme.color
+import kotlinx.coroutines.launch
 
 // Páginas informativas da seção About — portes de ProgressRingInfoView,
 // TierInfoView e StreakBonusInfoView (iOS). Sem contexto de progresso atual
@@ -42,6 +47,14 @@ import com.jonathaxs.gymnutshell.ui.theme.color
 /** Anel de progresso: o que ele mostra e o significado de cada cor. */
 @Composable
 fun ProgressRingInfoScreen(onBack: () -> Unit) {
+    InfoPage(title = stringResource(R.string.settings_about_progress_ring), onBack = onBack) {
+        ProgressRingInfoContent()
+    }
+}
+
+/** Conteúdo da info do anel (sem chrome), reutilizado pela página (Settings) e pelo sheet (Today). */
+@Composable
+fun ProgressRingInfoContent() {
     // Mesmas cores e faixas do ProgressColors do :core (única fonte da escala).
     val rangeSuffix = stringResource(R.string.tier_info_range_suffix)
     val colors = listOf(
@@ -51,20 +64,17 @@ fun ProgressRingInfoScreen(onBack: () -> Unit) {
         Triple(stringResource(R.string.ring_info_color_cyan), Color(0xFF32ADE6), "90 – 99%"),
         Triple(stringResource(R.string.ring_info_color_blue), Color(0xFF007AFF), "100%"),
     )
-
-    InfoPage(title = stringResource(R.string.settings_about_progress_ring), onBack = onBack) {
-        IntroText(stringResource(R.string.ring_info_intro))
-        InfoSectionHeader(stringResource(R.string.ring_info_section_colors))
-        colors.forEachIndexed { index, (label, swatch, range) ->
-            if (index > 0) HorizontalDivider()
-            InfoRow(
-                leading = {
-                    Box(Modifier.size(24.dp).clip(CircleShape).background(swatch))
-                },
-                title = label,
-                subtitle = range + rangeSuffix,
-            )
-        }
+    IntroText(stringResource(R.string.ring_info_intro))
+    InfoSectionHeader(stringResource(R.string.ring_info_section_colors))
+    colors.forEachIndexed { index, (label, swatch, range) ->
+        if (index > 0) HorizontalDivider()
+        InfoRow(
+            leading = {
+                Box(Modifier.size(24.dp).clip(CircleShape).background(swatch))
+            },
+            title = label,
+            subtitle = range + rangeSuffix,
+        )
     }
 }
 
@@ -73,41 +83,49 @@ fun ProgressRingInfoScreen(onBack: () -> Unit) {
 fun TierInfoScreen(
     onBack: () -> Unit,
     onOpenTheme: () -> Unit,
+) {
+    InfoPage(title = stringResource(R.string.settings_about_achievement), onBack = onBack) {
+        TierInfoContent(onOpenTheme = onOpenTheme)
+    }
+}
+
+/** Conteúdo da info de conquistas (sem chrome), reutilizado pela página (Settings) e pelo sheet (Today). */
+@Composable
+fun TierInfoContent(
+    onOpenTheme: () -> Unit,
     viewModel: SettingsViewModel = viewModel(),
 ) {
     val theme by viewModel.theme.collectAsStateWithLifecycle()
     val accent = viewModel.accentColor.collectAsStateWithLifecycle().value.color
     val rangeSuffix = stringResource(R.string.tier_info_range_suffix)
 
-    InfoPage(title = stringResource(R.string.settings_about_achievement), onBack = onBack) {
-        IntroText(stringResource(R.string.tier_info_intro))
-        InfoSectionHeader(stringResource(R.string.tier_info_section_levels))
-        DailyAchievement.entries.forEachIndexed { index, tier ->
-            if (index > 0) HorizontalDivider()
-            InfoRow(
-                leading = {
-                    Text(theme.emoji(tier), style = MaterialTheme.typography.headlineSmall)
-                },
-                // Nomes de tier por tema ainda não existem no Android; até lá o título é "Level N".
-                title = stringResource(R.string.ring_info_level_label, index + 1),
-                subtitle = tierRange(tier) + rangeSuffix,
-            )
-        }
-
-        Spacer(Modifier.height(16.dp))
-        HorizontalDivider()
-        // Atalho pra trocar o tema, como o NavigationLink do iOS.
-        Text(
-            stringResource(R.string.tier_info_change_theme),
-            style = MaterialTheme.typography.bodyLarge,
-            color = accent,
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable(onClick = onOpenTheme)
-                .padding(horizontal = 16.dp, vertical = 16.dp),
+    IntroText(stringResource(R.string.tier_info_intro))
+    InfoSectionHeader(stringResource(R.string.tier_info_section_levels))
+    DailyAchievement.entries.forEachIndexed { index, tier ->
+        if (index > 0) HorizontalDivider()
+        InfoRow(
+            leading = {
+                Text(theme.emoji(tier), style = MaterialTheme.typography.headlineSmall)
+            },
+            // Nomes de tier por tema ainda não existem no Android; até lá o título é "Level N".
+            title = stringResource(R.string.ring_info_level_label, index + 1),
+            subtitle = tierRange(tier) + rangeSuffix,
         )
-        HorizontalDivider()
     }
+
+    Spacer(Modifier.height(16.dp))
+    HorizontalDivider()
+    // Atalho pra trocar o tema, como o NavigationLink do iOS.
+    Text(
+        stringResource(R.string.tier_info_change_theme),
+        style = MaterialTheme.typography.bodyLarge,
+        color = accent,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onOpenTheme)
+            .padding(horizontal = 16.dp, vertical = 16.dp),
+    )
+    HorizontalDivider()
 }
 
 /** Bônus de sequência: os 4 tipos com condição de desbloqueio e pontos. */
@@ -134,6 +152,58 @@ fun StreakBonusInfoScreen(onBack: () -> Unit) {
             )
         }
     }
+}
+
+// ---- Bottom sheets das infos, abertos ao tocar no anel / conquista da Today (porte das sheets do iOS) ----
+
+/** Sheet com a info do anel de progresso (no iOS, ProgressRingInfoView aberta como sheet). */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ProgressRingInfoSheet(onDismiss: () -> Unit) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
+        InfoSheetTitle(stringResource(R.string.settings_about_progress_ring))
+        Column(
+            Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(bottom = 24.dp),
+        ) {
+            ProgressRingInfoContent()
+        }
+    }
+}
+
+/** Sheet com a info de conquistas (no iOS, TierInfoView aberta como sheet). */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TierInfoSheet(onDismiss: () -> Unit, onOpenTheme: () -> Unit) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val scope = rememberCoroutineScope()
+    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
+        InfoSheetTitle(stringResource(R.string.settings_about_achievement))
+        Column(
+            Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(bottom = 24.dp),
+        ) {
+            TierInfoContent(onOpenTheme = {
+                // Fecha o sheet animando e só então navega pra tela de tema.
+                scope.launch { sheetState.hide() }.invokeOnCompletion {
+                    if (!sheetState.isVisible) {
+                        onDismiss()
+                        onOpenTheme()
+                    }
+                }
+            })
+        }
+    }
+}
+
+/** Título do bottom sheet de info. */
+@Composable
+private fun InfoSheetTitle(title: String) {
+    Text(
+        title,
+        style = MaterialTheme.typography.titleLarge,
+        fontWeight = FontWeight.Bold,
+        modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 4.dp, bottom = 8.dp),
+    )
 }
 
 private data class BonusRow(val emoji: String, val titleRes: Int, val descRes: Int, val points: Int)

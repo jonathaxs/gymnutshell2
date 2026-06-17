@@ -34,6 +34,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -57,6 +58,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.jonathaxs.gymnutshell.R
 import com.jonathaxs.gymnutshell.core.domain.GoalCategory
 import com.jonathaxs.gymnutshell.core.domain.ProgressColors
+import com.jonathaxs.gymnutshell.ui.settings.ProgressRingInfoSheet
+import com.jonathaxs.gymnutshell.ui.settings.TierInfoSheet
 import kotlin.math.roundToInt
 
 /**
@@ -71,13 +74,23 @@ fun TodayScreen(
     modifier: Modifier = Modifier,
     accent: Color = MaterialTheme.colorScheme.primary,
     onOpenHistory: () -> Unit = {},
+    onOpenTheme: () -> Unit = {},
     viewModel: TodayViewModel = viewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    // Bottom sheets de info do anel e da conquista, abertos ao tocar neles (porte das sheets do iOS).
+    var showRingInfo by remember { mutableStateOf(false) }
+    var showTierInfo by remember { mutableStateOf(false) }
 
     Column(modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
         // A data de hoje é o próprio botão que abre o histórico de notificações (porte do botão de data da TodayHeroView do iOS).
-        TodayHeader(state, accent = accent, onOpenHistory = onOpenHistory)
+        TodayHeader(
+            state,
+            accent = accent,
+            onOpenHistory = onOpenHistory,
+            onRingClick = { showRingInfo = true },
+            onTierClick = { showTierInfo = true },
+        )
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -108,6 +121,14 @@ fun TodayScreen(
             }
         }
     }
+
+    // Sheets de info abertos pelo toque no anel / conquista.
+    if (showRingInfo) {
+        ProgressRingInfoSheet(onDismiss = { showRingInfo = false })
+    }
+    if (showTierInfo) {
+        TierInfoSheet(onDismiss = { showTierInfo = false }, onOpenTheme = onOpenTheme)
+    }
 }
 
 /**
@@ -116,7 +137,13 @@ fun TodayScreen(
  * o emoji do tier e o nome "Level N" (nomes localizados por tema ainda não existem no Android).
  */
 @Composable
-private fun TodayHeader(state: TodayUiState, accent: Color, onOpenHistory: () -> Unit) {
+private fun TodayHeader(
+    state: TodayUiState,
+    accent: Color,
+    onOpenHistory: () -> Unit,
+    onRingClick: () -> Unit,
+    onTierClick: () -> Unit,
+) {
     val progressDesc = stringResource(R.string.cd_daily_progress, state.overallPercent)
     val tierDesc = stringResource(R.string.cd_daily_tier, state.tierLevel)
     val historyDesc = stringResource(R.string.cd_notification_history)
@@ -146,10 +173,12 @@ private fun TodayHeader(state: TodayUiState, accent: Color, onOpenHistory: () ->
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            // Bloco do anel: rótulo "Progress" + anel com % no centro.
+            // Bloco do anel: rótulo "Progress" + anel com % no centro. Toque abre a info do anel.
             Column(
                 modifier = Modifier
                     .weight(1f)
+                    .clip(RoundedCornerShape(16.dp))
+                    .clickable(onClick = onRingClick)
                     .semantics(mergeDescendants = true) { contentDescription = progressDesc },
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
@@ -157,10 +186,12 @@ private fun TodayHeader(state: TodayUiState, accent: Color, onOpenHistory: () ->
                 Spacer(Modifier.height(12.dp))
                 TodayProgressRing(progress = state.overallProgress, percent = state.overallPercent)
             }
-            // Bloco da conquista: rótulo "Achievement" + emoji do tier + nome "Level N".
+            // Bloco da conquista: rótulo "Achievement" + emoji do tier + nome "Level N". Toque abre a info da conquista.
             Column(
                 modifier = Modifier
                     .weight(1f)
+                    .clip(RoundedCornerShape(16.dp))
+                    .clickable(onClick = onTierClick)
                     .semantics(mergeDescendants = true) { contentDescription = tierDesc },
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
