@@ -19,6 +19,9 @@
     <string name="today_fiber">Fiber</string>
     <string name="today_creatine">Creatine</string>
     <string name="rest_day">Rest day</string>
+    <!-- Botão ON/OFF de dia de descanso (reflete o treino: ON = treinando, OFF = descanso) -->
+    <string name="rest_day_on">ON</string>
+    <string name="rest_day_off">OFF</string>
     <!-- Rótulos do hero (porte de TodayHeroView do iOS): acima do anel e da conquista -->
     <string name="today_ring_label">Progress</string>
     <string name="today_tier_label">Achievement</string>

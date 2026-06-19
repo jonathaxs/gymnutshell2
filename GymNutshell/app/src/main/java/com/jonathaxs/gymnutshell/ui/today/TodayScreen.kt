@@ -33,7 +33,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.systemGestureExclusion
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
@@ -132,6 +131,7 @@ fun TodayScreen(
                                 section.goals.forEach { goal ->
                                     GoalRow(
                                         goal = goal,
+                                        accent = accent,
                                         onSet = { viewModel.updateIntake(goal, it) },
                                         onToggleRest = { viewModel.toggleRestDay(goal) },
                                     )
@@ -145,6 +145,7 @@ fun TodayScreen(
             items(state.uncategorizedGoals, key = { it.key }) { goal ->
                 GoalRow(
                     goal = goal,
+                    accent = accent,
                     onSet = { viewModel.updateIntake(goal, it) },
                     onToggleRest = { viewModel.toggleRestDay(goal) },
                 )
@@ -315,10 +316,10 @@ private fun CategoryHeader(section: TodayCategoryUi, accent: Color, onToggle: ()
     }
 }
 
-/** Linha de uma meta: emoji, título, valor/alvo, slider e, quando aplicável, dia de descanso. */
+/** Linha de uma meta: emoji, título, valor/alvo, botão de descanso e slider. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun GoalRow(goal: TodayGoalUi, onSet: (Int) -> Unit, onToggleRest: () -> Unit) {
+private fun GoalRow(goal: TodayGoalUi, accent: Color, onSet: (Int) -> Unit, onToggleRest: () -> Unit) {
     // Metas custom já trazem o título; built-in resolvem via string resource.
     val title = goal.title ?: stringResource(titleRes(goal.key))
     val restLabel = stringResource(R.string.rest_day)
@@ -338,14 +339,29 @@ private fun GoalRow(goal: TodayGoalUi, onSet: (Int) -> Unit, onToggleRest: () ->
                 Text(goal.emoji, style = MaterialTheme.typography.titleLarge)
                 Spacer(Modifier.width(12.dp))
                 Text(title, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge)
+                // Valor com unidade — fica à esquerda do botão de descanso, como no iOS.
                 Text(
-                    text = if (goal.isRestDay) restLabel else "$shownValue/${goal.target} ${goal.unit}",
+                    text = "$shownValue/${goal.target} ${goal.unit}",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
+                // Botão ON/OFF de descanso (só metas de Treino), no lugar do controle de valor, como o iOS.
+                if (goal.supportsRestDay) {
+                    Spacer(Modifier.width(10.dp))
+                    RestDayToggle(isRestDay = goal.isRestDay, accent = accent, onClick = onToggleRest)
+                }
             }
-            // Slider pra ajustar o valor (oculto no dia de descanso, que já vale 100%).
-            if (!goal.isRestDay) {
+            // Dia de descanso: substitui o slider por um texto centralizado (como o iOS).
+            if (goal.isRestDay) {
+                Text(
+                    restLabel,
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                )
+            } else {
                 val maxTarget = goal.target.toFloat().coerceAtLeast(1f)
                 Slider(
                     // Exclui a área do slider do gesto de "voltar" do sistema (arraste pela borda), evitando sair do app.
@@ -389,16 +405,30 @@ private fun GoalRow(goal: TodayGoalUi, onSet: (Int) -> Unit, onToggleRest: () ->
                     },
                 )
             }
-            // Toggle de dia de descanso (só metas de Treino).
-            if (goal.supportsRestDay) {
-                FilterChip(
-                    selected = goal.isRestDay,
-                    onClick = onToggleRest,
-                    label = { Text(restLabel) },
-                )
-            }
         }
     }
+}
+
+/**
+ * Botão ON/OFF de dia de descanso (porte do restDayToggle do iOS): pílula à direita do valor.
+ * "ON" (accent sobre cinza) = treinando; "OFF" (cinza sobre accent) = em descanso. O texto reflete o treino.
+ */
+@Composable
+private fun RestDayToggle(isRestDay: Boolean, accent: Color, onClick: () -> Unit) {
+    val label = if (isRestDay) stringResource(R.string.rest_day_off) else stringResource(R.string.rest_day_on)
+    val textColor = if (isRestDay) MaterialTheme.colorScheme.onSurfaceVariant else accent
+    val bgColor = if (isRestDay) accent.copy(alpha = 0.25f) else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
+    Text(
+        label,
+        style = MaterialTheme.typography.labelMedium,
+        fontWeight = FontWeight.Bold,
+        color = textColor,
+        modifier = Modifier
+            .clip(CircleShape)
+            .clickable(onClick = onClick)
+            .background(bgColor)
+            .padding(horizontal = 14.dp, vertical = 6.dp),
+    )
 }
 
 /** Arredonda o valor do slider pro múltiplo de increment mais próximo, dentro de [0, target]. */
