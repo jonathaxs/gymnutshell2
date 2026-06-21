@@ -36,12 +36,16 @@ data class HistoryItemUi(
     val percent: Int,
 )
 
+/** Modo de visualização: calendário (com o dia selecionado) ou lista completa. Espelha o FilterMode (iOS). */
+enum class AchievementsFilterMode { Calendar, List }
+
 /** Estado da AchievementsView. */
 data class AchievementsUiState(
     val monthLabel: String = "",
     val weekdays: List<String> = emptyList(),
     val days: List<CalendarDayUi> = emptyList(),
     val history: List<HistoryItemUi> = emptyList(),
+    val filterMode: AchievementsFilterMode = AchievementsFilterMode.Calendar,
     val accentArgb: Long = 0xFF007AFF,
 )
 
@@ -56,13 +60,15 @@ class AchievementsViewModel(app: Application) : AndroidViewModel(app) {
 
     private val month = MutableStateFlow(YearMonth.now())
     private val selectedDay = MutableStateFlow(LocalDate.now().toEpochDay())
+    private val filterMode = MutableStateFlow(AchievementsFilterMode.Calendar)
 
     val uiState: StateFlow<AchievementsUiState> = combine(
         recordRepo.records,
         month,
         selectedDay,
         settingsRepo.accentColor,
-    ) { records, ym, selected, accent ->
+        filterMode,
+    ) { records, ym, selected, accent, mode ->
         val emojiByDay = records.associate { it.date to it.achievementEmoji }
         val todayEpoch = LocalDate.now().toEpochDay()
         val locale = Locale.getDefault()
@@ -92,7 +98,11 @@ class AchievementsViewModel(app: Application) : AndroidViewModel(app) {
             firstDow.plus(it).getDisplayName(TextStyle.NARROW, locale).uppercase()
         }
 
-        val history = records.sortedByDescending { it.date }.map { record ->
+        // No modo Calendário o histórico mostra só o dia selecionado; no modo Lista, todos os registros.
+        val historyRecords = records
+            .let { all -> if (mode == AchievementsFilterMode.Calendar) all.filter { it.date == selected } else all }
+            .sortedByDescending { it.date }
+        val history = historyRecords.map { record ->
             HistoryItemUi(
                 epochDay = record.date,
                 dateLabel = AppDateFormatters.mediumDate(LocalDate.ofEpochDay(record.date)),
@@ -106,6 +116,7 @@ class AchievementsViewModel(app: Application) : AndroidViewModel(app) {
             weekdays = weekdays,
             days = days,
             history = history,
+            filterMode = mode,
             accentArgb = accent.argb,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AchievementsUiState())
@@ -113,4 +124,5 @@ class AchievementsViewModel(app: Application) : AndroidViewModel(app) {
     fun previousMonth() = month.update { it.minusMonths(1) }
     fun nextMonth() = month.update { it.plusMonths(1) }
     fun selectDay(epochDay: Long) { selectedDay.value = epochDay }
+    fun setFilterMode(mode: AchievementsFilterMode) { filterMode.value = mode }
 }

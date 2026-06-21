@@ -15,9 +15,15 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -28,21 +34,31 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.jonathaxs.gymnutshell.R
 
-/** Aba Achievements — porte (MVP) da AchievementsView (iOS): calendário mensal + histórico. */
+/** Aba Achievements — porte da AchievementsView (iOS): sino de notificações, seletor Calendário/Lista e histórico. */
 @Composable
-fun AchievementsScreen(modifier: Modifier = Modifier, viewModel: AchievementsViewModel = viewModel()) {
+fun AchievementsScreen(
+    modifier: Modifier = Modifier,
+    onOpenHistory: () -> Unit = {},
+    viewModel: AchievementsViewModel = viewModel(),
+) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val accent = Color(state.accentArgb)
 
     Column(modifier.fillMaxSize()) {
-        MonthHeader(state.monthLabel, onPrev = viewModel::previousMonth, onNext = viewModel::nextMonth)
-        CalendarGrid(state, accent, onSelect = viewModel::selectDay)
+        AchievementsHeader(accent = accent, onOpenHistory = onOpenHistory)
+        FilterSelector(selected = state.filterMode, accent = accent, onSelect = viewModel::setFilterMode)
+        // Calendário só aparece no modo Calendário; no modo Lista some e o histórico ocupa a tela toda.
+        if (state.filterMode == AchievementsFilterMode.Calendar) {
+            MonthHeader(state.monthLabel, onPrev = viewModel::previousMonth, onNext = viewModel::nextMonth)
+            CalendarGrid(state, accent, onSelect = viewModel::selectDay)
+        }
         HorizontalDivider(Modifier.padding(vertical = 8.dp))
         if (state.history.isEmpty()) {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -56,6 +72,55 @@ fun AchievementsScreen(modifier: Modifier = Modifier, viewModel: AchievementsVie
                 items(state.history, key = { it.epochDay }) { HistoryRow(it) }
             }
         }
+    }
+}
+
+/** Cabeçalho: sino que abre o histórico de notificações + título da tela. Espelha a toolbar do iOS. */
+@Composable
+private fun AchievementsHeader(accent: Color, onOpenHistory: () -> Unit) {
+    val bellDesc = stringResource(R.string.cd_notification_history)
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(start = 4.dp, end = 16.dp, top = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        IconButton(onClick = onOpenHistory, modifier = Modifier.semantics { contentDescription = bellDesc }) {
+            Icon(Icons.Default.Notifications, contentDescription = null, tint = accent)
+        }
+        Text(
+            stringResource(R.string.achievements_header_title),
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Bold,
+        )
+    }
+}
+
+/** Seletor segmentado Calendário / Lista — espelha o Picker(.segmented) do iOS. */
+@Composable
+private fun FilterSelector(
+    selected: AchievementsFilterMode,
+    accent: Color,
+    onSelect: (AchievementsFilterMode) -> Unit,
+) {
+    val colors = SegmentedButtonDefaults.colors(
+        activeContainerColor = accent.copy(alpha = 0.15f),
+        activeContentColor = accent,
+        activeBorderColor = accent,
+    )
+    SingleChoiceSegmentedButtonRow(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
+    ) {
+        SegmentedButton(
+            selected = selected == AchievementsFilterMode.Calendar,
+            onClick = { onSelect(AchievementsFilterMode.Calendar) },
+            shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
+            colors = colors,
+        ) { Text(stringResource(R.string.achievements_filter_calendar)) }
+        SegmentedButton(
+            selected = selected == AchievementsFilterMode.List,
+            onClick = { onSelect(AchievementsFilterMode.List) },
+            shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
+            colors = colors,
+        ) { Text(stringResource(R.string.achievements_filter_list)) }
     }
 }
 

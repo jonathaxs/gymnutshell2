@@ -122,7 +122,9 @@ fun MainScreen(
                         onOpenTheme = { navController.navigate(SettingsRoutes.THEME) },
                     )
                 }
-                composable(MainTab.Achievements.route) { AchievementsScreen() }
+                composable(MainTab.Achievements.route) {
+                    AchievementsScreen(onOpenHistory = { navController.navigate(HISTORY_ROUTE) })
+                }
                 composable(MainTab.Progress.route) { ProgressScreen() }
                 settingsGraph(navController)
                 composable(HISTORY_ROUTE) {

@@ -44,6 +44,9 @@
 
     <!-- Achievements -->
     <string name="achievements_empty">No records yet</string>
+    <string name="achievements_header_title">Achievements</string>
+    <string name="achievements_filter_calendar">Calendar</string>
+    <string name="achievements_filter_list">List</string>
 
     <!-- Progress -->
     <string name="progress_days">Days</string>
