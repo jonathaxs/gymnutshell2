@@ -300,7 +300,7 @@ private fun CategoryHeader(section: TodayCategoryUi, accent: Color, onToggle: ()
             .background(bg)
             .clickable(onClick = onToggle)
             .semantics { stateDescription = stateDesc }
-            .padding(vertical = 6.dp, horizontal = 10.dp),
+            .padding(vertical = 2.dp, horizontal = 10.dp),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
     ) {
