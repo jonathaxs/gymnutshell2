@@ -316,10 +316,13 @@ private fun CategoryHeader(section: TodayCategoryUi, accent: Color, onToggle: ()
     }
 }
 
-/** Linha de uma meta: emoji, título, valor/alvo, botão de descanso e slider. */
+/**
+ * Linha de uma meta: emoji, título, valor/alvo, botão de descanso e slider.
+ * `internal` pra ser reaproveitada na tela de edição de conquista (EditRecordScreen).
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun GoalRow(goal: TodayGoalUi, accent: Color, onSet: (Int) -> Unit, onToggleRest: () -> Unit) {
+internal fun GoalRow(goal: TodayGoalUi, accent: Color, onSet: (Int) -> Unit, onToggleRest: () -> Unit) {
     // Metas custom já trazem o título; built-in resolvem via string resource.
     val title = goal.title ?: stringResource(titleRes(goal.key))
     val restLabel = stringResource(R.string.rest_day)
@@ -435,9 +438,9 @@ private fun RestDayToggle(isRestDay: Boolean, accent: Color, onClick: () -> Unit
 private fun snapToIncrement(value: Float, increment: Int, target: Int): Int =
     ((value / increment).roundToInt() * increment).coerceIn(0, target)
 
-/** Mapeia a categoria pro título localizado. */
+/** Mapeia a categoria pro título localizado. `internal` pra reúso na EditRecordScreen. */
 @StringRes
-private fun categoryTitleRes(category: GoalCategory): Int = when (category) {
+internal fun categoryTitleRes(category: GoalCategory): Int = when (category) {
     GoalCategory.Essencial -> R.string.category_essencial
     GoalCategory.Nutricao -> R.string.category_nutricao
     GoalCategory.Treino -> R.string.category_treino

@@ -34,6 +34,8 @@ data class HistoryItemUi(
     val dateLabel: String,
     val emoji: String,
     val percent: Int,
+    /** Editável só dentro da janela de 72h (3 dias), igual ao editWindow do iOS. */
+    val canEdit: Boolean = false,
 )
 
 /** Modo de visualização: calendário (com o dia selecionado) ou lista completa. Espelha o FilterMode (iOS). */
@@ -108,6 +110,7 @@ class AchievementsViewModel(app: Application) : AndroidViewModel(app) {
                 dateLabel = AppDateFormatters.mediumDate(LocalDate.ofEpochDay(record.date)),
                 emoji = record.achievementEmoji,
                 percent = record.percent,
+                canEdit = (todayEpoch - record.date) in 0..EDIT_WINDOW_DAYS,
             )
         }
 
@@ -125,4 +128,9 @@ class AchievementsViewModel(app: Application) : AndroidViewModel(app) {
     fun nextMonth() = month.update { it.plusMonths(1) }
     fun selectDay(epochDay: Long) { selectedDay.value = epochDay }
     fun setFilterMode(mode: AchievementsFilterMode) { filterMode.value = mode }
+
+    private companion object {
+        // Janela de edição: registros dos últimos 3 dias (72h no iOS) são editáveis.
+        const val EDIT_WINDOW_DAYS = 3L
+    }
 }

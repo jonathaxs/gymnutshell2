@@ -47,6 +47,11 @@
     <string name="achievements_header_title">Achievements</string>
     <string name="achievements_filter_calendar">Calendar</string>
     <string name="achievements_filter_list">List</string>
+    <string name="cd_edit_record">Edit this day</string>
+
+    <!-- Edit record -->
+    <string name="edit_record_title">Edit Day</string>
+    <string name="edit_record_save">Save</string>
 
     <!-- Progress -->
     <string name="progress_days">Days</string>

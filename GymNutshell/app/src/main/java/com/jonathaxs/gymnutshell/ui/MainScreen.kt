@@ -29,13 +29,16 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.jonathaxs.gymnutshell.R
 import com.jonathaxs.gymnutshell.core.domain.NotificationRoute
 import com.jonathaxs.gymnutshell.ui.achievements.AchievementsScreen
+import com.jonathaxs.gymnutshell.ui.achievements.EditRecordScreen
 import com.jonathaxs.gymnutshell.ui.history.NotificationHistoryScreen
 import com.jonathaxs.gymnutshell.ui.progress.ProgressScreen
 import com.jonathaxs.gymnutshell.ui.settings.SettingsRoutes
@@ -123,7 +126,10 @@ fun MainScreen(
                     )
                 }
                 composable(MainTab.Achievements.route) {
-                    AchievementsScreen(onOpenHistory = { navController.navigate(HISTORY_ROUTE) })
+                    AchievementsScreen(
+                        onOpenHistory = { navController.navigate(HISTORY_ROUTE) },
+                        onEditRecord = { epochDay -> navController.navigate("$EDIT_RECORD_ROUTE/$epochDay") },
+                    )
                 }
                 composable(MainTab.Progress.route) { ProgressScreen() }
                 settingsGraph(navController)
@@ -133,12 +139,22 @@ fun MainScreen(
                         onOpenRoute = { route, _ -> navigateForRoute(navController, route) },
                     )
                 }
+                composable(
+                    route = "$EDIT_RECORD_ROUTE/{epochDay}",
+                    arguments = listOf(navArgument("epochDay") { type = NavType.LongType }),
+                ) { entry ->
+                    EditRecordScreen(
+                        epochDay = entry.arguments?.getLong("epochDay") ?: 0L,
+                        onBack = { navController.popBackStack() },
+                    )
+                }
             }
         }
     }
 }
 
 private const val HISTORY_ROUTE = "history"
+private const val EDIT_RECORD_ROUTE = "edit_record"
 
 /** Leva ao destino de uma rota de notificação (Today / Achievements / tela de Backup na Settings). */
 private fun navigateForRoute(navController: NavController, routeRaw: String) {

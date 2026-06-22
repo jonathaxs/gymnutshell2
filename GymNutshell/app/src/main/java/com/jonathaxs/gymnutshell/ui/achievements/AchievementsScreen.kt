@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -46,6 +47,7 @@ import com.jonathaxs.gymnutshell.R
 fun AchievementsScreen(
     modifier: Modifier = Modifier,
     onOpenHistory: () -> Unit = {},
+    onEditRecord: (Long) -> Unit = {},
     viewModel: AchievementsViewModel = viewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -69,7 +71,13 @@ fun AchievementsScreen(
             }
         } else {
             LazyColumn(Modifier.fillMaxSize()) {
-                items(state.history, key = { it.epochDay }) { HistoryRow(it) }
+                items(state.history, key = { it.epochDay }) { item ->
+                    HistoryRow(
+                        item = item,
+                        accent = accent,
+                        onEdit = if (item.canEdit) ({ onEditRecord(item.epochDay) }) else null,
+                    )
+                }
             }
         }
     }
@@ -201,11 +209,15 @@ private fun DayCell(day: CalendarDayUi, accent: Color, modifier: Modifier, onSel
     }
 }
 
-/** Linha do histórico: emoji do tier, data e %. */
+/**
+ * Linha do histórico: emoji do tier, data e %. Quando `onEdit` != null (registro dentro da
+ * janela de 3 dias), mostra o botão de lápis que abre a edição — espelha o botão de editar do iOS.
+ */
 @Composable
-private fun HistoryRow(item: HistoryItemUi) {
+private fun HistoryRow(item: HistoryItemUi, accent: Color, onEdit: (() -> Unit)?) {
+    val editDesc = stringResource(R.string.cd_edit_record)
     Row(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp),
+        modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 4.dp, top = 10.dp, bottom = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(item.emoji, style = MaterialTheme.typography.titleMedium)
@@ -216,5 +228,10 @@ private fun HistoryRow(item: HistoryItemUi) {
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
+        if (onEdit != null) {
+            IconButton(onClick = onEdit, modifier = Modifier.semantics { contentDescription = editDesc }) {
+                Icon(Icons.Default.Edit, contentDescription = null, tint = accent)
+            }
+        }
     }
 }
