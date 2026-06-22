@@ -5,13 +5,13 @@ import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
@@ -19,7 +19,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -32,6 +31,9 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.jonathaxs.gymnutshell.R
+import com.jonathaxs.gymnutshell.ui.components.GroupRow
+import com.jonathaxs.gymnutshell.ui.components.GroupRowDivider
+import com.jonathaxs.gymnutshell.ui.components.GroupSection
 
 /**
  * Tela de Saúde — porte de HealthSettingsView (iOS).
@@ -62,47 +64,33 @@ fun HealthSettingsScreen(
     ) { viewModel.refresh() }
 
     Scaffold(topBar = { SettingsTopBar(stringResource(R.string.settings_health), onBack) }) { padding ->
-        Column(Modifier.fillMaxSize().padding(padding)) {
+        Column(Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState())) {
             if (!ui.isAvailable) {
                 UnavailableBanner(onSetup = { openHealthConnect(context) })
             } else {
-                HealthToggleRow(
-                    title = stringResource(R.string.settings_health_sync_sleep),
-                    checked = ui.syncSleep,
-                    onCheckedChange = { on ->
-                        viewModel.setSyncSleep(on)
-                        if (on && !ui.hasSleepPermission) requestPermissions.launch(viewModel.sleepPermissions)
-                    },
-                )
-                HorizontalDivider()
-                HealthToggleRow(
-                    title = stringResource(R.string.settings_health_auto_checkin),
-                    checked = ui.autoCheckin,
-                    onCheckedChange = { on ->
-                        viewModel.setAutoCheckin(on)
-                        if (on && !ui.hasWorkoutPermission) requestPermissions.launch(viewModel.workoutPermissions)
-                    },
-                )
-                Text(
-                    stringResource(R.string.settings_health_footer),
-                    modifier = Modifier.padding(16.dp),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+                GroupSection(footer = stringResource(R.string.settings_health_footer)) {
+                    GroupRow(
+                        title = stringResource(R.string.settings_health_sync_sleep),
+                        trailing = {
+                            Switch(checked = ui.syncSleep, onCheckedChange = { on ->
+                                viewModel.setSyncSleep(on)
+                                if (on && !ui.hasSleepPermission) requestPermissions.launch(viewModel.sleepPermissions)
+                            })
+                        },
+                    )
+                    GroupRowDivider()
+                    GroupRow(
+                        title = stringResource(R.string.settings_health_auto_checkin),
+                        trailing = {
+                            Switch(checked = ui.autoCheckin, onCheckedChange = { on ->
+                                viewModel.setAutoCheckin(on)
+                                if (on && !ui.hasWorkoutPermission) requestPermissions.launch(viewModel.workoutPermissions)
+                            })
+                        },
+                    )
+                }
             }
         }
-    }
-}
-
-/** Linha com título à esquerda e switch à direita. */
-@Composable
-private fun HealthToggleRow(title: String, checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(title, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge)
-        Switch(checked = checked, onCheckedChange = onCheckedChange)
     }
 }
 

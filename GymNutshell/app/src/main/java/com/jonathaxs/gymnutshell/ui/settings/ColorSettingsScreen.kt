@@ -38,6 +38,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.jonathaxs.gymnutshell.R
 import com.jonathaxs.gymnutshell.core.theme.AccentColor
+import com.jonathaxs.gymnutshell.ui.components.GroupSection
 import com.jonathaxs.gymnutshell.ui.theme.color
 
 /** Sub-tela de cor de destaque — porte de ColorSettingsView (iOS): grade das 8 cores. */
@@ -49,10 +50,14 @@ fun ColorSettingsScreen(onBack: () -> Unit, viewModel: SettingsViewModel = viewM
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp),
+                .verticalScroll(rememberScrollState()),
         ) {
-            ColorGrid(selected, onSelect = viewModel::setAccent)
+            GroupSection {
+                Column(Modifier.padding(16.dp)) {
+                    ColorGrid(selected, onSelect = viewModel::setAccent)
+                }
+            }
+            Spacer(Modifier.height(24.dp))
         }
     }
 }

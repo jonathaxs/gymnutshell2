@@ -7,10 +7,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -18,14 +19,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.jonathaxs.gymnutshell.R
 import com.jonathaxs.gymnutshell.core.domain.AppTheme
 import com.jonathaxs.gymnutshell.core.domain.ThemeCategory
+import com.jonathaxs.gymnutshell.ui.components.GroupCheck
+import com.jonathaxs.gymnutshell.ui.components.GroupRowDivider
+import com.jonathaxs.gymnutshell.ui.components.GroupSection
 import com.jonathaxs.gymnutshell.ui.theme.color
 
 /** Sub-tela de tema — porte de ThemeSettingsView (iOS): mascotes agrupados por categoria. */
@@ -38,23 +42,20 @@ fun ThemeSettingsScreen(onBack: () -> Unit, viewModel: SettingsViewModel = viewM
         LazyColumn(modifier = Modifier.fillMaxSize().padding(padding)) {
             ThemeCategory.entries.forEach { category ->
                 item(key = "cat_${category.name}") {
-                    Text(
-                        stringResource(categoryNameRes(category)),
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                    )
-                }
-                items(AppTheme.inCategory(category), key = { it.rawValue }) { theme ->
-                    ThemeRow(
-                        theme = theme,
-                        selected = theme == selected,
-                        checkColor = accent,
-                        onClick = { viewModel.setTheme(theme) },
-                    )
+                    GroupSection(title = stringResource(categoryNameRes(category)), titleColor = accent) {
+                        AppTheme.inCategory(category).forEachIndexed { index, theme ->
+                            if (index > 0) GroupRowDivider()
+                            ThemeRow(
+                                theme = theme,
+                                selected = theme == selected,
+                                checkColor = accent,
+                                onClick = { viewModel.setTheme(theme) },
+                            )
+                        }
+                    }
                 }
             }
+            item(key = "bottom_spacer") { Spacer(Modifier.height(24.dp)) }
         }
     }
 }
@@ -64,14 +65,15 @@ fun ThemeSettingsScreen(onBack: () -> Unit, viewModel: SettingsViewModel = viewM
 private fun ThemeRow(
     theme: AppTheme,
     selected: Boolean,
-    checkColor: androidx.compose.ui.graphics.Color,
+    checkColor: Color,
     onClick: () -> Unit,
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+            .heightIn(min = 56.dp)
+            .padding(horizontal = 20.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(Modifier.weight(1f)) {
@@ -80,7 +82,7 @@ private fun ThemeRow(
         }
         if (selected) {
             Spacer(Modifier.width(8.dp))
-            Text("✓", color = checkColor, style = MaterialTheme.typography.titleLarge)
+            GroupCheck(checkColor)
         }
     }
 }

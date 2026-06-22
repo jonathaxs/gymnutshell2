@@ -12,13 +12,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -41,6 +40,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.jonathaxs.gymnutshell.R
+import com.jonathaxs.gymnutshell.ui.components.GroupRowDivider
+import com.jonathaxs.gymnutshell.ui.components.GroupSection
 
 /** Aba Achievements — porte da AchievementsView (iOS): sino de notificações, seletor Calendário/Lista e histórico. */
 @Composable
@@ -56,29 +57,41 @@ fun AchievementsScreen(
     Column(modifier.fillMaxSize()) {
         AchievementsHeader(accent = accent, onOpenHistory = onOpenHistory)
         FilterSelector(selected = state.filterMode, accent = accent, onSelect = viewModel::setFilterMode)
-        // Calendário só aparece no modo Calendário; no modo Lista some e o histórico ocupa a tela toda.
-        if (state.filterMode == AchievementsFilterMode.Calendar) {
-            MonthHeader(state.monthLabel, onPrev = viewModel::previousMonth, onNext = viewModel::nextMonth)
-            CalendarGrid(state, accent, onSelect = viewModel::selectDay)
-        }
-        HorizontalDivider(Modifier.padding(vertical = 8.dp))
-        if (state.history.isEmpty()) {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text(
-                    stringResource(R.string.achievements_empty),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-        } else {
-            LazyColumn(Modifier.fillMaxSize()) {
-                items(state.history, key = { it.epochDay }) { item ->
-                    HistoryRow(
-                        item = item,
-                        accent = accent,
-                        onEdit = if (item.canEdit) ({ onEditRecord(item.epochDay) }) else null,
-                    )
+        // Conteúdo rolável: calendário (modo Calendário) + histórico, cada um num card agrupado.
+        Column(
+            Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()),
+        ) {
+            // Calendário só aparece no modo Calendário; no modo Lista some e o histórico ocupa a tela toda.
+            if (state.filterMode == AchievementsFilterMode.Calendar) {
+                GroupSection {
+                    MonthHeader(state.monthLabel, onPrev = viewModel::previousMonth, onNext = viewModel::nextMonth)
+                    CalendarGrid(state, accent, onSelect = viewModel::selectDay)
+                    Spacer(Modifier.height(8.dp))
                 }
             }
+            if (state.history.isEmpty()) {
+                Box(
+                    Modifier.fillMaxWidth().padding(vertical = 56.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        stringResource(R.string.achievements_empty),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            } else {
+                GroupSection {
+                    state.history.forEachIndexed { index, item ->
+                        if (index > 0) GroupRowDivider()
+                        HistoryRow(
+                            item = item,
+                            accent = accent,
+                            onEdit = if (item.canEdit) ({ onEditRecord(item.epochDay) }) else null,
+                        )
+                    }
+                }
+            }
+            Spacer(Modifier.height(24.dp))
         }
     }
 }
@@ -217,7 +230,7 @@ private fun DayCell(day: CalendarDayUi, accent: Color, modifier: Modifier, onSel
 private fun HistoryRow(item: HistoryItemUi, accent: Color, onEdit: (() -> Unit)?) {
     val editDesc = stringResource(R.string.cd_edit_record)
     Row(
-        modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 4.dp, top = 10.dp, bottom = 10.dp),
+        modifier = Modifier.fillMaxWidth().padding(start = 20.dp, end = 8.dp, top = 12.dp, bottom = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(item.emoji, style = MaterialTheme.typography.titleMedium)

@@ -7,17 +7,15 @@ import android.os.Build
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
@@ -30,11 +28,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.Lifecycle
@@ -45,6 +41,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.jonathaxs.gymnutshell.R
 import com.jonathaxs.gymnutshell.core.domain.NotificationKind
 import com.jonathaxs.gymnutshell.notifications.NotificationStrings
+import com.jonathaxs.gymnutshell.ui.components.GroupRow
+import com.jonathaxs.gymnutshell.ui.components.GroupRowDivider
+import com.jonathaxs.gymnutshell.ui.components.GroupSection
 
 // Kinds da seção Sistema e da seção Metas (mesma ordem do iOS).
 private val SYSTEM_KINDS = listOf(
@@ -98,51 +97,59 @@ fun NotificationsSettingsScreen(
     }
 
     Scaffold(topBar = { SettingsTopBar(stringResource(R.string.settings_notifications), onBack) }) { padding ->
-        LazyColumn(Modifier.fillMaxSize().padding(padding)) {
+        Column(Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState())) {
             if (!allowed) {
-                item(key = "authorize") { AuthorizeBanner(onEnableClick) }
+                AuthorizeBanner(onEnableClick)
             }
 
-            item(key = "header_system") { SectionHeader(stringResource(R.string.settings_notifications_section_system)) }
-            items(SYSTEM_KINDS, key = { it.rawValue }) { kind ->
-                NotificationRow(
-                    leadingEmoji = kind.emoji,
-                    title = stringResource(NotificationStrings.titleRes(kind)),
-                    description = stringResource(NotificationStrings.descRes(kind)),
-                    checked = ui.isEnabled(kind),
-                    enabled = allowed,
-                    onCheckedChange = { viewModel.setEnabled(kind, it) },
-                    onOpen = { onEditTarget("kind:${kind.rawValue}") },
-                )
-            }
-
-            item(key = "header_goals") { SectionHeader(stringResource(R.string.settings_notifications_section_goals)) }
-            items(GOAL_KINDS, key = { it.rawValue }) { kind ->
-                NotificationRow(
-                    leadingEmoji = kind.emoji,
-                    title = stringResource(NotificationStrings.titleRes(kind)),
-                    description = stringResource(NotificationStrings.descRes(kind)),
-                    checked = ui.isEnabled(kind),
-                    enabled = allowed,
-                    onCheckedChange = { viewModel.setEnabled(kind, it) },
-                    onOpen = { onEditTarget("kind:${kind.rawValue}") },
-                )
-            }
-
-            if (ui.customGoals.isNotEmpty()) {
-                item(key = "header_custom") { SectionHeader(stringResource(R.string.settings_notifications_section_custom)) }
-                items(ui.customGoals, key = { it.id }) { goal ->
+            GroupSection(title = stringResource(R.string.settings_notifications_section_system)) {
+                SYSTEM_KINDS.forEachIndexed { index, kind ->
+                    if (index > 0) GroupRowDivider()
                     NotificationRow(
-                        leadingEmoji = goal.emoji,
-                        title = goal.name,
-                        description = stringResource(R.string.notif_custom_desc),
-                        checked = ui.isCustomEnabled(goal.id),
+                        leadingEmoji = kind.emoji,
+                        title = stringResource(NotificationStrings.titleRes(kind)),
+                        description = stringResource(NotificationStrings.descRes(kind)),
+                        checked = ui.isEnabled(kind),
                         enabled = allowed,
-                        onCheckedChange = { viewModel.setCustomEnabled(goal.id, it) },
-                        onOpen = { onEditTarget("custom:${goal.id}") },
+                        onCheckedChange = { viewModel.setEnabled(kind, it) },
+                        onOpen = { onEditTarget("kind:${kind.rawValue}") },
                     )
                 }
             }
+
+            GroupSection(title = stringResource(R.string.settings_notifications_section_goals)) {
+                GOAL_KINDS.forEachIndexed { index, kind ->
+                    if (index > 0) GroupRowDivider()
+                    NotificationRow(
+                        leadingEmoji = kind.emoji,
+                        title = stringResource(NotificationStrings.titleRes(kind)),
+                        description = stringResource(NotificationStrings.descRes(kind)),
+                        checked = ui.isEnabled(kind),
+                        enabled = allowed,
+                        onCheckedChange = { viewModel.setEnabled(kind, it) },
+                        onOpen = { onEditTarget("kind:${kind.rawValue}") },
+                    )
+                }
+            }
+
+            if (ui.customGoals.isNotEmpty()) {
+                GroupSection(title = stringResource(R.string.settings_notifications_section_custom)) {
+                    ui.customGoals.forEachIndexed { index, goal ->
+                        if (index > 0) GroupRowDivider()
+                        NotificationRow(
+                            leadingEmoji = goal.emoji,
+                            title = goal.name,
+                            description = stringResource(R.string.notif_custom_desc),
+                            checked = ui.isCustomEnabled(goal.id),
+                            enabled = allowed,
+                            onCheckedChange = { viewModel.setCustomEnabled(goal.id, it) },
+                            onOpen = { onEditTarget("custom:${goal.id}") },
+                        )
+                    }
+                }
+            }
+
+            Spacer(Modifier.height(24.dp))
         }
     }
 }
@@ -163,18 +170,6 @@ private fun AuthorizeBanner(onEnable: () -> Unit) {
     }
 }
 
-/** Cabeçalho de seção. */
-@Composable
-private fun SectionHeader(title: String) {
-    Text(
-        title,
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
-        style = MaterialTheme.typography.titleSmall,
-        fontWeight = FontWeight.Bold,
-        color = MaterialTheme.colorScheme.primary,
-    )
-}
-
 /** Linha de notificação: emoji opcional + título/descrição (toca pra editar) + switch. */
 @Composable
 private fun NotificationRow(
@@ -186,27 +181,18 @@ private fun NotificationRow(
     onCheckedChange: (Boolean) -> Unit,
     onOpen: () -> Unit,
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(enabled = enabled, onClick = onOpen)
-            .padding(horizontal = 16.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        if (leadingEmoji != null) {
-            Text(leadingEmoji, style = MaterialTheme.typography.titleLarge)
-            Spacer(Modifier.width(12.dp))
-        }
-        Column(Modifier.weight(1f)) {
-            Text(title, style = MaterialTheme.typography.bodyLarge)
-            Text(
-                description,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
-        Switch(checked = checked, onCheckedChange = onCheckedChange, enabled = enabled)
-    }
+    GroupRow(
+        title = title,
+        subtitle = description,
+        enabled = enabled,
+        leading = if (leadingEmoji != null) {
+            { Text(leadingEmoji, style = MaterialTheme.typography.titleLarge) }
+        } else {
+            null
+        },
+        trailing = { Switch(checked = checked, onCheckedChange = onCheckedChange, enabled = enabled) },
+        onClick = onOpen,
+    )
 }
 
 /** Abre a tela de notificações do app nos Ajustes do sistema (fallback de permissão negada). */

@@ -1,18 +1,15 @@
 package com.jonathaxs.gymnutshell.ui.settings
 
 import android.widget.ImageView
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -22,7 +19,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
@@ -34,6 +30,9 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.jonathaxs.gymnutshell.R
+import com.jonathaxs.gymnutshell.ui.components.GroupRow
+import com.jonathaxs.gymnutshell.ui.components.GroupRowDivider
+import com.jonathaxs.gymnutshell.ui.components.GroupSection
 import com.jonathaxs.gymnutshell.ui.theme.color
 
 /**
@@ -81,17 +80,22 @@ fun AboutScreen(onBack: () -> Unit, viewModel: SettingsViewModel = viewModel()) 
                 modifier = Modifier.padding(horizontal = 24.dp),
             )
 
-            Spacer(Modifier.height(24.dp))
-
             // Links de contato: feedback primeiro, depois site (mesma ordem do iOS).
-            SectionHeader(stringResource(R.string.settings_about_developer_header))
-            LinkRow(stringResource(R.string.settings_about_feedback), accent) {
-                uriHandler.openUri("mailto:jonathasmrt@me.com")
+            GroupSection(title = stringResource(R.string.settings_about_developer_header), titleColor = accent) {
+                GroupRow(
+                    title = stringResource(R.string.settings_about_feedback),
+                    titleColor = accent,
+                    onClick = { uriHandler.openUri("mailto:jonathasmrt@me.com") },
+                )
+                GroupRowDivider()
+                GroupRow(
+                    title = stringResource(R.string.settings_about_website),
+                    titleColor = accent,
+                    onClick = { uriHandler.openUri("https://jonathasmotta.com") },
+                )
             }
-            HorizontalDivider()
-            LinkRow(stringResource(R.string.settings_about_website), accent) {
-                uriHandler.openUri("https://jonathasmotta.com")
-            }
+
+            Spacer(Modifier.height(24.dp))
         }
     }
 }
@@ -108,32 +112,5 @@ private fun AppIcon() {
             .size(96.dp)
             .clip(RoundedCornerShape(21.dp))
             .semantics { contentDescription = iconLabel },
-    )
-}
-
-/** Header de seção alinhado à esquerda, mesmo estilo da lista raiz. */
-@Composable
-private fun SectionHeader(title: String) {
-    Text(
-        title,
-        style = MaterialTheme.typography.titleSmall,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(start = 16.dp, end = 16.dp, bottom = 4.dp),
-    )
-}
-
-/** Linha de link colorida pela accent, espelha os Links da AboutView do iOS. */
-@Composable
-private fun LinkRow(title: String, accent: Color, onClick: () -> Unit) {
-    Text(
-        title,
-        style = MaterialTheme.typography.bodyLarge,
-        color = accent,
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 16.dp),
     )
 }

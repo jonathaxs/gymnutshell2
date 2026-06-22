@@ -1,33 +1,29 @@
 package com.jonathaxs.gymnutshell.ui.settings
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.jonathaxs.gymnutshell.R
+import com.jonathaxs.gymnutshell.ui.components.GroupRow
+import com.jonathaxs.gymnutshell.ui.components.GroupRowDivider
+import com.jonathaxs.gymnutshell.ui.components.GroupSection
 import com.jonathaxs.gymnutshell.ui.theme.color
 
 /**
  * Lista raiz da Settings — porte da SettingsView (iOS): mesmas seções, na mesma ordem
- * (Profile → Preferences → System), com headers coloridos pela cor de destaque.
- * Itens do iOS ainda sem equivalente aqui: Orientation, Language e a seção About.
+ * (Profile → Preferences → System → About), agrupadas em cards arredondados (visual moderno).
  */
 @Composable
 fun SettingsListScreen(
@@ -58,73 +54,48 @@ fun SettingsListScreen(
                 .verticalScroll(rememberScrollState()),
         ) {
             // Seção Profile: dados físicos, objetivo fitness e metas (settings.section.edit do iOS).
-            SettingsSection(stringResource(R.string.settings_section_profile), accent.color) {
-                SettingsRow(stringResource(R.string.settings_physical_data), onClick = onOpenPhysical)
-                HorizontalDivider()
-                SettingsRow(stringResource(R.string.settings_fitness_goal), onClick = onOpenGoal)
-                HorizontalDivider()
-                SettingsRow(stringResource(R.string.settings_custom_goals), onClick = onOpenCustomGoals)
+            GroupSection(title = stringResource(R.string.settings_section_profile), titleColor = accent.color) {
+                GroupRow(stringResource(R.string.settings_physical_data), showChevron = true, onClick = onOpenPhysical)
+                GroupRowDivider()
+                GroupRow(stringResource(R.string.settings_fitness_goal), showChevron = true, onClick = onOpenGoal)
+                GroupRowDivider()
+                GroupRow(stringResource(R.string.settings_custom_goals), showChevron = true, onClick = onOpenCustomGoals)
             }
 
             // Seção Preferences: tema, cor, widgets e unidades.
-            SettingsSection(stringResource(R.string.settings_section_preferences), accent.color) {
-                SettingsRow(stringResource(R.string.settings_theme), onClick = onOpenTheme)
-                HorizontalDivider()
-                SettingsRow(stringResource(R.string.settings_accent_color), onClick = onOpenColor)
-                HorizontalDivider()
-                SettingsRow(stringResource(R.string.settings_widget_background), onClick = onOpenWidgetBackground)
-                HorizontalDivider()
-                SettingsRow(stringResource(R.string.settings_units), onClick = onOpenUnits)
+            GroupSection(title = stringResource(R.string.settings_section_preferences), titleColor = accent.color) {
+                GroupRow(stringResource(R.string.settings_theme), showChevron = true, onClick = onOpenTheme)
+                GroupRowDivider()
+                GroupRow(stringResource(R.string.settings_accent_color), showChevron = true, onClick = onOpenColor)
+                GroupRowDivider()
+                GroupRow(stringResource(R.string.settings_widget_background), showChevron = true, onClick = onOpenWidgetBackground)
+                GroupRowDivider()
+                GroupRow(stringResource(R.string.settings_units), showChevron = true, onClick = onOpenUnits)
             }
 
             // Seção System: notificações, Health Connect e backup.
-            SettingsSection(stringResource(R.string.settings_section_system), accent.color) {
-                SettingsRow(stringResource(R.string.settings_notifications), onClick = onOpenNotifications)
-                HorizontalDivider()
-                SettingsRow(stringResource(R.string.settings_health), onClick = onOpenHealth)
-                HorizontalDivider()
-                SettingsRow(stringResource(R.string.settings_backup), onClick = onOpenBackup)
+            GroupSection(title = stringResource(R.string.settings_section_system), titleColor = accent.color) {
+                GroupRow(stringResource(R.string.settings_notifications), showChevron = true, onClick = onOpenNotifications)
+                GroupRowDivider()
+                GroupRow(stringResource(R.string.settings_health), showChevron = true, onClick = onOpenHealth)
+                GroupRowDivider()
+                GroupRow(stringResource(R.string.settings_backup), showChevron = true, onClick = onOpenBackup)
             }
 
             // Seção About: páginas informativas (app, relógio, anel, tiers e bônus).
-            SettingsSection(stringResource(R.string.settings_section_about), accent.color) {
-                SettingsRow(stringResource(R.string.settings_about_link), onClick = onOpenAbout)
-                HorizontalDivider()
-                SettingsRow(stringResource(R.string.settings_wear_os), onClick = onOpenWear)
-                HorizontalDivider()
-                SettingsRow(stringResource(R.string.settings_about_progress_ring), onClick = onOpenRingInfo)
-                HorizontalDivider()
-                SettingsRow(stringResource(R.string.settings_about_achievement), onClick = onOpenTierInfo)
-                HorizontalDivider()
-                SettingsRow(stringResource(R.string.settings_about_streak_bonus), onClick = onOpenBonusInfo)
+            GroupSection(title = stringResource(R.string.settings_section_about), titleColor = accent.color) {
+                GroupRow(stringResource(R.string.settings_about_link), showChevron = true, onClick = onOpenAbout)
+                GroupRowDivider()
+                GroupRow(stringResource(R.string.settings_wear_os), showChevron = true, onClick = onOpenWear)
+                GroupRowDivider()
+                GroupRow(stringResource(R.string.settings_about_progress_ring), showChevron = true, onClick = onOpenRingInfo)
+                GroupRowDivider()
+                GroupRow(stringResource(R.string.settings_about_achievement), showChevron = true, onClick = onOpenTierInfo)
+                GroupRowDivider()
+                GroupRow(stringResource(R.string.settings_about_streak_bonus), showChevron = true, onClick = onOpenBonusInfo)
             }
+
+            Spacer(Modifier.height(24.dp))
         }
-    }
-}
-
-/** Header colorido pela accent + linhas da seção, espelhando a Section do iOS. */
-@Composable
-private fun SettingsSection(title: String, accent: Color, content: @Composable () -> Unit) {
-    Text(
-        title,
-        style = MaterialTheme.typography.titleSmall,
-        color = accent,
-        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 24.dp, bottom = 4.dp),
-    )
-    content()
-}
-
-/** Linha clicável: título à esquerda, chevron à direita. */
-@Composable
-private fun SettingsRow(title: String, onClick: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 16.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(title, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge)
-        Text("›", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
