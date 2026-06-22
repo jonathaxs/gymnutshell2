@@ -72,6 +72,8 @@ class EditRecordViewModel(app: Application) : AndroidViewModel(app) {
     // Rascunho sempre em unidade métrica (a conversão p/ fl oz é só de exibição, como na Today).
     private val draftIntakes = mutableMapOf<String, Int>()
     private val draftRestDays = mutableSetOf<String>()
+    // Categorias recolhidas (estado local da edição; começa tudo expandido).
+    private val collapsedCategories = mutableSetOf<GoalCategory>()
 
     /** Carrega o registro do dia e semeia o rascunho de edição. */
     fun load(epochDay: Long) {
@@ -123,6 +125,12 @@ class EditRecordViewModel(app: Application) : AndroidViewModel(app) {
 
     fun toggleRestDay(goal: TodayGoalUi) {
         if (goal.key in draftRestDays) draftRestDays -= goal.key else draftRestDays += goal.key
+        recompute()
+    }
+
+    /** Recolhe/expande uma categoria (porte do cabeçalho recolhível da Today). */
+    fun toggleCategory(category: GoalCategory) {
+        if (category in collapsedCategories) collapsedCategories -= category else collapsedCategories += category
         recompute()
     }
 
@@ -179,7 +187,7 @@ class EditRecordViewModel(app: Application) : AndroidViewModel(app) {
 
         val sections = GoalCategory.entries.mapNotNull { category ->
             val goalsInCat = allGoals.filter { it.category == category }
-            if (goalsInCat.isEmpty()) null else TodayCategoryUi(category, goalsInCat, collapsed = false)
+            if (goalsInCat.isEmpty()) null else TodayCategoryUi(category, goalsInCat, collapsed = category in collapsedCategories)
         }
         val uncategorized = allGoals.filter { it.category == null }
 

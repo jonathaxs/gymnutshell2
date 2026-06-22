@@ -37,8 +37,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.jonathaxs.gymnutshell.R
+import com.jonathaxs.gymnutshell.ui.today.CategorySection
 import com.jonathaxs.gymnutshell.ui.today.GoalRow
-import com.jonathaxs.gymnutshell.ui.today.categoryTitleRes
 
 /**
  * Edição de uma conquista (DailyRecord) recente — porte da EditTodayView (iOS), aqui como página.
@@ -80,13 +80,14 @@ fun EditRecordScreen(
         ) {
             item(key = "header") { EditHeaderCard(state, accent) }
             state.sections.forEach { section ->
-                item(key = "cat_${section.category.name}") { CategoryLabel(categoryTitleRes(section.category)) }
-                items(section.goals, key = { it.key }) { goal ->
-                    GoalRow(
-                        goal = goal,
+                // Cabeçalho centralizado recolhível + metas animadas, idêntico à Today.
+                item(key = "cat_${section.category.name}") {
+                    CategorySection(
+                        section = section,
                         accent = accent,
-                        onSet = { viewModel.setIntake(goal, it) },
-                        onToggleRest = { viewModel.toggleRestDay(goal) },
+                        onToggle = { viewModel.toggleCategory(section.category) },
+                        onSetIntake = { goal, value -> viewModel.setIntake(goal, value) },
+                        onToggleRest = { goal -> viewModel.toggleRestDay(goal) },
                     )
                 }
             }
@@ -129,16 +130,4 @@ private fun EditHeaderCard(state: EditRecordUiState, accent: Color) {
             }
         }
     }
-}
-
-/** Rótulo de seção de categoria (ESSENCIAL, NUTRIÇÃO…) acima das metas do grupo. */
-@Composable
-private fun CategoryLabel(titleRes: Int) {
-    Text(
-        stringResource(titleRes).uppercase(),
-        modifier = Modifier.fillMaxWidth().padding(top = 8.dp, bottom = 2.dp),
-        style = MaterialTheme.typography.labelMedium,
-        fontWeight = FontWeight.Bold,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-    )
 }

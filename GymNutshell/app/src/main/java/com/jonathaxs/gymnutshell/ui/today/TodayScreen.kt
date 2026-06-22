@@ -109,36 +109,13 @@ fun TodayScreen(
                 // Header + metas no mesmo item pra animar o grupo ao expandir/recolher,
                 // porte da .transition(.scale 0.92, anchor .top + opacity) do iOS (easeInOut 0.2s).
                 item(key = "cat_${section.category.name}") {
-                    Column(
-                        Modifier.fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        CategoryHeader(section, accent = accent) { viewModel.toggleCategory(section.category) }
-                        AnimatedVisibility(
-                            visible = !section.collapsed,
-                            enter = fadeIn(tween(220)) +
-                                expandVertically(tween(220), expandFrom = Alignment.Top) +
-                                scaleIn(tween(220), initialScale = 0.92f, transformOrigin = TransformOrigin(0.5f, 0f)),
-                            exit = fadeOut(tween(220)) +
-                                shrinkVertically(tween(220), shrinkTowards = Alignment.Top) +
-                                scaleOut(tween(220), targetScale = 0.92f, transformOrigin = TransformOrigin(0.5f, 0f)),
-                        ) {
-                            Column(
-                                Modifier.fillMaxWidth().padding(top = 8.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.spacedBy(8.dp),
-                            ) {
-                                section.goals.forEach { goal ->
-                                    GoalRow(
-                                        goal = goal,
-                                        accent = accent,
-                                        onSet = { viewModel.updateIntake(goal, it) },
-                                        onToggleRest = { viewModel.toggleRestDay(goal) },
-                                    )
-                                }
-                            }
-                        }
-                    }
+                    CategorySection(
+                        section = section,
+                        accent = accent,
+                        onToggle = { viewModel.toggleCategory(section.category) },
+                        onSetIntake = { goal, value -> viewModel.updateIntake(goal, value) },
+                        onToggleRest = { goal -> viewModel.toggleRestDay(goal) },
+                    )
                 }
             }
             // Metas personalizadas sem categoria, no fim.
@@ -264,6 +241,50 @@ private fun HeroLabel(text: String) {
         fontWeight = FontWeight.SemiBold,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
     )
+}
+
+/**
+ * Seção de uma categoria: cabeçalho centralizado recolhível + metas com a animação de expandir/recolher
+ * (porte da .transition(.scale 0.92, anchor .top + opacity) do iOS). `internal` pra reúso na EditRecordScreen.
+ */
+@Composable
+internal fun CategorySection(
+    section: TodayCategoryUi,
+    accent: Color,
+    onToggle: () -> Unit,
+    onSetIntake: (TodayGoalUi, Int) -> Unit,
+    onToggleRest: (TodayGoalUi) -> Unit,
+) {
+    Column(
+        Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        CategoryHeader(section, accent = accent, onToggle = onToggle)
+        AnimatedVisibility(
+            visible = !section.collapsed,
+            enter = fadeIn(tween(220)) +
+                expandVertically(tween(220), expandFrom = Alignment.Top) +
+                scaleIn(tween(220), initialScale = 0.92f, transformOrigin = TransformOrigin(0.5f, 0f)),
+            exit = fadeOut(tween(220)) +
+                shrinkVertically(tween(220), shrinkTowards = Alignment.Top) +
+                scaleOut(tween(220), targetScale = 0.92f, transformOrigin = TransformOrigin(0.5f, 0f)),
+        ) {
+            Column(
+                Modifier.fillMaxWidth().padding(top = 8.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                section.goals.forEach { goal ->
+                    GoalRow(
+                        goal = goal,
+                        accent = accent,
+                        onSet = { onSetIntake(goal, it) },
+                        onToggleRest = { onToggleRest(goal) },
+                    )
+                }
+            }
+        }
+    }
 }
 
 /**
