@@ -124,6 +124,14 @@ fun TierInfoContent(
 /** Bônus de sequência: os 4 tipos com condição de desbloqueio e pontos. */
 @Composable
 fun StreakBonusInfoScreen(onBack: () -> Unit) {
+    InfoPage(title = stringResource(R.string.settings_about_streak_bonus), onBack = onBack) {
+        StreakBonusInfoContent()
+    }
+}
+
+/** Conteúdo da info de bônus (sem chrome), reutilizado pela página (Settings) e pelo sheet (Progress). */
+@Composable
+fun StreakBonusInfoContent() {
     // Emojis e pontos idênticos ao StreakBonusEvaluator do :core.
     val bonuses = listOf(
         BonusRow("🎖️", R.string.streak_bonus_weekly_l3_title, R.string.streak_bonus_weekly_l3_desc, 400),
@@ -132,24 +140,22 @@ fun StreakBonusInfoScreen(onBack: () -> Unit) {
         BonusRow("☠️", R.string.streak_bonus_monthly_l4_title, R.string.streak_bonus_monthly_l4_desc, 5000),
     )
 
-    InfoPage(title = stringResource(R.string.settings_about_streak_bonus), onBack = onBack) {
-        IntroText(stringResource(R.string.streak_bonus_info_intro))
-        GroupSection(title = stringResource(R.string.settings_about_streak_bonus)) {
-            bonuses.forEachIndexed { index, bonus ->
-                if (index > 0) GroupRowDivider()
-                GroupRow(
-                    title = stringResource(bonus.titleRes),
-                    subtitle = stringResource(bonus.descRes),
-                    leading = { Text(bonus.emoji, style = MaterialTheme.typography.headlineSmall) },
-                    trailing = {
-                        Text(
-                            stringResource(R.string.streak_bonus_points_format, bonus.points),
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    },
-                )
-            }
+    IntroText(stringResource(R.string.streak_bonus_info_intro))
+    GroupSection(title = stringResource(R.string.settings_about_streak_bonus)) {
+        bonuses.forEachIndexed { index, bonus ->
+            if (index > 0) GroupRowDivider()
+            GroupRow(
+                title = stringResource(bonus.titleRes),
+                subtitle = stringResource(bonus.descRes),
+                leading = { Text(bonus.emoji, style = MaterialTheme.typography.headlineSmall) },
+                trailing = {
+                    Text(
+                        stringResource(R.string.streak_bonus_points_format, bonus.points),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                },
+            )
         }
     }
 }
@@ -167,6 +173,21 @@ fun ProgressRingInfoSheet(onDismiss: () -> Unit) {
             Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(bottom = 24.dp),
         ) {
             ProgressRingInfoContent()
+        }
+    }
+}
+
+/** Sheet com a info de bônus de sequência (aberto ao tocar nos bônus da Progress). */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun StreakBonusInfoSheet(onDismiss: () -> Unit) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
+        InfoSheetTitle(stringResource(R.string.settings_about_streak_bonus))
+        Column(
+            Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(bottom = 24.dp),
+        ) {
+            StreakBonusInfoContent()
         }
     }
 }

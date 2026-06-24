@@ -131,7 +131,9 @@ fun MainScreen(
                         onEditRecord = { epochDay -> navController.navigate("$EDIT_RECORD_ROUTE/$epochDay") },
                     )
                 }
-                composable(MainTab.Progress.route) { ProgressScreen() }
+                composable(MainTab.Progress.route) {
+                    ProgressScreen(onOpenTheme = { navController.navigate(SettingsRoutes.THEME) })
+                }
                 settingsGraph(navController)
                 composable(HISTORY_ROUTE) {
                     NotificationHistoryScreen(

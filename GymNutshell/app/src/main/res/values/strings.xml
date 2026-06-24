@@ -57,17 +57,28 @@
     <string name="progress_days">Days</string>
     <string name="progress_points">Points</string>
     <string name="progress_bonuses">Bonuses</string>
-    <string name="progress_section_tiers">Achievements</string>
-    <string name="progress_section_activity">Activity</string>
-    <string name="progress_section_bonuses">Streak bonuses</string>
+    <string name="progress_section_tiers">Tier Breakdown</string>
+    <string name="progress_section_activity">Gym Activity</string>
+    <string name="progress_section_bonuses">Streak Bonuses</string>
     <string name="progress_tier_level">Level %1$d</string>
-    <string name="progress_activity_workout">Workout</string>
-    <string name="progress_activity_cardio">Cardio</string>
-    <string name="progress_bonus_weekly_strong">Weekly · Strong</string>
-    <string name="progress_bonus_weekly_expert">Weekly · Expert</string>
-    <string name="progress_bonus_monthly_strong">Monthly · Strong</string>
-    <string name="progress_bonus_monthly_expert">Monthly · Expert</string>
+    <string name="progress_activity_workout">Workout Days</string>
+    <string name="progress_activity_cardio">Cardio Days</string>
+    <string name="progress_bonus_weekly_strong">🎖️ Fitness Week</string>
+    <string name="progress_bonus_weekly_expert">💀 Muscular Week</string>
+    <string name="progress_bonus_monthly_strong">🏆 Fitness Month</string>
+    <string name="progress_bonus_monthly_expert">☠️ Muscular Month</string>
+    <string name="progress_bonus_times">%1$d times</string>
     <string name="progress_days_count">%1$d days</string>
+    <!-- Seção Metas ativas, objetivo fitness, dados físicos e últimos 7 dias (porte da ProgressOverView do iOS). -->
+    <string name="progress_section_goals">Goals</string>
+    <string name="progress_goals_active_label">Active goals</string>
+    <string name="progress_goals_active">%1$d active</string>
+    <string name="progress_section_goal">Goal</string>
+    <string name="progress_section_physical">Physical data</string>
+    <string name="progress_physical_height">Height</string>
+    <string name="progress_physical_weight">Weight</string>
+    <string name="progress_physical_age">Age</string>
+    <string name="progress_section_recent">Last 7 days</string>
 
     <!-- Settings -->
     <!-- Headers das seções da lista raiz (mesma organização da SettingsView do iOS). -->
