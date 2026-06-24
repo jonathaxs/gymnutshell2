@@ -174,7 +174,14 @@
     <string name="sex_male">Male</string>
     <string name="sex_female">Female</string>
     <string name="sex_other">Do not inform</string>
-    <string name="field_birthday">Birthday</string>
+    <string name="field_birthday">Date of birth</string>
+    <!-- Dados físicos: seção pessoal, rótulos cientes de unidade e unidades imperiais (porte do PhysicalDataSettingsView do iOS). -->
+    <string name="settings_profile_section_personal">Personal</string>
+    <string name="field_name_hint">Your name</string>
+    <string name="field_weight_lbs">Weight (lbs)</string>
+    <string name="field_height">Height</string>
+    <string name="unit_feet">ft</string>
+    <string name="unit_inches">in</string>
     <string name="action_ok">OK</string>
     <string name="action_cancel">Cancel</string>
     <string name="goal_bulking">Bulking</string>
