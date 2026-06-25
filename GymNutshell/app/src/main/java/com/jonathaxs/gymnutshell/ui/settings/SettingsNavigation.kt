@@ -25,7 +25,10 @@ object SettingsRoutes {
     const val PHYSICAL = "settings_physical"
     const val GOAL = "settings_goal"
     const val THEME = "settings_theme"
-    const val CUSTOM_GOALS = "settings_custom_goals"
+    const val CUSTOM_GOALS = "settings_custom_goals" // hub de Goals (porte de TrackingGoalsSettingsView)
+    const val ADD_GOAL = "settings_add_goal" // + "?goalId={goalId}" pra editar
+    const val GOAL_DETAIL = "settings_goal_detail" // + "/{key}"
+    const val CATEGORIES = "settings_categories"
     const val UNITS = "settings_units"
     const val NOTIFICATIONS = "settings_notifications"
     const val NOTIF_EDIT = "settings_notif_edit" // + "/{target}"
@@ -74,7 +77,40 @@ fun NavGraphBuilder.settingsGraph(navController: NavController) {
             ThemeSettingsScreen(onBack = { navController.popBackStack() })
         }
         composable(SettingsRoutes.CUSTOM_GOALS) {
-            CustomGoalsScreen(onBack = { navController.popBackStack() })
+            GoalsScreen(
+                onBack = { navController.popBackStack() },
+                onAddGoal = { navController.navigate(SettingsRoutes.ADD_GOAL) },
+                onEditGoal = { id -> navController.navigate("${SettingsRoutes.ADD_GOAL}?goalId=$id") },
+                onOpenGoalDetail = { key -> navController.navigate("${SettingsRoutes.GOAL_DETAIL}/$key") },
+                onOpenCategories = { navController.navigate(SettingsRoutes.CATEGORIES) },
+            )
+        }
+        composable(
+            route = "${SettingsRoutes.ADD_GOAL}?goalId={goalId}",
+            arguments = listOf(
+                navArgument("goalId") {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                },
+            ),
+        ) { entry ->
+            AddGoalScreen(
+                goalId = entry.arguments?.getString("goalId")?.toLongOrNull(),
+                onBack = { navController.popBackStack() },
+            )
+        }
+        composable(
+            route = "${SettingsRoutes.GOAL_DETAIL}/{key}",
+            arguments = listOf(navArgument("key") { type = NavType.StringType }),
+        ) { entry ->
+            GoalDetailScreen(
+                goalKey = entry.arguments?.getString("key").orEmpty(),
+                onBack = { navController.popBackStack() },
+            )
+        }
+        composable(SettingsRoutes.CATEGORIES) {
+            CategoriesScreen(onBack = { navController.popBackStack() })
         }
         composable(SettingsRoutes.UNITS) {
             MeasurementScreen(onBack = { navController.popBackStack() })

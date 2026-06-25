@@ -190,6 +190,45 @@
     <string name="action_save">Save</string>
     <string name="cd_back">Back</string>
 
+    <!-- Goals (hub) — porte de TrackingGoalsSettingsView/AddTrackingGoalView/Categorias (iOS) -->
+    <string name="goals_title">Goals</string>
+    <string name="goals_categories_title">Categories</string>
+    <string name="goals_category_order">Category order</string>
+    <string name="goal_badge_standard">Standard</string>
+    <string name="goal_badge_recommended">Recommended</string>
+    <string name="goal_badge_custom">Custom</string>
+    <string name="tracking_goals_edit">Edit</string>
+    <string name="tracking_goals_done">Done</string>
+    <!-- Adicionar/editar meta -->
+    <string name="addgoal_title_new">New goal</string>
+    <string name="addgoal_section_category">Category</string>
+    <string name="addgoal_emoji_placeholder">example: 🧘</string>
+    <string name="addgoal_name_placeholder">example: Meditation</string>
+    <string name="addgoal_unit_placeholder">example: min</string>
+    <string name="addgoal_goal_placeholder">example: 10</string>
+    <string name="addgoal_section_step">Step</string>
+    <string name="addgoal_increment_placeholder">example: 2</string>
+    <string name="addgoal_warning_catalog">There is already a goal with that name.</string>
+    <string name="addgoal_warning_emoji">That emoji is already being used by another goal.</string>
+    <string name="addgoal_warning_category_duplicate">A category with that name already exists.</string>
+    <string name="addgoal_warning_step">Step can\'t be larger than the target.</string>
+    <string name="addgoal_category_new_button">New category</string>
+    <string name="addgoal_category_new_section">Custom category</string>
+    <string name="addgoal_category_new_name_placeholder">example: Stretching</string>
+    <string name="addgoal_category_new_rest_day">Day off toggle (ON/OFF)</string>
+    <!-- Detalhe de meta fixa (valor + passo) -->
+    <string name="goaldetail_stepper">Adjust value</string>
+    <string name="goaldetail_increment_stepper">Adjust step</string>
+    <string name="goaldetail_footer">Changing this does not affect past records.</string>
+    <string name="goaldetail_increment_footer">The step is how far the slider advances toward the target value.</string>
+    <!-- Acessibilidade / descrições -->
+    <string name="a11y_add_goal">New tracking goal</string>
+    <string name="a11y_remove_goal">Remove goal</string>
+    <string name="a11y_restore_goal">Restore goal</string>
+    <string name="a11y_edit_category">Edit category</string>
+    <string name="cd_move_up">Move up</string>
+    <string name="cd_move_down">Move down</string>
+
     <!-- Welcome / onboarding -->
     <string name="welcome_start_title">Welcome to Gym Nutshell</string>
     <string name="welcome_start_subtitle">Your gym progress, in a nutshell. Track daily goals and build streaks.</string>
