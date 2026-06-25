@@ -34,4 +34,25 @@ object BuiltInGoals {
         // Suplemento
         BuiltInGoal("tracking.creatine", "🧪", "g", DefaultGoals.CREATINE_INCREMENT, result.creatine),
     )
+
+    /**
+     * Lista efetiva das metas fixas aplicando a [GoalConfig]: respeita a ordem definida pelo usuário,
+     * descarta as metas removidas e aplica os overrides de valor/incremento. É o ponto único reusado
+     * pela Today, EditRecord, widget e DailyRecordFactory pra todos verem as mesmas metas.
+     */
+    fun active(result: GoalsCalculator.Result, config: GoalConfig): List<BuiltInGoal> {
+        val byKey = forResult(result).associateBy { it.key }
+        // A ordem salva pode estar incompleta/desatualizada; garante que toda meta conhecida apareça.
+        val order = config.fixedOrder + byKey.keys.filter { it !in config.fixedOrder }
+        return order
+            .asSequence()
+            .filter { it !in config.removedKeys }
+            .mapNotNull { key ->
+                byKey[key]?.copy(
+                    target = config.valueOverrides[key] ?: byKey.getValue(key).target,
+                    increment = config.incrementOverrides[key] ?: byKey.getValue(key).increment,
+                )
+            }
+            .toList()
+    }
 }

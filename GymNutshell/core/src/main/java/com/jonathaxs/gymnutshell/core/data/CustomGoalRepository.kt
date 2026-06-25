@@ -11,8 +11,20 @@ class CustomGoalRepository(context: Context) {
     val goals: Flow<List<CustomGoal>> = dao.observeAll()
 
     suspend fun all(): List<CustomGoal> = dao.getAll()
-    suspend fun add(goal: CustomGoal) = dao.insert(goal)
+
+    /** Insere uma meta nova já no fim da ordem (maior posição + 1). */
+    suspend fun add(goal: CustomGoal) = dao.insert(goal.copy(position = dao.maxPosition() + 1))
+
+    suspend fun update(goal: CustomGoal) = dao.update(goal)
     suspend fun delete(goal: CustomGoal) = dao.delete(goal)
+
+    /** Aplica uma nova ordem (ids na sequência desejada) gravando a posição de cada meta. */
+    suspend fun reorder(orderedIds: List<Long>) {
+        orderedIds.forEachIndexed { index, id -> dao.setPosition(id, index) }
+    }
+
+    /** Desvincula da categoria removida todas as metas que apontavam pra ela. */
+    suspend fun clearCustomCategory(categoryId: String) = dao.clearCustomCategory(categoryId)
 
     /** Substitui todas as metas personalizadas (restauração de backup). */
     suspend fun replaceAll(goals: List<CustomGoal>) = dao.replaceAll(goals)
