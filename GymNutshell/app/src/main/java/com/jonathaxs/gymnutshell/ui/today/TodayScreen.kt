@@ -108,11 +108,11 @@ fun TodayScreen(
             state.sections.forEach { section ->
                 // Header + metas no mesmo item pra animar o grupo ao expandir/recolher,
                 // porte da .transition(.scale 0.92, anchor .top + opacity) do iOS (easeInOut 0.2s).
-                item(key = "cat_${section.category.name}") {
+                item(key = "cat_${section.id}") {
                     CategorySection(
                         section = section,
                         accent = accent,
-                        onToggle = { viewModel.toggleCategory(section.category) },
+                        onToggle = { viewModel.toggleCategory(section.id) },
                         onSetIntake = { goal, value -> viewModel.updateIntake(goal, value) },
                         onToggleRest = { goal -> viewModel.toggleRestDay(goal) },
                     )
@@ -294,7 +294,8 @@ internal fun CategorySection(
  */
 @Composable
 private fun CategoryHeader(section: TodayCategoryUi, accent: Color, onToggle: () -> Unit) {
-    val title = stringResource(categoryTitleRes(section.category))
+    // Categoria fixa resolve o título via string; personalizada já traz o nome pronto.
+    val title = section.titleRes?.let { stringResource(it) } ?: section.title.orEmpty()
     val stateDesc = stringResource(
         if (section.collapsed) R.string.state_collapsed else R.string.state_expanded,
     )

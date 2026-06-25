@@ -4,26 +4,33 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.jonathaxs.gymnutshell.core.data.CustomGoal
+import com.jonathaxs.gymnutshell.core.data.CustomGoalCategory
+import com.jonathaxs.gymnutshell.core.data.CustomGoalCategoryRepository
 import com.jonathaxs.gymnutshell.core.data.CustomGoalRepository
 import com.jonathaxs.gymnutshell.core.data.DailyRecord
 import com.jonathaxs.gymnutshell.core.data.DailyRecordRepository
+import com.jonathaxs.gymnutshell.core.data.GoalConfigRepository
 import com.jonathaxs.gymnutshell.core.data.ProfileRepository
 import com.jonathaxs.gymnutshell.core.data.SettingsRepository
 import com.jonathaxs.gymnutshell.core.domain.AppDateFormatters
 import com.jonathaxs.gymnutshell.core.domain.AppTheme
 import com.jonathaxs.gymnutshell.core.domain.BuiltInGoals
+import com.jonathaxs.gymnutshell.core.domain.CategoryItem
 import com.jonathaxs.gymnutshell.core.domain.DailyAchievement
 import com.jonathaxs.gymnutshell.core.domain.DailyRecordCodec
 import com.jonathaxs.gymnutshell.core.domain.DailyRecordFactory
 import com.jonathaxs.gymnutshell.core.domain.GoalCategory
+import com.jonathaxs.gymnutshell.core.domain.GoalConfig
 import com.jonathaxs.gymnutshell.core.domain.GoalsCalculator
 import com.jonathaxs.gymnutshell.core.domain.GoalsProvider
 import com.jonathaxs.gymnutshell.core.domain.MeasurementSystem
 import com.jonathaxs.gymnutshell.core.domain.Profile
+import com.jonathaxs.gymnutshell.core.domain.UnifiedCategoryOrder
 import com.jonathaxs.gymnutshell.core.domain.UnitConverter
 import com.jonathaxs.gymnutshell.core.domain.UserGoal
 import com.jonathaxs.gymnutshell.ui.today.TodayCategoryUi
 import com.jonathaxs.gymnutshell.ui.today.TodayGoalUi
+import com.jonathaxs.gymnutshell.ui.today.categoryTitleRes
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -57,6 +64,8 @@ class EditRecordViewModel(app: Application) : AndroidViewModel(app) {
     private val profileRepo = ProfileRepository(app.applicationContext)
     private val settingsRepo = SettingsRepository(app.applicationContext)
     private val customGoalRepo = CustomGoalRepository(app.applicationContext)
+    private val customCategoryRepo = CustomGoalCategoryRepository(app.applicationContext)
+    private val goalConfigRepo = GoalConfigRepository(app.applicationContext)
 
     private val _uiState = MutableStateFlow(EditRecordUiState())
     val uiState: StateFlow<EditRecordUiState> = _uiState.asStateFlow()
@@ -67,13 +76,16 @@ class EditRecordViewModel(app: Application) : AndroidViewModel(app) {
     private var theme: AppTheme = AppTheme.Default
     private var measurement: MeasurementSystem = MeasurementSystem.Metric
     private var customGoals: List<CustomGoal> = emptyList()
+    private var customCategories: List<CustomGoalCategory> = emptyList()
+    private var config: GoalConfig = GoalConfig()
+    private var categoryOrderIds: List<String> = emptyList()
     private var accentArgb: Long = 0xFF007AFF
 
     // Rascunho sempre em unidade métrica (a conversão p/ fl oz é só de exibição, como na Today).
     private val draftIntakes = mutableMapOf<String, Int>()
     private val draftRestDays = mutableSetOf<String>()
-    // Categorias recolhidas (estado local da edição; começa tudo expandido).
-    private val collapsedCategories = mutableSetOf<GoalCategory>()
+    // Categorias recolhidas (estado local da edição; começa tudo expandido). Chave = id da seção.
+    private val collapsedCategories = mutableSetOf<String>()
 
     /** Carrega o registro do dia e semeia o rascunho de edição. */
     fun load(epochDay: Long) {
@@ -85,6 +97,9 @@ class EditRecordViewModel(app: Application) : AndroidViewModel(app) {
             theme = settingsRepo.theme.first()
             measurement = settingsRepo.measurementSystem.first()
             customGoals = customGoalRepo.all()
+            customCategories = customCategoryRepo.all()
+            config = goalConfigRepo.goalConfig.first()
+            categoryOrderIds = goalConfigRepo.categoryOrderIds.first()
             accentArgb = settingsRepo.accentColor.first().argb
             baseRecord = record
 
@@ -128,9 +143,9 @@ class EditRecordViewModel(app: Application) : AndroidViewModel(app) {
         recompute()
     }
 
-    /** Recolhe/expande uma categoria (porte do cabeçalho recolhível da Today). */
-    fun toggleCategory(category: GoalCategory) {
-        if (category in collapsedCategories) collapsedCategories -= category else collapsedCategories += category
+    /** Recolhe/expande uma categoria pela id da seção (porte do cabeçalho recolhível da Today). */
+    fun toggleCategory(id: String) {
+        if (id in collapsedCategories) collapsedCategories -= id else collapsedCategories += id
         recompute()
     }
 
@@ -146,6 +161,7 @@ class EditRecordViewModel(app: Application) : AndroidViewModel(app) {
                 theme = theme,
                 restDays = draftRestDays.toSet(),
                 customGoals = customGoals,
+                config = config,
             )
             recordRepo.upsert(rebuilt)
             onDone()
@@ -155,7 +171,16 @@ class EditRecordViewModel(app: Application) : AndroidViewModel(app) {
     /** Monta a lista de metas (built-in + custom) a partir do rascunho — mesma regra da TodayViewModel. */
     private fun recompute() {
         val res = goals ?: return
-        val builtinGoals = BuiltInGoals.forResult(res).map { g ->
+
+        fun supportsRest(category: GoalCategory?, customCategoryId: String?): Boolean =
+            if (customCategoryId != null) {
+                customCategories.firstOrNull { it.id == customCategoryId }?.supportsRestDay ?: false
+            } else {
+                category == GoalCategory.Treino
+            }
+
+        // Metas fixas ativas (ordem/removidas/overrides), iguais à Today.
+        val builtinGoals = BuiltInGoals.active(res, config).map { g ->
             val category = GoalCategory.defaultCategory(g.key)
             val waterUs = g.key == "tracking.water" && measurement == MeasurementSystem.Us
             val storedMl = draftIntakes[g.key] ?: 0
@@ -178,18 +203,37 @@ class EditRecordViewModel(app: Application) : AndroidViewModel(app) {
                 key = c.intakeKey, emoji = c.emoji, unit = c.unit, increment = c.increment,
                 intake = draftIntakes[c.intakeKey] ?: 0, target = c.target,
                 isRestDay = c.intakeKey in draftRestDays,
-                supportsRestDay = category == GoalCategory.Treino,
+                supportsRestDay = supportsRest(category, c.customCategoryId),
                 category = category,
+                customCategoryId = c.customCategoryId,
                 title = c.name,
             )
         }
         val allGoals = builtinGoals + customGoalsUi
 
-        val sections = GoalCategory.entries.mapNotNull { category ->
-            val goalsInCat = allGoals.filter { it.category == category }
-            if (goalsInCat.isEmpty()) null else TodayCategoryUi(category, goalsInCat, collapsed = category in collapsedCategories)
+        val orderedCategories = UnifiedCategoryOrder.resolve(categoryOrderIds, customCategories)
+        val sections = orderedCategories.mapNotNull { item ->
+            when (item) {
+                is CategoryItem.Builtin -> {
+                    val goalsInCat = builtinGoals.filter { it.category == item.category } +
+                        customGoalsUi.filter { it.category == item.category && it.customCategoryId == null }
+                    if (goalsInCat.isEmpty()) {
+                        null
+                    } else {
+                        TodayCategoryUi(item.id, categoryTitleRes(item.category), null, goalsInCat, item.id in collapsedCategories)
+                    }
+                }
+                is CategoryItem.Custom -> {
+                    val goalsInCat = customGoalsUi.filter { it.customCategoryId == item.category.id }
+                    if (goalsInCat.isEmpty()) {
+                        null
+                    } else {
+                        TodayCategoryUi(item.id, null, item.category.name, goalsInCat, item.id in collapsedCategories)
+                    }
+                }
+            }
         }
-        val uncategorized = allGoals.filter { it.category == null }
+        val uncategorized = customGoalsUi.filter { it.category == null && it.customCategoryId == null }
 
         val avg = if (allGoals.isEmpty()) 0.0 else allGoals.sumOf { it.progress } / allGoals.size
         val tier = DailyAchievement.from(avg)

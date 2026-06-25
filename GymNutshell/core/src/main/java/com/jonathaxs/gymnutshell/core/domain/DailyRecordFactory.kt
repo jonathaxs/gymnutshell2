@@ -25,12 +25,14 @@ object DailyRecordFactory {
         theme: AppTheme,
         restDays: Set<String> = emptySet(),
         customGoals: List<CustomGoal> = emptyList(),
+        config: GoalConfig = GoalConfig(),
     ): DailyRecord {
         // Meta em dia de descanso conta como 100% (1.0), sem precisar de intake.
         fun progress(key: String, target: Int): Double =
             if (key in restDays) 1.0 else ProgressHelpers.normalizedProgress(intakes[key] ?: 0, target)
 
-        val progresses = BuiltInGoals.forResult(result).map { progress(it.key, it.target) } +
+        // Usa as metas ativas (ordem/removidas/overrides) pro %: metas removidas não contam (igual iOS).
+        val progresses = BuiltInGoals.active(result, config).map { progress(it.key, it.target) } +
             customGoals.map { progress(it.intakeKey, it.target) }
         val avg = if (progresses.isEmpty()) 0.0 else progresses.average()
         val tier = DailyAchievement.from(avg)

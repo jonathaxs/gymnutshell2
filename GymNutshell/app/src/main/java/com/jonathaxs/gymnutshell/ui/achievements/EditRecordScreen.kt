@@ -81,11 +81,11 @@ fun EditRecordScreen(
             item(key = "header") { EditHeaderCard(state, accent) }
             state.sections.forEach { section ->
                 // Cabeçalho centralizado recolhível + metas animadas, idêntico à Today.
-                item(key = "cat_${section.category.name}") {
+                item(key = "cat_${section.id}") {
                     CategorySection(
                         section = section,
                         accent = accent,
-                        onToggle = { viewModel.toggleCategory(section.category) },
+                        onToggle = { viewModel.toggleCategory(section.id) },
                         onSetIntake = { goal, value -> viewModel.setIntake(goal, value) },
                         onToggleRest = { goal -> viewModel.toggleRestDay(goal) },
                     )

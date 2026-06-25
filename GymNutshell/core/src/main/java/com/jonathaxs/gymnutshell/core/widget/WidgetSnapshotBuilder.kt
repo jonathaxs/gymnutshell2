@@ -5,6 +5,7 @@ import com.jonathaxs.gymnutshell.core.data.CustomGoal
 import com.jonathaxs.gymnutshell.core.data.CustomGoalRepository
 import com.jonathaxs.gymnutshell.core.data.DailyRecord
 import com.jonathaxs.gymnutshell.core.data.DailyRecordRepository
+import com.jonathaxs.gymnutshell.core.data.GoalConfigRepository
 import com.jonathaxs.gymnutshell.core.data.IntakeRepository
 import com.jonathaxs.gymnutshell.core.data.ProfileRepository
 import com.jonathaxs.gymnutshell.core.data.SettingsRepository
@@ -12,6 +13,7 @@ import com.jonathaxs.gymnutshell.core.data.WidgetBackgroundRepository
 import com.jonathaxs.gymnutshell.core.domain.AppTheme
 import com.jonathaxs.gymnutshell.core.domain.BuiltInGoals
 import com.jonathaxs.gymnutshell.core.domain.DailyAchievement
+import com.jonathaxs.gymnutshell.core.domain.GoalConfig
 import com.jonathaxs.gymnutshell.core.domain.GoalsCalculator
 import com.jonathaxs.gymnutshell.core.domain.GoalsProvider
 import com.jonathaxs.gymnutshell.core.domain.Profile
@@ -50,6 +52,7 @@ object WidgetSnapshotBuilder {
             accentArgb = settings.accentColor.first().argb,
             backgroundMode = bgRepo.mode(),
             customBackgroundArgb = bgRepo.customColor(),
+            config = GoalConfigRepository(context).goalConfig.first(),
         )
     }
 
@@ -64,6 +67,7 @@ object WidgetSnapshotBuilder {
         accentArgb: Long,
         backgroundMode: WidgetBackgroundMode = WidgetBackgroundMode.Default,
         customBackgroundArgb: Long = WidgetBackground.DEFAULT_CUSTOM_ARGB,
+        config: GoalConfig = GoalConfig(),
         today: Long = LocalDate.now().toEpochDay(),
         nowMillis: Long = System.currentTimeMillis(),
     ): WidgetSnapshot {
@@ -73,7 +77,8 @@ object WidgetSnapshotBuilder {
 
         fun percent(p: Double): Int = floor(p * 100).toInt()
 
-        val builtin = BuiltInGoals.forResult(result)
+        // Metas ativas: ordem definida pelo usuário, sem as removidas e com os overrides aplicados.
+        val builtin = BuiltInGoals.active(result, config)
 
         // Metas ativas na mesma ordem da Today: fixas (por categoria) + personalizadas no fim.
         // Metas custom carregam o próprio nome em `label`; as fixas deixam null (a UI resolve por key).

@@ -1,14 +1,17 @@
 package com.jonathaxs.gymnutshell.ui.today
 
 import android.app.Application
+import androidx.annotation.StringRes
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.jonathaxs.gymnutshell.R
 import com.jonathaxs.gymnutshell.health.HealthConnectManager
 import com.jonathaxs.gymnutshell.notifications.GymNotifier
 import com.jonathaxs.gymnutshell.notifications.NotificationScheduler
+import com.jonathaxs.gymnutshell.core.data.CustomGoalCategoryRepository
 import com.jonathaxs.gymnutshell.core.data.CustomGoalRepository
 import com.jonathaxs.gymnutshell.core.data.DailyRecordRepository
+import com.jonathaxs.gymnutshell.core.data.GoalConfigRepository
 import com.jonathaxs.gymnutshell.core.data.HealthPreferencesRepository
 import com.jonathaxs.gymnutshell.core.data.IntakeRepository
 import com.jonathaxs.gymnutshell.core.data.ProfileRepository
@@ -17,6 +20,7 @@ import com.jonathaxs.gymnutshell.core.data.StreakBonus
 import com.jonathaxs.gymnutshell.core.data.TodayPreferencesRepository
 import com.jonathaxs.gymnutshell.core.domain.AppDateFormatters
 import com.jonathaxs.gymnutshell.core.domain.BuiltInGoals
+import com.jonathaxs.gymnutshell.core.domain.CategoryItem
 import com.jonathaxs.gymnutshell.core.domain.DailyAchievement
 import com.jonathaxs.gymnutshell.core.domain.DailyRecordFactory
 import com.jonathaxs.gymnutshell.core.domain.GoalCategory
@@ -26,6 +30,7 @@ import com.jonathaxs.gymnutshell.core.domain.NotificationKind
 import com.jonathaxs.gymnutshell.core.domain.Profile
 import com.jonathaxs.gymnutshell.core.domain.ProgressHelpers
 import com.jonathaxs.gymnutshell.core.domain.StreakBonusEvaluator
+import com.jonathaxs.gymnutshell.core.domain.UnifiedCategoryOrder
 import com.jonathaxs.gymnutshell.core.domain.UnitConverter
 import com.jonathaxs.gymnutshell.core.domain.UserGoal
 import kotlinx.coroutines.flow.SharingStarted
@@ -49,6 +54,8 @@ data class TodayGoalUi(
     val isRestDay: Boolean = false,
     val supportsRestDay: Boolean = false,
     val category: GoalCategory? = null,
+    /** Categoria personalizada à qual a meta pertence (null quando é fixa do app ou builtin). */
+    val customCategoryId: String? = null,
     /** Título já resolvido (metas custom); null = built-in (UI resolve via string). */
     val title: String? = null,
     /** Água no sistema US: exibida em fl oz, mas armazenada em ml. */
@@ -58,9 +65,14 @@ data class TodayGoalUi(
     val progress: Double get() = if (isRestDay) 1.0 else ProgressHelpers.normalizedProgress(intake, target)
 }
 
-/** Uma categoria com suas metas e o estado de colapso. */
+/**
+ * Uma seção da Today: identidade da categoria ("builtin:<raw>"/"custom:<id>"), título (res p/ fixa
+ * ou texto p/ personalizada), metas e estado de colapso.
+ */
 data class TodayCategoryUi(
-    val category: GoalCategory,
+    val id: String,
+    @StringRes val titleRes: Int?,
+    val title: String?,
     val goals: List<TodayGoalUi>,
     val collapsed: Boolean,
 )
@@ -91,6 +103,8 @@ class TodayViewModel(app: Application) : AndroidViewModel(app) {
     private val recordRepo = DailyRecordRepository(app.applicationContext)
     private val settingsRepo = SettingsRepository(app.applicationContext)
     private val customGoalRepo = CustomGoalRepository(app.applicationContext)
+    private val customCategoryRepo = CustomGoalCategoryRepository(app.applicationContext)
+    private val goalConfigRepo = GoalConfigRepository(app.applicationContext)
     private val notifier = GymNotifier(app.applicationContext)
     private val scheduler = NotificationScheduler(app.applicationContext)
     private val healthPrefs = HealthPreferencesRepository(app.applicationContext)
@@ -124,10 +138,11 @@ class TodayViewModel(app: Application) : AndroidViewModel(app) {
         val theme = settingsRepo.theme.first()
         val restDays = intakeRepo.restDays.first()
         val customGoals = customGoalRepo.all()
+        val config = goalConfigRepo.goalConfig.first()
 
-        // 1) grava o último dia com os intakes que ficaram (tema + dias de descanso + metas custom)
+        // 1) grava o último dia com os intakes que ficaram (tema + dias de descanso + metas custom + config)
         val intakes = intakeRepo.intakes.first()
-        val finalized = DailyRecordFactory.build(last, intakes, result, theme, restDays, customGoals)
+        val finalized = DailyRecordFactory.build(last, intakes, result, theme, restDays, customGoals, config)
         recordRepo.upsert(finalized)
         // Grava o sono do dia que virou no Health Connect, se o usuário habilitou o sync (porte do writeSleepIfNeeded).
         val sleepHours = intakes["tracking.sleep"] ?: 0
@@ -168,19 +183,28 @@ class TodayViewModel(app: Application) : AndroidViewModel(app) {
 
     val uiState: StateFlow<TodayUiState> =
         combine(
-            combine(profileRepo.profile, customGoalRepo.goals, settingsRepo.measurementSystem) { p, c, m ->
-                Triple(p, c, m)
+            combine(profileRepo.profile, customGoalRepo.goals, customCategoryRepo.categories) { p, g, c ->
+                Triple(p, g, c)
             },
-            intakeRepo.intakes,
-            todayPrefs.collapsedCategories,
-            settingsRepo.theme,
-            intakeRepo.restDays,
-        ) { (profile, customGoals, measurement), intakeMap, collapsed, theme, restDays ->
+            combine(goalConfigRepo.goalConfig, goalConfigRepo.categoryOrderIds) { config, ids -> config to ids },
+            combine(intakeRepo.intakes, intakeRepo.restDays, todayPrefs.collapsedCategories) { i, r, c ->
+                Triple(i, r, c)
+            },
+            combine(settingsRepo.measurementSystem, settingsRepo.theme) { m, t -> m to t },
+        ) { (profile, customGoals, customCategories), (config, orderIds), (intakeMap, restDays, collapsed), (measurement, theme) ->
             // Enquanto não houver onboarding, usa um perfil-demo se nada foi salvo.
             val effective = if (profile.weightKg <= 0.0) DEMO_PROFILE else profile
 
-            // Metas fixas. A água no sistema US é exibida em fl oz (armazenada em ml).
-            val builtinGoals = BuiltInGoals.forResult(GoalsProvider.goals(effective)).map { g ->
+            // Resolve se uma meta suporta dia de descanso: Treino (fixa) ou categoria custom com o toggle ligado.
+            fun supportsRest(category: GoalCategory?, customCategoryId: String?): Boolean =
+                if (customCategoryId != null) {
+                    customCategories.firstOrNull { it.id == customCategoryId }?.supportsRestDay ?: false
+                } else {
+                    category == GoalCategory.Treino
+                }
+
+            // Metas fixas ativas (ordem/removidas/overrides). Água em US é exibida em fl oz (armazenada em ml).
+            val builtinGoals = BuiltInGoals.active(GoalsProvider.goals(effective), config).map { g ->
                 val category = GoalCategory.defaultCategory(g.key)
                 val waterUs = g.key == "tracking.water" && measurement == MeasurementSystem.Us
                 val storedMl = intakeMap[g.key] ?: 0
@@ -204,21 +228,39 @@ class TodayViewModel(app: Application) : AndroidViewModel(app) {
                     key = c.intakeKey, emoji = c.emoji, unit = c.unit, increment = c.increment,
                     intake = intakeMap[c.intakeKey] ?: 0, target = c.target,
                     isRestDay = c.intakeKey in restDays,
-                    supportsRestDay = category == GoalCategory.Treino,
+                    supportsRestDay = supportsRest(category, c.customCategoryId),
                     category = category,
+                    customCategoryId = c.customCategoryId,
                     title = c.name,
                 )
             }
-            val allGoals = builtinGoals + customGoalsUi
 
-            // Agrupa por categoria (Essencial → … → Suplemento); custom sem categoria vão no fim.
-            val sections = GoalCategory.entries.mapNotNull { category ->
-                val goals = allGoals.filter { it.category == category }
-                if (goals.isEmpty()) null
-                else TodayCategoryUi(category, goals, collapsed = category.rawValue in collapsed)
+            // Agrupa pela ordem unificada de categorias (fixas + personalizadas); sem categoria vão no fim.
+            val orderedCategories = UnifiedCategoryOrder.resolve(orderIds, customCategories)
+            val sections = orderedCategories.mapNotNull { item ->
+                when (item) {
+                    is CategoryItem.Builtin -> {
+                        val goals = builtinGoals.filter { it.category == item.category } +
+                            customGoalsUi.filter { it.category == item.category && it.customCategoryId == null }
+                        if (goals.isEmpty()) {
+                            null
+                        } else {
+                            TodayCategoryUi(item.id, categoryTitleRes(item.category), null, goals, item.id in collapsed)
+                        }
+                    }
+                    is CategoryItem.Custom -> {
+                        val goals = customGoalsUi.filter { it.customCategoryId == item.category.id }
+                        if (goals.isEmpty()) {
+                            null
+                        } else {
+                            TodayCategoryUi(item.id, null, item.category.name, goals, item.id in collapsed)
+                        }
+                    }
+                }
             }
-            val uncategorized = allGoals.filter { it.category == null }
+            val uncategorized = customGoalsUi.filter { it.category == null && it.customCategoryId == null }
 
+            val allGoals = builtinGoals + customGoalsUi
             val avg = if (allGoals.isEmpty()) 0.0 else allGoals.sumOf { it.progress } / allGoals.size
             val tier = DailyAchievement.from(avg)
 
@@ -244,8 +286,8 @@ class TodayViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
-    fun toggleCategory(category: GoalCategory) {
-        viewModelScope.launch { todayPrefs.toggleCategory(category.rawValue) }
+    fun toggleCategory(id: String) {
+        viewModelScope.launch { todayPrefs.toggleCategory(id) }
     }
 
     fun toggleRestDay(goal: TodayGoalUi) {
@@ -268,7 +310,8 @@ class TodayViewModel(app: Application) : AndroidViewModel(app) {
         val intakes = intakeRepo.intakes.first()
         val profile = profileRepo.profile.first()
         val effective = if (profile.weightKg <= 0.0) DEMO_PROFILE else profile
-        val targets = BuiltInGoals.forResult(GoalsProvider.goals(effective)).associate { it.key to it.target }
+        val config = goalConfigRepo.goalConfig.first()
+        val targets = BuiltInGoals.active(GoalsProvider.goals(effective), config).associate { it.key to it.target }
 
         // Treino de musculação (força): só preenche se a meta está zerada.
         if ((intakes["tracking.workout"] ?: 0) == 0) {
