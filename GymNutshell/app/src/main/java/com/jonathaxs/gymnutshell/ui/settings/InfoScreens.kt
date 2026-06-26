@@ -218,7 +218,7 @@ fun TierInfoSheet(onDismiss: () -> Unit, onOpenTheme: () -> Unit) {
 
 /** Título do bottom sheet de info. */
 @Composable
-private fun InfoSheetTitle(title: String) {
+internal fun InfoSheetTitle(title: String) {
     Text(
         title,
         style = MaterialTheme.typography.titleLarge,
@@ -230,7 +230,7 @@ private fun InfoSheetTitle(title: String) {
 private data class BonusRow(val emoji: String, val titleRes: Int, val descRes: Int, val points: Int)
 
 /** Faixa de porcentagem de cada tier, igual ao rangeLabel do iOS. */
-private fun tierRange(tier: DailyAchievement): String = when (tier) {
+internal fun tierRange(tier: DailyAchievement): String = when (tier) {
     DailyAchievement.Level1 -> "0 – 32%"
     DailyAchievement.Level2 -> "33 – 65%"
     DailyAchievement.Level3 -> "66 – 89%"

@@ -12,11 +12,23 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,8 +38,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.jonathaxs.gymnutshell.R
 import com.jonathaxs.gymnutshell.core.domain.AppTheme
+import com.jonathaxs.gymnutshell.core.domain.DailyAchievement
 import com.jonathaxs.gymnutshell.core.domain.ThemeCategory
 import com.jonathaxs.gymnutshell.ui.components.GroupCheck
+import com.jonathaxs.gymnutshell.ui.components.GroupRow
 import com.jonathaxs.gymnutshell.ui.components.GroupRowDivider
 import com.jonathaxs.gymnutshell.ui.components.GroupSection
 import com.jonathaxs.gymnutshell.ui.theme.color
@@ -37,6 +51,8 @@ import com.jonathaxs.gymnutshell.ui.theme.color
 fun ThemeSettingsScreen(onBack: () -> Unit, viewModel: SettingsViewModel = viewModel()) {
     val selected by viewModel.theme.collectAsStateWithLifecycle()
     val accent = viewModel.accentColor.collectAsStateWithLifecycle().value.color
+    // Tema cujo sheet de níveis está aberto (null = nenhum), igual ao $infoTheme do iOS.
+    var infoTheme by remember { mutableStateOf<AppTheme?>(null) }
 
     Scaffold(topBar = { SettingsTopBar(stringResource(R.string.settings_theme), onBack) }) { padding ->
         LazyColumn(modifier = Modifier.fillMaxSize().padding(padding)) {
@@ -48,8 +64,9 @@ fun ThemeSettingsScreen(onBack: () -> Unit, viewModel: SettingsViewModel = viewM
                             ThemeRow(
                                 theme = theme,
                                 selected = theme == selected,
-                                checkColor = accent,
+                                accent = accent,
                                 onClick = { viewModel.setTheme(theme) },
+                                onInfo = { infoTheme = theme },
                             )
                         }
                     }
@@ -58,31 +75,75 @@ fun ThemeSettingsScreen(onBack: () -> Unit, viewModel: SettingsViewModel = viewM
             item(key = "bottom_spacer") { Spacer(Modifier.height(24.dp)) }
         }
     }
+
+    // Sheet com os 4 níveis do tema tocado — porte do ThemeInfoView (iOS, sempre apresentado como sheet).
+    infoTheme?.let { theme ->
+        ThemeInfoSheet(theme = theme, onDismiss = { infoTheme = null })
+    }
 }
 
-/** Linha de tema: nome + prévia dos 4 emojis; checkmark (na cor de destaque) quando selecionado. */
+/**
+ * Linha de tema: nome + prévia dos 4 emojis; checkmark (na cor de destaque) quando selecionado
+ * e botão (i) que abre o sheet de níveis. O botão fica fora da área de toque que seleciona o tema.
+ */
 @Composable
 private fun ThemeRow(
     theme: AppTheme,
     selected: Boolean,
-    checkColor: Color,
+    accent: Color,
     onClick: () -> Unit,
+    onInfo: () -> Unit,
 ) {
+    val themeName = stringResource(themeNameRes(theme))
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
             .heightIn(min = 56.dp)
-            .padding(horizontal = 20.dp, vertical = 12.dp),
+            .padding(start = 20.dp, top = 12.dp, bottom = 12.dp, end = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(Modifier.weight(1f)) {
-            Text(stringResource(themeNameRes(theme)), style = MaterialTheme.typography.bodyLarge)
+            Text(themeName, style = MaterialTheme.typography.bodyLarge)
             Text(theme.previewEmojis.joinToString("  "), style = MaterialTheme.typography.titleMedium)
         }
         if (selected) {
             Spacer(Modifier.width(8.dp))
-            GroupCheck(checkColor)
+            GroupCheck(accent)
+        }
+        IconButton(onClick = onInfo) {
+            Icon(
+                Icons.Outlined.Info,
+                contentDescription = stringResource(R.string.a11y_theme_info, themeName),
+                tint = accent,
+            )
+        }
+    }
+}
+
+/** Sheet informativo dos 4 níveis de um tema: emoji + nível + faixa de progresso. Porte do ThemeInfoView (iOS). */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ThemeInfoSheet(theme: AppTheme, onDismiss: () -> Unit) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val rangeSuffix = stringResource(R.string.tier_info_range_suffix)
+    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
+        // Título = nome do tema, como o navigationTitle do ThemeInfoView.
+        InfoSheetTitle(stringResource(themeNameRes(theme)))
+        Column(
+            Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(bottom = 24.dp),
+        ) {
+            GroupSection(title = stringResource(R.string.tier_info_section_levels)) {
+                DailyAchievement.entries.forEachIndexed { index, tier ->
+                    if (index > 0) GroupRowDivider()
+                    GroupRow(
+                        // Nomes de tier por tema ainda não existem no Android; até lá o título é "Level N".
+                        title = stringResource(R.string.ring_info_level_label, index + 1),
+                        subtitle = tierRange(tier) + rangeSuffix,
+                        leading = { Text(theme.emoji(tier), style = MaterialTheme.typography.headlineSmall) },
+                    )
+                }
+            }
         }
     }
 }

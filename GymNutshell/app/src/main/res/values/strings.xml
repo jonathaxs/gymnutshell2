@@ -226,6 +226,7 @@
     <string name="a11y_remove_goal">Remove goal</string>
     <string name="a11y_restore_goal">Restore goal</string>
     <string name="a11y_edit_category">Edit category</string>
+    <string name="a11y_theme_info">More information about %1$s</string>
     <string name="cd_move_up">Move up</string>
     <string name="cd_move_down">Move down</string>
 
