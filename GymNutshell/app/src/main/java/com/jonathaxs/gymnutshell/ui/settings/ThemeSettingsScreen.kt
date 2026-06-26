@@ -1,6 +1,7 @@
 package com.jonathaxs.gymnutshell.ui.settings
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -95,27 +96,31 @@ private fun ThemeRow(
     onInfo: () -> Unit,
 ) {
     val themeName = stringResource(themeNameRes(theme))
+    // Linha selecionada ganha fundo na cor de destaque e conteúdo branco — igual ao listRowBackground do iOS.
+    // O Surface do GroupCard já recorta os cantos, então a primeira/última linha herdam o arredondamento.
+    val contentColor = if (selected) Color.White else MaterialTheme.colorScheme.onSurface
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
             .heightIn(min = 56.dp)
+            .then(if (selected) Modifier.background(accent) else Modifier)
+            .clickable(onClick = onClick)
             .padding(start = 20.dp, top = 12.dp, bottom = 12.dp, end = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(Modifier.weight(1f)) {
-            Text(themeName, style = MaterialTheme.typography.bodyLarge)
+            Text(themeName, style = MaterialTheme.typography.bodyLarge, color = contentColor)
             Text(theme.previewEmojis.joinToString("  "), style = MaterialTheme.typography.titleMedium)
         }
         if (selected) {
             Spacer(Modifier.width(8.dp))
-            GroupCheck(accent)
+            GroupCheck(Color.White)
         }
         IconButton(onClick = onInfo) {
             Icon(
                 Icons.Outlined.Info,
                 contentDescription = stringResource(R.string.a11y_theme_info, themeName),
-                tint = accent,
+                tint = if (selected) Color.White else accent,
             )
         }
     }
