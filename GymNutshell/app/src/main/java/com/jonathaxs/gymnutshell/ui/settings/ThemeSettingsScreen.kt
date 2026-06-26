@@ -124,7 +124,7 @@ private fun ThemeRow(
 /** Sheet informativo dos 4 níveis de um tema: emoji + nível + faixa de progresso. Porte do ThemeInfoView (iOS). */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ThemeInfoSheet(theme: AppTheme, onDismiss: () -> Unit) {
+internal fun ThemeInfoSheet(theme: AppTheme, onDismiss: () -> Unit) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val rangeSuffix = stringResource(R.string.tier_info_range_suffix)
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
@@ -159,7 +159,7 @@ private fun categoryNameRes(category: ThemeCategory): Int = when (category) {
 }
 
 @StringRes
-private fun themeNameRes(theme: AppTheme): Int = when (theme) {
+internal fun themeNameRes(theme: AppTheme): Int = when (theme) {
     AppTheme.Gym -> R.string.theme_gym
     AppTheme.Running -> R.string.theme_running
     AppTheme.Cat -> R.string.theme_cat

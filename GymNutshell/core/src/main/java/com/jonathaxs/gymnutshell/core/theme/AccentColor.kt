@@ -23,5 +23,12 @@ enum class AccentColor(val argb: Long) {
 
         /** Cor padrão antes de o usuário customizar (≈ defaultForSex no iOS). */
         val Default = Blue
+
+        /** Cor de destaque inicial sugerida pelo sexo escolhido no onboarding — espelha defaultForSex (iOS). */
+        fun defaultForSex(sex: String): AccentColor = when (sex) {
+            "female" -> Purple
+            "male" -> Blue
+            else -> Yellow
+        }
     }
 }
