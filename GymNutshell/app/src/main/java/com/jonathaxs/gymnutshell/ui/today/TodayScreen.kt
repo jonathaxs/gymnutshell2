@@ -15,10 +15,12 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -68,6 +70,7 @@ import com.jonathaxs.gymnutshell.core.domain.GoalCategory
 import com.jonathaxs.gymnutshell.core.domain.ProgressColors
 import com.jonathaxs.gymnutshell.ui.settings.ProgressRingInfoSheet
 import com.jonathaxs.gymnutshell.ui.settings.TierInfoSheet
+import com.jonathaxs.gymnutshell.ui.util.Breakpoints
 import kotlin.math.roundToInt
 
 /**
@@ -90,43 +93,18 @@ fun TodayScreen(
     var showRingInfo by remember { mutableStateOf(false) }
     var showTierInfo by remember { mutableStateOf(false) }
 
-    Column(modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
-        // A data de hoje é o próprio botão que abre o histórico de notificações (porte do botão de data da TodayHeroView do iOS).
-        TodayHeader(
-            state,
-            accent = accent,
-            onOpenHistory = onOpenHistory,
-            onRingClick = { showRingInfo = true },
-            onTierClick = { showTierInfo = true },
-        )
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            state.sections.forEach { section ->
-                // Header + metas no mesmo item pra animar o grupo ao expandir/recolher,
-                // porte da .transition(.scale 0.92, anchor .top + opacity) do iOS (easeInOut 0.2s).
-                item(key = "cat_${section.id}") {
-                    CategorySection(
-                        section = section,
-                        accent = accent,
-                        onToggle = { viewModel.toggleCategory(section.id) },
-                        onSetIntake = { goal, value -> viewModel.updateIntake(goal, value) },
-                        onToggleRest = { goal -> viewModel.toggleRestDay(goal) },
-                    )
-                }
-            }
-            // Metas personalizadas sem categoria, no fim.
-            items(state.uncategorizedGoals, key = { it.key }) { goal ->
-                GoalRow(
-                    goal = goal,
-                    accent = accent,
-                    onSet = { viewModel.updateIntake(goal, it) },
-                    onToggleRest = { viewModel.toggleRestDay(goal) },
-                )
-            }
+    val onRingClick = { showRingInfo = true }
+    val onTierClick = { showTierInfo = true }
+
+    BoxWithConstraints(modifier.fillMaxSize()) {
+        // Mesmos limiares do iOS: a largura decide se é tela larga; numa tela larga, a altura
+        // decide se o hero empilha (tablet) ou fica enxuto ao lado das metas (celular landscape).
+        val isWide = maxWidth >= Breakpoints.WideThreshold
+        val isTall = maxHeight >= Breakpoints.TallThreshold
+        when {
+            !isWide -> TodayPortrait(state, accent, onOpenHistory, onRingClick, onTierClick, viewModel)
+            isTall -> TodayWideGrid(state, accent, onOpenHistory, onRingClick, onTierClick, viewModel)
+            else -> TodayWideColumn(state, accent, onOpenHistory, onRingClick, onTierClick, viewModel)
         }
     }
 
@@ -139,96 +117,261 @@ fun TodayScreen(
     }
 }
 
+/** Retrato (celular): hero horizontal no topo + lista de metas em coluna única abaixo. */
+@Composable
+private fun TodayPortrait(
+    state: TodayUiState,
+    accent: Color,
+    onOpenHistory: () -> Unit,
+    onRingClick: () -> Unit,
+    onTierClick: () -> Unit,
+    viewModel: TodayViewModel,
+) {
+    Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
+        TodayHero(
+            state, accent, vertical = false,
+            onOpenHistory = onOpenHistory, onRingClick = onRingClick, onTierClick = onTierClick,
+            modifier = Modifier.widthIn(max = TodayContentMaxWidth).fillMaxWidth(),
+        )
+        TodayGoalsList(state, accent, viewModel, Modifier.fillMaxSize())
+    }
+}
+
+/** Wide + alto (tablet): hero empilhado numa coluna fixa à esquerda + metas em grid à direita. */
+@Composable
+private fun TodayWideGrid(
+    state: TodayUiState,
+    accent: Color,
+    onOpenHistory: () -> Unit,
+    onRingClick: () -> Unit,
+    onTierClick: () -> Unit,
+    viewModel: TodayViewModel,
+) {
+    Row(Modifier.fillMaxSize().padding(horizontal = 24.dp, vertical = 16.dp)) {
+        Box(Modifier.width(360.dp).fillMaxHeight(), contentAlignment = Alignment.Center) {
+            TodayHero(
+                state, accent, vertical = true,
+                onOpenHistory = onOpenHistory, onRingClick = onRingClick, onTierClick = onTierClick,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+        Spacer(Modifier.width(24.dp))
+        TodayGoalsGrid(
+            cells = todayGridCells(state, accent, viewModel),
+            modifier = Modifier.weight(1f).fillMaxHeight(),
+        )
+    }
+}
+
+/** Wide + baixo (celular landscape): hero horizontal à esquerda + metas em coluna única à direita. */
+@Composable
+private fun TodayWideColumn(
+    state: TodayUiState,
+    accent: Color,
+    onOpenHistory: () -> Unit,
+    onRingClick: () -> Unit,
+    onTierClick: () -> Unit,
+    viewModel: TodayViewModel,
+) {
+    Row(Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
+        Box(Modifier.width(340.dp).fillMaxHeight(), contentAlignment = Alignment.Center) {
+            TodayHero(
+                state, accent, vertical = false,
+                onOpenHistory = onOpenHistory, onRingClick = onRingClick, onTierClick = onTierClick,
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+            )
+        }
+        TodayGoalsList(state, accent, viewModel, Modifier.weight(1f).fillMaxHeight())
+    }
+}
+
+/** Lista de metas em coluna única (retrato e celular landscape): seções + metas sem categoria. */
+@Composable
+private fun TodayGoalsList(
+    state: TodayUiState,
+    accent: Color,
+    viewModel: TodayViewModel,
+    modifier: Modifier = Modifier,
+) {
+    LazyColumn(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        state.sections.forEach { section ->
+            // Header + metas no mesmo item pra animar o grupo ao expandir/recolher,
+            // porte da .transition(.scale 0.92, anchor .top + opacity) do iOS (easeInOut 0.2s).
+            item(key = "cat_${section.id}") {
+                CategorySection(
+                    section = section,
+                    accent = accent,
+                    onToggle = { viewModel.toggleCategory(section.id) },
+                    onSetIntake = { goal, value -> viewModel.updateIntake(goal, value) },
+                    onToggleRest = { goal -> viewModel.toggleRestDay(goal) },
+                )
+            }
+        }
+        // Metas personalizadas sem categoria, no fim.
+        items(state.uncategorizedGoals, key = { it.key }) { goal ->
+            GoalRow(
+                goal = goal,
+                accent = accent,
+                onSet = { viewModel.updateIntake(goal, it) },
+                onToggleRest = { viewModel.toggleRestDay(goal) },
+            )
+        }
+    }
+}
+
+/** Monta as células do grid wide: uma por categoria + uma final pras metas sem categoria. */
+private fun todayGridCells(
+    state: TodayUiState,
+    accent: Color,
+    viewModel: TodayViewModel,
+): List<TodayGridCell> = buildList {
+    state.sections.forEach { section ->
+        add(
+            TodayGridCell(section.id) {
+                CategorySection(
+                    section = section,
+                    accent = accent,
+                    onToggle = { viewModel.toggleCategory(section.id) },
+                    onSetIntake = { goal, value -> viewModel.updateIntake(goal, value) },
+                    onToggleRest = { goal -> viewModel.toggleRestDay(goal) },
+                )
+            },
+        )
+    }
+    if (state.uncategorizedGoals.isNotEmpty()) {
+        add(
+            TodayGridCell("__uncategorized__") {
+                Column(
+                    Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    state.uncategorizedGoals.forEach { goal ->
+                        GoalRow(
+                            goal = goal,
+                            accent = accent,
+                            onSet = { viewModel.updateIntake(goal, it) },
+                            onToggleRest = { viewModel.toggleRestDay(goal) },
+                        )
+                    }
+                }
+            },
+        )
+    }
+}
+
 /**
  * Cabeçalho: data por extenso e, abaixo, anel de progresso (esquerda) + conquista do dia (direita),
  * lado a lado — espelha a HStack do TodayHeroView (iOS). A conquista mostra o rótulo "Achievement",
  * o emoji do tier e o nome "Level N" (nomes localizados por tema ainda não existem no Android).
  */
 @Composable
-private fun TodayHeader(
+private fun TodayHero(
     state: TodayUiState,
     accent: Color,
+    vertical: Boolean,
     onOpenHistory: () -> Unit,
     onRingClick: () -> Unit,
     onTierClick: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-    val progressDesc = stringResource(R.string.cd_daily_progress, state.overallPercent)
-    val tierDesc = stringResource(R.string.cd_daily_tier, state.tierLevel)
-    val historyDesc = stringResource(R.string.cd_notification_history)
     Column(
+        modifier = modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        DateButton(state.dateLabel, accent, onOpenHistory)
+        Spacer(Modifier.height(16.dp))
+        if (vertical) {
+            // Tablet com altura sobrando: anel em cima, conquista embaixo (porte do verticalLayout do iOS).
+            RingBlock(state, onRingClick, Modifier.fillMaxWidth())
+            Spacer(Modifier.height(20.dp))
+            TierBlock(state, onTierClick, Modifier.fillMaxWidth())
+        } else {
+            // Celular (retrato/landscape): anel e conquista lado a lado.
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                RingBlock(state, onRingClick, Modifier.weight(1f))
+                TierBlock(state, onTierClick, Modifier.weight(1f))
+            }
+        }
+    }
+}
+
+/** Data de hoje: botão com borda arredondada na cor de destaque que abre o histórico de notificações. */
+@Composable
+private fun DateButton(label: String, accent: Color, onOpenHistory: () -> Unit) {
+    val historyDesc = stringResource(R.string.cd_notification_history)
+    Text(
+        label,
+        style = MaterialTheme.typography.titleMedium,
+        textAlign = TextAlign.Center,
         modifier = Modifier
             .widthIn(max = TodayContentMaxWidth)
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+            .clip(RoundedCornerShape(18.dp))
+            .clickable(onClick = onOpenHistory)
+            .border(1.5.dp, accent.copy(alpha = 0.33f), RoundedCornerShape(18.dp))
+            .padding(horizontal = 14.dp, vertical = 10.dp)
+            .semantics { contentDescription = historyDesc },
+    )
+}
+
+/** Bloco do anel: rótulo "Progress" + anel com % no centro. Toque abre a info do anel. */
+@Composable
+private fun RingBlock(state: TodayUiState, onRingClick: () -> Unit, modifier: Modifier = Modifier) {
+    val progressDesc = stringResource(R.string.cd_daily_progress, state.overallPercent)
+    Column(
+        modifier = modifier
+            .clip(RoundedCornerShape(16.dp))
+            .clickable(onClick = onRingClick)
+            .semantics(mergeDescendants = true) { contentDescription = progressDesc },
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        // Data de hoje: botão com borda arredondada na cor de destaque que abre o histórico de notificações.
-        Text(
-            state.dateLabel,
-            style = MaterialTheme.typography.titleMedium,
-            textAlign = TextAlign.Center,
-            modifier = Modifier
-                .widthIn(max = TodayContentMaxWidth)
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(18.dp))
-                .clickable(onClick = onOpenHistory)
-                .border(1.5.dp, accent.copy(alpha = 0.33f), RoundedCornerShape(18.dp))
-                .padding(horizontal = 14.dp, vertical = 10.dp)
-                .semantics { contentDescription = historyDesc },
-        )
-        Spacer(Modifier.height(16.dp))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            // Bloco do anel: rótulo "Progress" + anel com % no centro. Toque abre a info do anel.
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .clip(RoundedCornerShape(16.dp))
-                    .clickable(onClick = onRingClick)
-                    .semantics(mergeDescendants = true) { contentDescription = progressDesc },
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                HeroLabel(stringResource(R.string.today_ring_label))
-                Spacer(Modifier.height(12.dp))
-                TodayProgressRing(progress = state.overallProgress, percent = state.overallPercent)
-            }
-            // Bloco da conquista: rótulo "Achievement" + emoji do tier + nome "Level N". Toque abre a info da conquista.
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .clip(RoundedCornerShape(16.dp))
-                    .clickable(onClick = onTierClick)
-                    .semantics(mergeDescendants = true) { contentDescription = tierDesc },
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                HeroLabel(stringResource(R.string.today_tier_label))
-                Spacer(Modifier.height(12.dp))
-                // Emoji cresce e fica opaco em tiers mais altos (porte do DailyTierView do iOS).
-                val emojiScale = when (state.tierLevel) {
-                    1 -> 0.95f
-                    2 -> 1.0f
-                    3 -> 1.05f
-                    else -> 1.10f
-                }
-                Text(
-                    state.tierEmoji,
-                    fontSize = 72.sp,
-                    modifier = Modifier
-                        .scale(emojiScale)
-                        .alpha(if (state.tierLevel == 1) 0.85f else 1f)
-                        .clearAndSetSemantics {},
-                )
-                Spacer(Modifier.height(8.dp))
-                Text(
-                    stringResource(R.string.progress_tier_level, state.tierLevel),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.clearAndSetSemantics {},
-                )
-            }
+        HeroLabel(stringResource(R.string.today_ring_label))
+        Spacer(Modifier.height(12.dp))
+        TodayProgressRing(progress = state.overallProgress, percent = state.overallPercent)
+    }
+}
+
+/** Bloco da conquista: rótulo "Achievement" + emoji do tier + nome "Level N". Toque abre a info da conquista. */
+@Composable
+private fun TierBlock(state: TodayUiState, onTierClick: () -> Unit, modifier: Modifier = Modifier) {
+    val tierDesc = stringResource(R.string.cd_daily_tier, state.tierLevel)
+    Column(
+        modifier = modifier
+            .clip(RoundedCornerShape(16.dp))
+            .clickable(onClick = onTierClick)
+            .semantics(mergeDescendants = true) { contentDescription = tierDesc },
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        HeroLabel(stringResource(R.string.today_tier_label))
+        Spacer(Modifier.height(12.dp))
+        // Emoji cresce e fica opaco em tiers mais altos (porte do DailyTierView do iOS).
+        val emojiScale = when (state.tierLevel) {
+            1 -> 0.95f
+            2 -> 1.0f
+            3 -> 1.05f
+            else -> 1.10f
         }
+        Text(
+            state.tierEmoji,
+            fontSize = 72.sp,
+            modifier = Modifier
+                .scale(emojiScale)
+                .alpha(if (state.tierLevel == 1) 0.85f else 1f)
+                .clearAndSetSemantics {},
+        )
+        Spacer(Modifier.height(8.dp))
+        Text(
+            stringResource(R.string.progress_tier_level, state.tierLevel),
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.clearAndSetSemantics {},
+        )
     }
 }
 

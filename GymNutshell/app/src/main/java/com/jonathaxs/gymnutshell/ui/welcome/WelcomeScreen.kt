@@ -7,9 +7,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -78,6 +80,7 @@ import com.jonathaxs.gymnutshell.core.theme.AccentColor
 import com.jonathaxs.gymnutshell.ui.settings.ThemeInfoSheet
 import com.jonathaxs.gymnutshell.ui.settings.themeNameRes
 import com.jonathaxs.gymnutshell.ui.theme.color
+import com.jonathaxs.gymnutshell.ui.util.Breakpoints
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
@@ -141,12 +144,10 @@ fun WelcomeScreen(viewModel: WelcomeViewModel = viewModel()) {
     }
 
     Scaffold { padding ->
-        Column(
-            Modifier.fillMaxSize().padding(padding).imePadding().padding(horizontal = 24.dp),
-        ) {
-            // Topo: voltar (oculto na primeira etapa) + barra de progresso em cápsulas.
+        // Topo (voltar + progresso) e rodapé (botões) reaproveitados nos dois layouts (estreito e largo).
+        val topBar: @Composable (Modifier) -> Unit = { mod ->
             Row(
-                Modifier.fillMaxWidth().padding(top = 20.dp),
+                mod,
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
             ) {
@@ -160,9 +161,23 @@ fun WelcomeScreen(viewModel: WelcomeViewModel = viewModel()) {
                 }
                 WelcomeProgressBar(stepIndex, steps.size, sexColor, Modifier.weight(1f))
             }
-            Spacer(Modifier.height(8.dp))
-
-            Box(Modifier.weight(1f).fillMaxWidth()) {
+        }
+        val footerButtons: @Composable () -> Unit = {
+            val isLast = step == WelcomeStep.Theme
+            val label = if (isLast) R.string.welcome_button_start else R.string.welcome_button_continue
+            val color = if (step == WelcomeStep.Goal) goalColor(goal) else sexColor
+            val enabled = step != WelcomeStep.Physical || physicalValid
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                WelcomePrimaryButton(stringResource(label), color, enabled) {
+                    if (isLast) viewModel.complete(profile, theme, includeFats, includeCreatine) else stepIndex++
+                }
+                TextButton(onClick = { stepIndex-- }, modifier = Modifier.fillMaxWidth()) {
+                    Text(stringResource(R.string.action_back), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
+        }
+        val stepContent: @Composable () -> Unit = {
+            Box(Modifier.fillMaxSize()) {
                 when (step) {
                     WelcomeStep.Start -> StartStep(
                         accent = sexColor,
@@ -192,23 +207,30 @@ fun WelcomeScreen(viewModel: WelcomeViewModel = viewModel()) {
                     )
                 }
             }
+        }
 
-            // Rodapé com Continuar/Concluir + Voltar — exceto na etapa inicial (que tem o próprio botão).
-            if (step != WelcomeStep.Start) {
-                val isLast = step == WelcomeStep.Theme
-                val label = if (isLast) R.string.welcome_button_start else R.string.welcome_button_continue
-                val color = if (step == WelcomeStep.Goal) goalColor(goal) else sexColor
-                val enabled = step != WelcomeStep.Physical || physicalValid
-                Spacer(Modifier.height(12.dp))
-                Column(
-                    Modifier.padding(bottom = 24.dp),
-                    verticalArrangement = Arrangement.spacedBy(4.dp),
-                ) {
-                    WelcomePrimaryButton(stringResource(label), color, enabled) {
-                        if (isLast) viewModel.complete(profile, theme, includeFats, includeCreatine) else stepIndex++
+        // Wide (tablet/landscape): navegação à esquerda, conteúdo da etapa à direita. Estreito: empilhado.
+        BoxWithConstraints(Modifier.fillMaxSize().padding(padding).imePadding()) {
+            val isWide = maxWidth >= Breakpoints.WideThreshold
+            if (isWide) {
+                Row(Modifier.fillMaxSize().padding(horizontal = 24.dp)) {
+                    Column(
+                        Modifier.width(300.dp).fillMaxHeight().padding(top = 24.dp, bottom = 24.dp, end = 16.dp),
+                    ) {
+                        topBar(Modifier.fillMaxWidth())
+                        Spacer(Modifier.weight(1f))
+                        if (step != WelcomeStep.Start) footerButtons()
                     }
-                    TextButton(onClick = { stepIndex-- }, modifier = Modifier.fillMaxWidth()) {
-                        Text(stringResource(R.string.action_back), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Box(Modifier.weight(1f).fillMaxHeight().padding(vertical = 16.dp)) { stepContent() }
+                }
+            } else {
+                Column(Modifier.fillMaxSize().padding(horizontal = 24.dp)) {
+                    topBar(Modifier.fillMaxWidth().padding(top = 20.dp))
+                    Spacer(Modifier.height(8.dp))
+                    Box(Modifier.weight(1f).fillMaxWidth()) { stepContent() }
+                    if (step != WelcomeStep.Start) {
+                        Spacer(Modifier.height(12.dp))
+                        Column(Modifier.padding(bottom = 24.dp)) { footerButtons() }
                     }
                 }
             }

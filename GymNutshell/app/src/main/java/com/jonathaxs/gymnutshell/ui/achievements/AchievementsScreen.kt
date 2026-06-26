@@ -4,14 +4,17 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -42,6 +45,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.jonathaxs.gymnutshell.R
 import com.jonathaxs.gymnutshell.ui.components.GroupRowDivider
 import com.jonathaxs.gymnutshell.ui.components.GroupSection
+import com.jonathaxs.gymnutshell.ui.util.Breakpoints
 
 /** Aba Achievements — porte da AchievementsView (iOS): sino de notificações, seletor Calendário/Lista e histórico. */
 @Composable
@@ -54,44 +58,80 @@ fun AchievementsScreen(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val accent = Color(state.accentArgb)
 
-    Column(modifier.fillMaxSize()) {
-        AchievementsHeader(accent = accent, onOpenHistory = onOpenHistory)
-        FilterSelector(selected = state.filterMode, accent = accent, onSelect = viewModel::setFilterMode)
-        // Conteúdo rolável: calendário (modo Calendário) + histórico, cada um num card agrupado.
-        Column(
-            Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()),
-        ) {
-            // Calendário só aparece no modo Calendário; no modo Lista some e o histórico ocupa a tela toda.
-            if (state.filterMode == AchievementsFilterMode.Calendar) {
-                GroupSection {
-                    MonthHeader(state.monthLabel, onPrev = viewModel::previousMonth, onNext = viewModel::nextMonth)
-                    CalendarGrid(state, accent, onSelect = viewModel::selectDay)
-                    Spacer(Modifier.height(8.dp))
-                }
-            }
-            if (state.history.isEmpty()) {
-                Box(
-                    Modifier.fillMaxWidth().padding(vertical = 56.dp),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text(
-                        stringResource(R.string.achievements_empty),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            } else {
-                GroupSection {
-                    state.history.forEachIndexed { index, item ->
-                        if (index > 0) GroupRowDivider()
-                        HistoryRow(
-                            item = item,
-                            accent = accent,
-                            onEdit = if (item.canEdit) ({ onEditRecord(item.epochDay) }) else null,
-                        )
+    BoxWithConstraints(modifier.fillMaxSize()) {
+        // Tela larga (tablet/landscape): conteúdo limitado a 860dp e centralizado, igual ao iOS.
+        val isWide = maxWidth >= Breakpoints.WideThreshold
+        val contentMod = if (isWide) {
+            Modifier.fillMaxWidth().widthIn(max = 860.dp).fillMaxHeight().align(Alignment.TopCenter)
+        } else {
+            Modifier.fillMaxSize()
+        }
+        Column(contentMod) {
+            AchievementsHeader(accent = accent, onOpenHistory = onOpenHistory)
+            FilterSelector(selected = state.filterMode, accent = accent, onSelect = viewModel::setFilterMode)
+            if (isWide && state.filterMode == AchievementsFilterMode.Calendar) {
+                // Wide + Calendário: calendário à esquerda, histórico à direita (duas colunas roláveis).
+                Row(Modifier.weight(1f).fillMaxWidth()) {
+                    Column(
+                        Modifier.width(380.dp).fillMaxHeight().verticalScroll(rememberScrollState()),
+                    ) {
+                        CalendarCard(state, accent, viewModel)
+                        Spacer(Modifier.height(24.dp))
+                    }
+                    Column(
+                        Modifier.weight(1f).fillMaxHeight().verticalScroll(rememberScrollState()),
+                    ) {
+                        HistoryContent(state, accent, onEditRecord)
+                        Spacer(Modifier.height(24.dp))
                     }
                 }
+            } else {
+                // Coluna única: retrato, ou tela larga no modo Lista (sem calendário).
+                Column(
+                    Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()),
+                ) {
+                    if (state.filterMode == AchievementsFilterMode.Calendar) CalendarCard(state, accent, viewModel)
+                    HistoryContent(state, accent, onEditRecord)
+                    Spacer(Modifier.height(24.dp))
+                }
             }
-            Spacer(Modifier.height(24.dp))
+        }
+    }
+}
+
+/** Card do calendário: cabeçalho do mês + grade — extraído pra reúso entre os layouts estreito/largo. */
+@Composable
+private fun CalendarCard(state: AchievementsUiState, accent: Color, viewModel: AchievementsViewModel) {
+    GroupSection {
+        MonthHeader(state.monthLabel, onPrev = viewModel::previousMonth, onNext = viewModel::nextMonth)
+        CalendarGrid(state, accent, onSelect = viewModel::selectDay)
+        Spacer(Modifier.height(8.dp))
+    }
+}
+
+/** Histórico (vazio → texto central; senão → card com as linhas) — extraído pra reúso entre os layouts. */
+@Composable
+private fun HistoryContent(state: AchievementsUiState, accent: Color, onEditRecord: (Long) -> Unit) {
+    if (state.history.isEmpty()) {
+        Box(
+            Modifier.fillMaxWidth().padding(vertical = 56.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(
+                stringResource(R.string.achievements_empty),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    } else {
+        GroupSection {
+            state.history.forEachIndexed { index, item ->
+                if (index > 0) GroupRowDivider()
+                HistoryRow(
+                    item = item,
+                    accent = accent,
+                    onEdit = if (item.canEdit) ({ onEditRecord(item.epochDay) }) else null,
+                )
+            }
         }
     }
 }

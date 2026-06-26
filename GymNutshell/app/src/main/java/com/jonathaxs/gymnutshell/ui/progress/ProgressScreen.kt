@@ -6,18 +6,23 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -44,6 +49,7 @@ import com.jonathaxs.gymnutshell.core.domain.UnitConverter
 import com.jonathaxs.gymnutshell.core.domain.UserGoal
 import com.jonathaxs.gymnutshell.ui.settings.StreakBonusInfoSheet
 import com.jonathaxs.gymnutshell.ui.settings.TierInfoSheet
+import com.jonathaxs.gymnutshell.ui.util.Breakpoints
 
 /**
  * Aba Progress — porte da ProgressOverView (iOS): resumo, distribuição por tier, bônus de sequência,
@@ -61,66 +67,53 @@ fun ProgressScreen(
     var showTierInfo by remember { mutableStateOf(false) }
     var showBonusInfo by remember { mutableStateOf(false) }
 
-    LazyColumn(
-        modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-    ) {
-        item { SummaryRow(state, onBonusClick = { showBonusInfo = true }) }
-
-        item {
-            StatCard(stringResource(R.string.progress_section_tiers), accent, onClick = { showTierInfo = true }) {
-                state.tierCounts.forEachIndexed { index, tier ->
-                    if (index > 0) AccentDivider(accent, inset = true)
-                    StatRow(
-                        leading = tier.emoji,
-                        label = stringResource(R.string.progress_tier_level, tier.level),
-                        value = stringResource(R.string.progress_days_count, tier.days),
-                    )
+    BoxWithConstraints(modifier.fillMaxSize()) {
+        // Tela larga (tablet/landscape): grid de 2 colunas, capado em 860dp e centralizado, igual ao iOS.
+        val isWide = maxWidth >= Breakpoints.WideThreshold
+        if (isWide) {
+            Column(
+                Modifier
+                    .fillMaxWidth().widthIn(max = 860.dp).fillMaxHeight().align(Alignment.TopCenter)
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+                SummaryRow(state, onBonusClick = { showBonusInfo = true })
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                ) {
+                    // Coluna esquerda: conquistas → atividade → metas ativas.
+                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                        TiersCard(state, accent) { showTierInfo = true }
+                        ActivityCard(state, accent)
+                        GoalsCard(state, accent)
+                    }
+                    // Coluna direita: bônus de sequência → dados físicos.
+                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                        BonusesCard(state, accent) { showBonusInfo = true }
+                        state.physical?.let { PhysicalCard(it, accent) }
+                    }
                 }
+                UserGoalCard(state, accent)
+                RecentActivityCard(state, accent)
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+                item { SummaryRow(state, onBonusClick = { showBonusInfo = true }) }
+                item { TiersCard(state, accent) { showTierInfo = true } }
+                item { BonusesCard(state, accent) { showBonusInfo = true } }
+                item { ActivityCard(state, accent) }
+                item { GoalsCard(state, accent) }
+                item { UserGoalCard(state, accent) }
+                state.physical?.let { physical -> item { PhysicalCard(physical, accent) } }
+                item { RecentActivityCard(state, accent) }
             }
         }
-
-        item {
-            StatCard(stringResource(R.string.progress_section_bonuses), accent, onClick = { showBonusInfo = true }) {
-                BonusLine(R.string.progress_bonus_weekly_strong, state.weeklyStrong, accent, first = true)
-                BonusLine(R.string.progress_bonus_weekly_expert, state.weeklyExpert, accent)
-                BonusLine(R.string.progress_bonus_monthly_strong, state.monthlyStrong, accent)
-                BonusLine(R.string.progress_bonus_monthly_expert, state.monthlyExpert, accent)
-            }
-        }
-
-        item {
-            StatCard(stringResource(R.string.progress_section_activity), accent) {
-                StatRow("🏋️", stringResource(R.string.progress_activity_workout),
-                    stringResource(R.string.progress_days_count, state.workoutDays))
-                AccentDivider(accent, inset = true)
-                StatRow("🏃", stringResource(R.string.progress_activity_cardio),
-                    stringResource(R.string.progress_days_count, state.cardioDays))
-            }
-        }
-
-        item {
-            StatCard(stringResource(R.string.progress_section_goals), accent) {
-                StatRow(
-                    leading = "✅",
-                    label = stringResource(R.string.progress_goals_active_label),
-                    value = stringResource(R.string.progress_goals_active, state.activeGoals),
-                )
-            }
-        }
-
-        item {
-            StatCard(stringResource(R.string.progress_section_goal), accent) {
-                StatRow(leading = null, label = stringResource(userGoalLabelRes(state.userGoal)), value = "")
-            }
-        }
-
-        state.physical?.let { physical ->
-            item { PhysicalCard(physical, accent) }
-        }
-
-        item { RecentActivityCard(state, accent) }
     }
 
     if (showTierInfo) {
@@ -128,6 +121,64 @@ fun ProgressScreen(
     }
     if (showBonusInfo) {
         StreakBonusInfoSheet(onDismiss = { showBonusInfo = false })
+    }
+}
+
+/** Card "Conquistas": distribuição de dias por tier; abre a sheet de tiers ao tocar. */
+@Composable
+private fun TiersCard(state: ProgressUiState, accent: Color, onShowTierInfo: () -> Unit) {
+    StatCard(stringResource(R.string.progress_section_tiers), accent, onClick = onShowTierInfo) {
+        state.tierCounts.forEachIndexed { index, tier ->
+            if (index > 0) AccentDivider(accent, inset = true)
+            StatRow(
+                leading = tier.emoji,
+                label = stringResource(R.string.progress_tier_level, tier.level),
+                value = stringResource(R.string.progress_days_count, tier.days),
+            )
+        }
+    }
+}
+
+/** Card "Bônus de sequência": contagens semanais/mensais; abre a sheet de bônus ao tocar. */
+@Composable
+private fun BonusesCard(state: ProgressUiState, accent: Color, onShowBonusInfo: () -> Unit) {
+    StatCard(stringResource(R.string.progress_section_bonuses), accent, onClick = onShowBonusInfo) {
+        BonusLine(R.string.progress_bonus_weekly_strong, state.weeklyStrong, accent, first = true)
+        BonusLine(R.string.progress_bonus_weekly_expert, state.weeklyExpert, accent)
+        BonusLine(R.string.progress_bonus_monthly_strong, state.monthlyStrong, accent)
+        BonusLine(R.string.progress_bonus_monthly_expert, state.monthlyExpert, accent)
+    }
+}
+
+/** Card "Atividade": dias de treino e cardio. */
+@Composable
+private fun ActivityCard(state: ProgressUiState, accent: Color) {
+    StatCard(stringResource(R.string.progress_section_activity), accent) {
+        StatRow("🏋️", stringResource(R.string.progress_activity_workout),
+            stringResource(R.string.progress_days_count, state.workoutDays))
+        AccentDivider(accent, inset = true)
+        StatRow("🏃", stringResource(R.string.progress_activity_cardio),
+            stringResource(R.string.progress_days_count, state.cardioDays))
+    }
+}
+
+/** Card "Metas ativas": quantas metas estão sendo rastreadas. */
+@Composable
+private fun GoalsCard(state: ProgressUiState, accent: Color) {
+    StatCard(stringResource(R.string.progress_section_goals), accent) {
+        StatRow(
+            leading = "✅",
+            label = stringResource(R.string.progress_goals_active_label),
+            value = stringResource(R.string.progress_goals_active, state.activeGoals),
+        )
+    }
+}
+
+/** Card "Objetivo fitness": o objetivo atual (bulking/manutenção/cutting). */
+@Composable
+private fun UserGoalCard(state: ProgressUiState, accent: Color) {
+    StatCard(stringResource(R.string.progress_section_goal), accent) {
+        StatRow(leading = null, label = stringResource(userGoalLabelRes(state.userGoal)), value = "")
     }
 }
 

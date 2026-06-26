@@ -1,10 +1,10 @@
 package com.jonathaxs.gymnutshell.ui
 
 import androidx.annotation.StringRes
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.DateRange
@@ -14,19 +14,24 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.material3.NavigationRail
+import androidx.compose.material3.NavigationRailItem
+import androidx.compose.material3.NavigationRailItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavType
@@ -45,6 +50,7 @@ import com.jonathaxs.gymnutshell.ui.settings.SettingsRoutes
 import com.jonathaxs.gymnutshell.ui.settings.settingsGraph
 import com.jonathaxs.gymnutshell.ui.theme.color
 import com.jonathaxs.gymnutshell.ui.today.TodayScreen
+import com.jonathaxs.gymnutshell.ui.util.Breakpoints
 
 /**
  * Abas principais — espelha o enum MainView.Tab do iOS. `route` é o destino de navegação;
@@ -79,44 +85,28 @@ fun MainScreen(
         }
     }
 
+    val backStackEntry by navController.currentBackStackEntryAsState()
+    val currentDestination = backStackEntry?.destination
+    // Troca de aba: preserva/restaura o back stack de cada uma (saveState/restoreState), sem duplicatas.
+    val onSelectTab: (MainTab) -> Unit = { tab ->
+        navController.navigate(tab.route) {
+            popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+            launchSingleTop = true
+            restoreState = true
+        }
+    }
+    // Tela larga (tablet/landscape): navegação lateral (NavigationRail). Estreita: barra inferior — convenção Android.
+    val isWide = LocalConfiguration.current.screenWidthDp.dp >= Breakpoints.WideThreshold
+
     Scaffold(
-        bottomBar = {
-            val backStackEntry by navController.currentBackStackEntryAsState()
-            val currentDestination = backStackEntry?.destination
-            NavigationBar {
-                MainTab.entries.forEach { tab ->
-                    val selected = currentDestination?.hierarchy?.any { it.route == tab.route } == true
-                    NavigationBarItem(
-                        selected = selected,
-                        onClick = {
-                            navController.navigate(tab.route) {
-                                // Preserva/restaura o estado de cada aba e evita empilhar duplicatas.
-                                popUpTo(navController.graph.findStartDestination().id) { saveState = true }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        },
-                        icon = { Icon(tab.icon, contentDescription = null) },
-                        label = { Text(stringResource(tab.labelRes)) },
-                        colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = accent,
-                            selectedTextColor = accent,
-                            indicatorColor = accent.copy(alpha = 0.15f),
-                        ),
-                    )
-                }
-            }
-        },
+        bottomBar = { if (!isWide) MainBottomBar(currentDestination, accent, onSelectTab) },
     ) { innerPadding ->
-        // Em telas largas (tablet/landscape), limita o conteúdo a 600dp e centraliza.
-        Box(
-            modifier = Modifier.fillMaxSize().padding(innerPadding),
-            contentAlignment = Alignment.TopCenter,
-        ) {
+        Row(Modifier.fillMaxSize().padding(innerPadding)) {
+            if (isWide) MainNavRail(currentDestination, accent, onSelectTab)
             NavHost(
                 navController = navController,
                 startDestination = MainTab.Today.route,
-                modifier = Modifier.widthIn(max = 600.dp).fillMaxSize(),
+                modifier = Modifier.weight(1f).fillMaxHeight(),
             ) {
                 composable(MainTab.Today.route) {
                     TodayScreen(
@@ -151,6 +141,48 @@ fun MainScreen(
                     )
                 }
             }
+        }
+    }
+}
+
+/** Barra de navegação inferior (telas estreitas) — abas Today/Achievements/Progress/Settings. */
+@Composable
+private fun MainBottomBar(currentDestination: NavDestination?, accent: Color, onSelect: (MainTab) -> Unit) {
+    NavigationBar {
+        MainTab.entries.forEach { tab ->
+            val selected = currentDestination?.hierarchy?.any { it.route == tab.route } == true
+            NavigationBarItem(
+                selected = selected,
+                onClick = { onSelect(tab) },
+                icon = { Icon(tab.icon, contentDescription = null) },
+                label = { Text(stringResource(tab.labelRes)) },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = accent,
+                    selectedTextColor = accent,
+                    indicatorColor = accent.copy(alpha = 0.15f),
+                ),
+            )
+        }
+    }
+}
+
+/** Trilho de navegação lateral (telas largas: tablet/landscape) — mesmas abas, no lado esquerdo. */
+@Composable
+private fun MainNavRail(currentDestination: NavDestination?, accent: Color, onSelect: (MainTab) -> Unit) {
+    NavigationRail {
+        MainTab.entries.forEach { tab ->
+            val selected = currentDestination?.hierarchy?.any { it.route == tab.route } == true
+            NavigationRailItem(
+                selected = selected,
+                onClick = { onSelect(tab) },
+                icon = { Icon(tab.icon, contentDescription = null) },
+                label = { Text(stringResource(tab.labelRes)) },
+                colors = NavigationRailItemDefaults.colors(
+                    selectedIconColor = accent,
+                    selectedTextColor = accent,
+                    indicatorColor = accent.copy(alpha = 0.15f),
+                ),
+            )
         }
     }
 }
