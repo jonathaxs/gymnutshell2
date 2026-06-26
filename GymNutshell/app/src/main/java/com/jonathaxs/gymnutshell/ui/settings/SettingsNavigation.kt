@@ -30,6 +30,7 @@ object SettingsRoutes {
     const val GOAL_DETAIL = "settings_goal_detail" // + "/{key}"
     const val CATEGORIES = "settings_categories"
     const val UNITS = "settings_units"
+    const val ORIENTATION = "settings_orientation_pref"
     const val NOTIFICATIONS = "settings_notifications"
     const val NOTIF_EDIT = "settings_notif_edit" // + "/{target}"
     const val HEALTH = "settings_health"
@@ -53,6 +54,7 @@ fun NavGraphBuilder.settingsGraph(navController: NavController) {
                 onOpenTheme = { navController.navigate(SettingsRoutes.THEME) },
                 onOpenCustomGoals = { navController.navigate(SettingsRoutes.CUSTOM_GOALS) },
                 onOpenUnits = { navController.navigate(SettingsRoutes.UNITS) },
+                onOpenOrientation = { navController.navigate(SettingsRoutes.ORIENTATION) },
                 onOpenNotifications = { navController.navigate(SettingsRoutes.NOTIFICATIONS) },
                 onOpenHealth = { navController.navigate(SettingsRoutes.HEALTH) },
                 onOpenBackup = { navController.navigate(SettingsRoutes.BACKUP) },
@@ -114,6 +116,9 @@ fun NavGraphBuilder.settingsGraph(navController: NavController) {
         }
         composable(SettingsRoutes.UNITS) {
             MeasurementScreen(onBack = { navController.popBackStack() })
+        }
+        composable(SettingsRoutes.ORIENTATION) {
+            OrientationSettingsScreen(onBack = { navController.popBackStack() })
         }
         composable(SettingsRoutes.NOTIFICATIONS) {
             NotificationsSettingsScreen(

@@ -161,6 +161,11 @@
     <string name="field_goal">Goal</string>
     <string name="settings_fitness_goal">Fitness goal</string>
     <string name="settings_units">Units</string>
+    <!-- Orientação (só celular) -->
+    <string name="settings_orientation">Orientation</string>
+    <string name="settings_orientation_portrait">Lock to portrait</string>
+    <string name="settings_orientation_both">Use both</string>
+    <string name="settings_orientation_footer">Choose how the app should respond to device rotation.</string>
     <string name="unit_metric">Metric (ml)</string>
     <string name="unit_us">US (fl oz)</string>
     <string name="settings_custom_goals">Custom goals</string>

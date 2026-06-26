@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.jonathaxs.gymnutshell.core.data.ProfileRepository
 import com.jonathaxs.gymnutshell.core.data.SettingsRepository
+import com.jonathaxs.gymnutshell.core.domain.AppOrientation
 import com.jonathaxs.gymnutshell.core.domain.AppTheme
 import com.jonathaxs.gymnutshell.core.domain.MeasurementSystem
 import com.jonathaxs.gymnutshell.core.domain.Profile
@@ -58,6 +59,16 @@ class SettingsViewModel(app: Application) : AndroidViewModel(app) {
 
     fun setMeasurement(system: MeasurementSystem) {
         viewModelScope.launch { settingsRepo.setMeasurementSystem(system) }
+    }
+
+    val orientation: StateFlow<AppOrientation> = settingsRepo.orientation.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = AppOrientation.Default,
+    )
+
+    fun setOrientation(orientation: AppOrientation) {
+        viewModelScope.launch { settingsRepo.setOrientation(orientation) }
     }
 
     fun saveProfile(profile: Profile) {
