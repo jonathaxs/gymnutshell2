@@ -1,5 +1,7 @@
 package com.jonathaxs.gymnutshell.ui.welcome
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -23,6 +25,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DatePicker
@@ -61,6 +64,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.jonathaxs.gymnutshell.R
 import com.jonathaxs.gymnutshell.core.domain.AppDateFormatters
@@ -130,6 +134,12 @@ fun WelcomeScreen(viewModel: WelcomeViewModel = viewModel()) {
     // Cor de destaque do onboarding, derivada do sexo (espelha sexColor do iOS).
     val sexColor = AccentColor.defaultForSex(sex).color
 
+    // Seletor de arquivo pra restaurar um backup local (JSON) — só na etapa inicial.
+    val restoreFailed by viewModel.restoreFailed.collectAsStateWithLifecycle()
+    val restoreLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        uri?.let { viewModel.restore(it) }
+    }
+
     Scaffold { padding ->
         Column(
             Modifier.fillMaxSize().padding(padding).imePadding().padding(horizontal = 24.dp),
@@ -154,7 +164,11 @@ fun WelcomeScreen(viewModel: WelcomeViewModel = viewModel()) {
 
             Box(Modifier.weight(1f).fillMaxWidth()) {
                 when (step) {
-                    WelcomeStep.Start -> StartStep(sexColor, onStart = { stepIndex++ })
+                    WelcomeStep.Start -> StartStep(
+                        accent = sexColor,
+                        onStart = { stepIndex++ },
+                        onRestore = { restoreLauncher.launch(arrayOf("application/json")) },
+                    )
                     WelcomeStep.Goal -> GoalStep(goal) { goalOrdinal = it.ordinal }
                     WelcomeStep.Physical -> PhysicalStep(
                         weight = weight, height = height, sex = sex, birthday = birthday,
@@ -203,12 +217,24 @@ fun WelcomeScreen(viewModel: WelcomeViewModel = viewModel()) {
 
     // Sheet com os 4 níveis do tema tocado — mesmo porte do ThemeInfoView usado nas Settings.
     infoTheme?.let { t -> ThemeInfoSheet(theme = t, onDismiss = { infoTheme = null }) }
+
+    // Alerta de falha na restauração (arquivo inválido).
+    if (restoreFailed) {
+        AlertDialog(
+            onDismissRequest = { viewModel.clearRestoreError() },
+            title = { Text(stringResource(R.string.welcome_restore_error_title)) },
+            text = { Text(stringResource(R.string.backup_status_error)) },
+            confirmButton = {
+                TextButton(onClick = { viewModel.clearRestoreError() }) { Text(stringResource(R.string.action_ok)) }
+            },
+        )
+    }
 }
 
 // ---- Etapas ----
 
 @Composable
-private fun StartStep(accent: Color, onStart: () -> Unit) {
+private fun StartStep(accent: Color, onStart: () -> Unit, onRestore: () -> Unit) {
     Column(Modifier.fillMaxSize()) {
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
             WelcomeStepHeader("👋", stringResource(R.string.welcome_start_title))
@@ -224,7 +250,10 @@ private fun StartStep(accent: Color, onStart: () -> Unit) {
             modifier = Modifier.fillMaxWidth(),
         )
         Spacer(Modifier.height(12.dp))
+        // Começar do zero ou restaurar um backup local — espelha os dois botões do WelcomeStartStep (iOS).
         WelcomePrimaryButton(stringResource(R.string.welcome_start_new), accent, enabled = true, onClick = onStart)
+        Spacer(Modifier.height(8.dp))
+        WelcomeSecondaryButton(stringResource(R.string.backup_import), accent, onClick = onRestore)
         Spacer(Modifier.height(24.dp))
     }
 }
@@ -471,6 +500,17 @@ private fun WelcomePrimaryButton(text: String, color: Color, enabled: Boolean, o
             disabledContainerColor = color.copy(alpha = 0.5f),
             disabledContentColor = Color.White.copy(alpha = 0.7f),
         ),
+    ) { Text(text, fontWeight = FontWeight.SemiBold) }
+}
+
+/** Botão secundário (preenchimento claro na cor de destaque) — porte do botão "Restaurar backup" (iOS). */
+@Composable
+private fun WelcomeSecondaryButton(text: String, color: Color, onClick: () -> Unit) {
+    Button(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth().height(52.dp),
+        shape = RoundedCornerShape(16.dp),
+        colors = ButtonDefaults.buttonColors(containerColor = color.copy(alpha = 0.15f), contentColor = color),
     ) { Text(text, fontWeight = FontWeight.SemiBold) }
 }
 

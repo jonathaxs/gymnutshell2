@@ -235,6 +235,7 @@
     <string name="welcome_start_intro">Gym Nutshell is a daily companion in your gym routine.\n\nTrack your nutrition, hydration, sleep, workouts, and other goals throughout the day.\n\nFollow your steps on the achievements and progress screen.</string>
     <string name="welcome_start_subtitle">Let\'s go!\nStart now.</string>
     <string name="welcome_start_new">Start now</string>
+    <string name="welcome_restore_error_title">Couldn\'t restore</string>
     <string name="welcome_goal_title">Your goal</string>
     <string name="welcome_goal_bulking_desc">Increase muscle mass with caloric surplus</string>
     <string name="welcome_goal_maintenance_desc">Maintain current weight and composition</string>
