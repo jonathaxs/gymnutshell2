@@ -60,12 +60,25 @@ import com.jonathaxs.gymnutshell.ui.util.Breakpoints
 fun ProgressScreen(
     modifier: Modifier = Modifier,
     onOpenTheme: () -> Unit = {},
+    onOpenGoals: () -> Unit = {},
+    onOpenUserGoal: () -> Unit = {},
+    onOpenPhysical: () -> Unit = {},
+    onOpenAchievements: () -> Unit = {},
     viewModel: ProgressViewModel = viewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val accent = Color(state.accentArgb)
     var showTierInfo by remember { mutableStateOf(false) }
     var showBonusInfo by remember { mutableStateOf(false) }
+    // Atividade → Conquistas no modo Lista; tocar num dos últimos 7 dias → Conquistas no calendário naquele dia (iOS).
+    val onActivityClick = {
+        viewModel.prepareAchievementsList()
+        onOpenAchievements()
+    }
+    val onRecentDayClick: (Long) -> Unit = { day ->
+        viewModel.prepareAchievementsDay(day)
+        onOpenAchievements()
+    }
 
     BoxWithConstraints(modifier.fillMaxSize()) {
         // Tela larga (tablet/landscape): grid de 2 colunas, capado em 860dp e centralizado, igual ao iOS.
@@ -86,17 +99,17 @@ fun ProgressScreen(
                     // Coluna esquerda: conquistas → atividade → metas ativas.
                     Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(16.dp)) {
                         TiersCard(state, accent) { showTierInfo = true }
-                        ActivityCard(state, accent)
-                        GoalsCard(state, accent)
+                        ActivityCard(state, accent, onActivityClick)
+                        GoalsCard(state, accent, onOpenGoals)
                     }
                     // Coluna direita: bônus de sequência → dados físicos.
                     Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(16.dp)) {
                         BonusesCard(state, accent) { showBonusInfo = true }
-                        state.physical?.let { PhysicalCard(it, accent) }
+                        state.physical?.let { PhysicalCard(it, accent, onOpenPhysical) }
                     }
                 }
-                UserGoalCard(state, accent)
-                RecentActivityCard(state, accent)
+                UserGoalCard(state, accent, onOpenUserGoal)
+                RecentActivityCard(state, accent, onRecentDayClick)
             }
         } else {
             LazyColumn(
@@ -107,11 +120,11 @@ fun ProgressScreen(
                 item { SummaryRow(state, onBonusClick = { showBonusInfo = true }) }
                 item { TiersCard(state, accent) { showTierInfo = true } }
                 item { BonusesCard(state, accent) { showBonusInfo = true } }
-                item { ActivityCard(state, accent) }
-                item { GoalsCard(state, accent) }
-                item { UserGoalCard(state, accent) }
-                state.physical?.let { physical -> item { PhysicalCard(physical, accent) } }
-                item { RecentActivityCard(state, accent) }
+                item { ActivityCard(state, accent, onActivityClick) }
+                item { GoalsCard(state, accent, onOpenGoals) }
+                item { UserGoalCard(state, accent, onOpenUserGoal) }
+                state.physical?.let { physical -> item { PhysicalCard(physical, accent, onOpenPhysical) } }
+                item { RecentActivityCard(state, accent, onRecentDayClick) }
             }
         }
     }
@@ -150,10 +163,10 @@ private fun BonusesCard(state: ProgressUiState, accent: Color, onShowBonusInfo: 
     }
 }
 
-/** Card "Atividade": dias de treino e cardio. */
+/** Card "Atividade": dias de treino e cardio; abre Conquistas no modo Lista ao tocar. */
 @Composable
-private fun ActivityCard(state: ProgressUiState, accent: Color) {
-    StatCard(stringResource(R.string.progress_section_activity), accent) {
+private fun ActivityCard(state: ProgressUiState, accent: Color, onClick: () -> Unit) {
+    StatCard(stringResource(R.string.progress_section_activity), accent, onClick = onClick) {
         StatRow("🏋️", stringResource(R.string.progress_activity_workout),
             stringResource(R.string.progress_days_count, state.workoutDays))
         AccentDivider(accent, inset = true)
@@ -162,10 +175,10 @@ private fun ActivityCard(state: ProgressUiState, accent: Color) {
     }
 }
 
-/** Card "Metas ativas": quantas metas estão sendo rastreadas. */
+/** Card "Metas ativas": quantas metas estão sendo rastreadas; abre Metas nos Ajustes ao tocar. */
 @Composable
-private fun GoalsCard(state: ProgressUiState, accent: Color) {
-    StatCard(stringResource(R.string.progress_section_goals), accent) {
+private fun GoalsCard(state: ProgressUiState, accent: Color, onClick: () -> Unit) {
+    StatCard(stringResource(R.string.progress_section_goals), accent, onClick = onClick) {
         StatRow(
             leading = "✅",
             label = stringResource(R.string.progress_goals_active_label),
@@ -174,10 +187,10 @@ private fun GoalsCard(state: ProgressUiState, accent: Color) {
     }
 }
 
-/** Card "Objetivo fitness": o objetivo atual (bulking/manutenção/cutting). */
+/** Card "Objetivo fitness": o objetivo atual (bulking/manutenção/cutting); abre a tela de Objetivo ao tocar. */
 @Composable
-private fun UserGoalCard(state: ProgressUiState, accent: Color) {
-    StatCard(stringResource(R.string.progress_section_goal), accent) {
+private fun UserGoalCard(state: ProgressUiState, accent: Color, onClick: () -> Unit) {
+    StatCard(stringResource(R.string.progress_section_goal), accent, onClick = onClick) {
         StatRow(leading = null, label = stringResource(userGoalLabelRes(state.userGoal)), value = "")
     }
 }
@@ -297,14 +310,15 @@ private fun BonusLine(@StringRes labelRes: Int, count: Int, accent: Color, first
     )
 }
 
-/** Card de dados físicos (altura, peso, idade, sexo) nas unidades preferidas — porte do iOS. */
+/** Card de dados físicos (altura, peso, idade, sexo) nas unidades preferidas; abre Seus dados nos Ajustes ao tocar. */
 @Composable
-private fun PhysicalCard(physical: PhysicalUi, accent: Color) {
+private fun PhysicalCard(physical: PhysicalUi, accent: Color, onClick: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
-            .background(MaterialTheme.colorScheme.surfaceContainerHigh),
+            .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+            .clickable(onClick = onClick),
     ) {
         Text(
             stringResource(R.string.progress_section_physical),
@@ -336,7 +350,7 @@ private fun PhysicalCard(physical: PhysicalUi, accent: Color) {
 
 /** Grade "Últimos 7 dias": emoji do tier (ou ponto) + número do dia + inicial do dia da semana. */
 @Composable
-private fun RecentActivityCard(state: ProgressUiState, accent: Color) {
+private fun RecentActivityCard(state: ProgressUiState, accent: Color, onDayClick: (Long) -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -353,16 +367,19 @@ private fun RecentActivityCard(state: ProgressUiState, accent: Color) {
         Spacer(Modifier.height(10.dp))
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             state.recentDays.forEach { day ->
-                RecentDayCell(day, accent, Modifier.weight(1f))
+                RecentDayCell(day, accent, Modifier.weight(1f)) { onDayClick(day.epochDay) }
             }
         }
     }
 }
 
-/** Uma célula da grade dos últimos 7 dias. */
+/** Uma célula da grade dos últimos 7 dias; abre Conquistas no calendário naquele dia ao tocar. */
 @Composable
-private fun RecentDayCell(day: RecentDayUi, accent: Color, modifier: Modifier) {
-    Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
+private fun RecentDayCell(day: RecentDayUi, accent: Color, modifier: Modifier, onClick: () -> Unit) {
+    Column(
+        modifier.clip(RoundedCornerShape(10.dp)).clickable(onClick = onClick),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
         Box(
             modifier = Modifier
                 .size(36.dp)

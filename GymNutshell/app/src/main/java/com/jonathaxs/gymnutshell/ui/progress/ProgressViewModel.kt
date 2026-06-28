@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 /** Contagem de dias num tier. */
@@ -113,6 +114,19 @@ class ProgressViewModel(app: Application) : AndroidViewModel(app) {
                 accentArgb = accent.argb,
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ProgressUiState())
+
+    /** Pré-define o modo Lista antes de abrir Conquistas — porte do openAchievementsList() do iOS (toque em Atividade). */
+    fun prepareAchievementsList() {
+        viewModelScope.launch { settingsRepo.setAchievementsFilterMode("list") }
+    }
+
+    /** Pré-define o modo Calendário no dia tocado antes de abrir Conquistas — porte do jumpToAchievements(date:) do iOS. */
+    fun prepareAchievementsDay(epochDay: Long) {
+        viewModelScope.launch {
+            settingsRepo.setAchievementsFilterMode("calendar")
+            settingsRepo.setAchievementsSelectedDay(epochDay)
+        }
+    }
 
     /** Dados físicos só quando há algo preenchido — espelha o `hasPhysicalData` do iOS. */
     private fun physicalOf(profile: Profile, measurement: MeasurementSystem): PhysicalUi? {

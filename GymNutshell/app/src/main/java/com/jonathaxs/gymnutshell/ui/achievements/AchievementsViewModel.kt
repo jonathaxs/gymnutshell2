@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.TextStyle
@@ -61,16 +62,25 @@ class AchievementsViewModel(app: Application) : AndroidViewModel(app) {
     private val settingsRepo = SettingsRepository(app.applicationContext)
 
     private val month = MutableStateFlow(YearMonth.now())
-    private val selectedDay = MutableStateFlow(LocalDate.now().toEpochDay())
-    private val filterMode = MutableStateFlow(AchievementsFilterMode.Calendar)
+
+    init {
+        // O mês visível acompanha o dia selecionado (inclusive quando a tela de Progresso troca o dia),
+        // espelhando o onChange(selectedDate) → visibleMonthDate do iOS.
+        viewModelScope.launch {
+            settingsRepo.achievementsSelectedDay.collect { day ->
+                month.value = YearMonth.from(LocalDate.ofEpochDay(day))
+            }
+        }
+    }
 
     val uiState: StateFlow<AchievementsUiState> = combine(
         recordRepo.records,
         month,
-        selectedDay,
+        settingsRepo.achievementsSelectedDay,
         settingsRepo.accentColor,
-        filterMode,
-    ) { records, ym, selected, accent, mode ->
+        settingsRepo.achievementsFilterMode,
+    ) { records, ym, selected, accent, modeRaw ->
+        val mode = if (modeRaw == "list") AchievementsFilterMode.List else AchievementsFilterMode.Calendar
         val emojiByDay = records.associate { it.date to it.achievementEmoji }
         val todayEpoch = LocalDate.now().toEpochDay()
         val locale = Locale.getDefault()
@@ -126,8 +136,17 @@ class AchievementsViewModel(app: Application) : AndroidViewModel(app) {
 
     fun previousMonth() = month.update { it.minusMonths(1) }
     fun nextMonth() = month.update { it.plusMonths(1) }
-    fun selectDay(epochDay: Long) { selectedDay.value = epochDay }
-    fun setFilterMode(mode: AchievementsFilterMode) { filterMode.value = mode }
+
+    // Dia e filtro são persistidos no DataStore (compartilhados com a tela de Progresso, que os pré-define).
+    fun selectDay(epochDay: Long) {
+        viewModelScope.launch { settingsRepo.setAchievementsSelectedDay(epochDay) }
+    }
+
+    fun setFilterMode(mode: AchievementsFilterMode) {
+        viewModelScope.launch {
+            settingsRepo.setAchievementsFilterMode(if (mode == AchievementsFilterMode.List) "list" else "calendar")
+        }
+    }
 
     private companion object {
         // Janela de edição: registros dos últimos 3 dias (72h no iOS) são editáveis.

@@ -2,6 +2,7 @@ package com.jonathaxs.gymnutshell.core.data
 
 import android.content.Context
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.jonathaxs.gymnutshell.core.domain.AppOrientation
 import com.jonathaxs.gymnutshell.core.domain.AppTheme
@@ -9,6 +10,7 @@ import com.jonathaxs.gymnutshell.core.domain.MeasurementSystem
 import com.jonathaxs.gymnutshell.core.theme.AccentColor
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import java.time.LocalDate
 
 /**
  * Persiste as preferências do usuário — porte dos "stores" que no iOS eram UserDefaults+Codable.
@@ -20,6 +22,8 @@ class SettingsRepository(private val context: Context) {
     private val themeKey = stringPreferencesKey("app.theme")
     private val measurementKey = stringPreferencesKey("profile.measurementSystem")
     private val orientationKey = stringPreferencesKey(AppOrientation.STORAGE_KEY)
+    private val achievementsFilterKey = stringPreferencesKey("achievements.filterMode")
+    private val achievementsSelectedDayKey = longPreferencesKey("achievements.selectedDay")
 
     /** Cor de destaque persistida; cai pra Default se nada salvo ou valor inválido. */
     val accentColor: Flow<AccentColor> = context.appPreferences.data.map { prefs ->
@@ -60,5 +64,30 @@ class SettingsRepository(private val context: Context) {
 
     suspend fun setOrientation(orientation: AppOrientation) {
         context.appPreferences.edit { prefs -> prefs[orientationKey] = orientation.rawValue }
+    }
+
+    /**
+     * Filtro da tela de Conquistas ("calendar"/"list") persistido — porte do achievementsFilterMode (iOS).
+     * Compartilhado entre abas: a tela de Progresso o escreve pra abrir Conquistas no modo certo.
+     * String crua (não enum) pra manter o :core livre de tipos da camada de UI.
+     */
+    val achievementsFilterMode: Flow<String> = context.appPreferences.data.map { prefs ->
+        prefs[achievementsFilterKey] ?: "calendar"
+    }
+
+    suspend fun setAchievementsFilterMode(raw: String) {
+        context.appPreferences.edit { prefs -> prefs[achievementsFilterKey] = raw }
+    }
+
+    /**
+     * Dia selecionado no calendário de Conquistas (epochDay) persistido — porte do achievementsSelectedDate (iOS).
+     * A tela de Progresso o escreve ao tocar num dos "últimos 7 dias". Default: hoje.
+     */
+    val achievementsSelectedDay: Flow<Long> = context.appPreferences.data.map { prefs ->
+        prefs[achievementsSelectedDayKey] ?: LocalDate.now().toEpochDay()
+    }
+
+    suspend fun setAchievementsSelectedDay(epochDay: Long) {
+        context.appPreferences.edit { prefs -> prefs[achievementsSelectedDayKey] = epochDay }
     }
 }
