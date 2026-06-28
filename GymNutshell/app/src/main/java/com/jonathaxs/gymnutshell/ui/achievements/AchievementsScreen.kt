@@ -35,7 +35,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -43,9 +45,11 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.jonathaxs.gymnutshell.R
+import com.jonathaxs.gymnutshell.core.domain.AppDateFormatters
 import com.jonathaxs.gymnutshell.ui.components.GroupRowDivider
 import com.jonathaxs.gymnutshell.ui.components.GroupSection
 import com.jonathaxs.gymnutshell.ui.util.Breakpoints
+import java.time.LocalDate
 
 /** Aba Achievements — porte da AchievementsView (iOS): sino de notificações, seletor Calendário/Lista e histórico. */
 @Composable
@@ -244,6 +248,15 @@ private fun DayCell(day: CalendarDayUi, accent: Color, modifier: Modifier, onSel
         day.inMonth -> MaterialTheme.colorScheme.onSurface
         else -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.45f)
     }
+    // Descrição: data por extenso + percentual (ou "sem registro") + ", selecionado" — porte do A11y do iOS.
+    val dateText = AppDateFormatters.longDate(LocalDate.ofEpochDay(day.epochDay))
+    val p = day.percent
+    val base = if (p != null && p > 0) {
+        stringResource(R.string.a11y_calendar_day, dateText, p)
+    } else {
+        stringResource(R.string.a11y_calendar_day_empty, dateText)
+    }
+    val dayDesc = if (day.isSelected) "$base, ${stringResource(R.string.a11y_selected)}" else base
     Column(
         modifier = modifier
             .height(48.dp)
@@ -251,7 +264,7 @@ private fun DayCell(day: CalendarDayUi, accent: Color, modifier: Modifier, onSel
             .clip(RoundedCornerShape(8.dp))
             .background(if (day.isSelected) accent else Color.Transparent)
             .clickable(enabled = day.inMonth, onClick = onSelect)
-            .semantics { contentDescription = "${day.dayNumber}" },
+            .semantics { contentDescription = dayDesc; role = Role.Button },
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
@@ -269,18 +282,25 @@ private fun DayCell(day: CalendarDayUi, accent: Color, modifier: Modifier, onSel
 @Composable
 private fun HistoryRow(item: HistoryItemUi, accent: Color, onEdit: (() -> Unit)?) {
     val editDesc = stringResource(R.string.cd_edit_record)
+    val rowDesc = stringResource(R.string.a11y_history_row, item.dateLabel, item.percent)
     Row(
         modifier = Modifier.fillMaxWidth().padding(start = 20.dp, end = 8.dp, top = 12.dp, bottom = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(item.emoji, style = MaterialTheme.typography.titleMedium)
-        Spacer(Modifier.width(12.dp))
-        Text(item.dateLabel, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge)
-        Text(
-            "${item.percent}%",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
+        // Emoji + data + percentual num único foco do TalkBack; o botão de editar fica separado.
+        Row(
+            modifier = Modifier.weight(1f).semantics(mergeDescendants = true) { contentDescription = rowDesc },
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(item.emoji, style = MaterialTheme.typography.titleMedium)
+            Spacer(Modifier.width(12.dp))
+            Text(item.dateLabel, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge)
+            Text(
+                "${item.percent}%",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
         if (onEdit != null) {
             IconButton(onClick = onEdit, modifier = Modifier.semantics { contentDescription = editDesc }) {
                 Icon(Icons.Default.Edit, contentDescription = null, tint = accent)

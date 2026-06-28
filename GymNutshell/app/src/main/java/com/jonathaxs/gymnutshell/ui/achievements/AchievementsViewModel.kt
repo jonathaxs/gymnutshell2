@@ -25,6 +25,8 @@ data class CalendarDayUi(
     val dayNumber: Int,
     val inMonth: Boolean,
     val emoji: String?,
+    /** Percentual do dia (null = sem registro), usado na descrição de acessibilidade. */
+    val percent: Int?,
     val isToday: Boolean,
     val isSelected: Boolean,
 )
@@ -82,6 +84,7 @@ class AchievementsViewModel(app: Application) : AndroidViewModel(app) {
     ) { records, ym, selected, accent, modeRaw ->
         val mode = if (modeRaw == "list") AchievementsFilterMode.List else AchievementsFilterMode.Calendar
         val emojiByDay = records.associate { it.date to it.achievementEmoji }
+        val percentByDay = records.associate { it.date to it.percent }
         val todayEpoch = LocalDate.now().toEpochDay()
         val locale = Locale.getDefault()
         val firstDow = WeekFields.of(locale).firstDayOfWeek
@@ -101,6 +104,7 @@ class AchievementsViewModel(app: Application) : AndroidViewModel(app) {
                     dayNumber = date.dayOfMonth,
                     inMonth = date.monthValue == ym.monthValue && date.year == ym.year,
                     emoji = emojiByDay[epochDay],
+                    percent = percentByDay[epochDay],
                     isToday = epochDay == todayEpoch,
                     isSelected = epochDay == selected,
                 )

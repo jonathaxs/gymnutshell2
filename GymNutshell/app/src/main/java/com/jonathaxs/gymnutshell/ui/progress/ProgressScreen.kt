@@ -37,6 +37,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -44,12 +48,14 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.jonathaxs.gymnutshell.R
+import com.jonathaxs.gymnutshell.core.domain.AppDateFormatters
 import com.jonathaxs.gymnutshell.core.domain.MeasurementSystem
 import com.jonathaxs.gymnutshell.core.domain.UnitConverter
 import com.jonathaxs.gymnutshell.core.domain.UserGoal
 import com.jonathaxs.gymnutshell.ui.settings.StreakBonusInfoSheet
 import com.jonathaxs.gymnutshell.ui.settings.TierInfoSheet
 import com.jonathaxs.gymnutshell.ui.util.Breakpoints
+import java.time.LocalDate
 
 /**
  * Aba Progress — porte da ProgressOverView (iOS): resumo, distribuição por tier, bônus de sequência,
@@ -376,8 +382,18 @@ private fun RecentActivityCard(state: ProgressUiState, accent: Color, onDayClick
 /** Uma célula da grade dos últimos 7 dias; abre Conquistas no calendário naquele dia ao tocar. */
 @Composable
 private fun RecentDayCell(day: RecentDayUi, accent: Color, modifier: Modifier, onClick: () -> Unit) {
+    // Descrição: data por extenso + se houve conquista no dia (porte do A11y "recent day" do iOS).
+    val dateText = AppDateFormatters.longDate(LocalDate.ofEpochDay(day.epochDay))
+    val desc = if (day.emoji != null) {
+        stringResource(R.string.a11y_recent_day_done, dateText)
+    } else {
+        stringResource(R.string.a11y_recent_day_empty, dateText)
+    }
     Column(
-        modifier.clip(RoundedCornerShape(10.dp)).clickable(onClick = onClick),
+        modifier
+            .clip(RoundedCornerShape(10.dp))
+            .clickable(onClick = onClick)
+            .semantics(mergeDescendants = true) { contentDescription = desc; role = Role.Button },
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Box(

@@ -407,6 +407,19 @@
     <string name="notif_history_empty_desc">Event reminders from the last 3 days show up here.</string>
     <string name="notif_history_clear">Clear</string>
     <string name="cd_notification_history">Notification history</string>
+    <!-- Acessibilidade (TalkBack) — porte das strings a11y.* do iOS, frases enxutas -->
+    <string name="a11y_goal_label">%1$s goal</string>
+    <string name="a11y_goal_value">%1$d of %2$d %3$s completed</string>
+    <string name="a11y_goal_restday">on rest day mode, goal completed</string>
+    <string name="a11y_slider_label">%1$s slider</string>
+    <string name="a11y_category_label">%1$s category</string>
+    <string name="a11y_rest_day_on">Rest day on</string>
+    <string name="a11y_rest_day_off">Rest day off</string>
+    <string name="a11y_calendar_day">%1$s, %2$d percent</string>
+    <string name="a11y_calendar_day_empty">%1$s, no record</string>
+    <string name="a11y_recent_day_done">%1$s, achievement earned</string>
+    <string name="a11y_recent_day_empty">%1$s, no record</string>
+    <string name="a11y_history_row">%1$s, %2$d percent</string>
 
     <!-- Notificações: metas personalizadas -->
     <string name="notif_custom_desc">Reminders to meet today\'s goal.</string>

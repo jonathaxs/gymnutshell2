@@ -55,8 +55,10 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
@@ -439,6 +441,7 @@ internal fun CategorySection(
 private fun CategoryHeader(section: TodayCategoryUi, accent: Color, onToggle: () -> Unit) {
     // Categoria fixa resolve o título via string; personalizada já traz o nome pronto.
     val title = section.titleRes?.let { stringResource(it) } ?: section.title.orEmpty()
+    val categoryLabel = stringResource(R.string.a11y_category_label, title)
     val stateDesc = stringResource(
         if (section.collapsed) R.string.state_collapsed else R.string.state_expanded,
     )
@@ -464,7 +467,11 @@ private fun CategoryHeader(section: TodayCategoryUi, accent: Color, onToggle: ()
             .clip(shape)
             .background(bg)
             .clickable(onClick = onToggle)
-            .semantics { stateDescription = stateDesc }
+            .semantics(mergeDescendants = true) {
+                contentDescription = categoryLabel
+                stateDescription = stateDesc
+                role = Role.Button
+            }
             .padding(vertical = 2.dp, horizontal = 10.dp),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
@@ -501,19 +508,36 @@ internal fun GoalRow(goal: TodayGoalUi, accent: Color, onSet: (Int) -> Unit, onT
     val progressFraction = if (goal.target > 0) shownValue.toFloat() / goal.target else 0f
     val sliderColor = Color(ProgressColors.ringArgb(progressFraction.toDouble()))
 
+    // Descrições de TalkBack (porte do A11y do iOS): "Água, meta" + "30 de 100 ml concluído" (ou descanso).
+    val valueDesc = if (goal.isRestDay) {
+        stringResource(R.string.a11y_goal_restday)
+    } else {
+        stringResource(R.string.a11y_goal_value, shownValue, goal.target, goal.unit)
+    }
+    val headerDesc = "${stringResource(R.string.a11y_goal_label, title)}, $valueDesc"
+    val sliderLabel = stringResource(R.string.a11y_slider_label, title)
+
     Card(Modifier.widthIn(max = TodayContentMaxWidth).fillMaxWidth()) {
         Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(goal.emoji, style = MaterialTheme.typography.titleLarge)
-                Spacer(Modifier.width(12.dp))
-                Text(title, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge)
-                // Valor com unidade — fica à esquerda do botão de descanso, como no iOS.
-                Text(
-                    text = "$shownValue/${goal.target} ${goal.unit}",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                // Botão ON/OFF de descanso (só metas de Treino), no lugar do controle de valor, como o iOS.
+                // Emoji + título + valor combinados num único foco do TalkBack; o emoji não é falado.
+                Row(
+                    modifier = Modifier
+                        .weight(1f)
+                        .semantics(mergeDescendants = true) { contentDescription = headerDesc },
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(goal.emoji, style = MaterialTheme.typography.titleLarge)
+                    Spacer(Modifier.width(12.dp))
+                    Text(title, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge)
+                    // Valor com unidade — fica à esquerda do botão de descanso, como no iOS.
+                    Text(
+                        text = "$shownValue/${goal.target} ${goal.unit}",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                // Botão ON/OFF de descanso (só metas de Treino), foco de a11y separado, como no iOS.
                 if (goal.supportsRestDay) {
                     Spacer(Modifier.width(10.dp))
                     RestDayToggle(isRestDay = goal.isRestDay, accent = accent, onClick = onToggleRest)
@@ -527,13 +551,19 @@ internal fun GoalRow(goal: TodayGoalUi, accent: Color, onSet: (Int) -> Unit, onT
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                    // Já comunicado pelo value do header — escondido pra não duplicar no TalkBack.
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp).clearAndSetSemantics {},
                 )
             } else {
                 val maxTarget = goal.target.toFloat().coerceAtLeast(1f)
                 Slider(
                     // Exclui a área do slider do gesto de "voltar" do sistema (arraste pela borda), evitando sair do app.
-                    modifier = Modifier.systemGestureExclusion(),
+                    modifier = Modifier
+                        .systemGestureExclusion()
+                        .semantics {
+                            contentDescription = sliderLabel
+                            stateDescription = valueDesc
+                        },
                     value = sliderValue,
                     onValueChange = { sliderValue = it },
                     onValueChangeFinished = { onSet(snapToIncrement(sliderValue, goal.increment, goal.target)) },
@@ -586,6 +616,8 @@ private fun RestDayToggle(isRestDay: Boolean, accent: Color, onClick: () -> Unit
     val label = if (isRestDay) stringResource(R.string.rest_day_off) else stringResource(R.string.rest_day_on)
     val textColor = if (isRestDay) MaterialTheme.colorScheme.onSurfaceVariant else accent
     val bgColor = if (isRestDay) accent.copy(alpha = 0.25f) else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
+    // O texto visível (ON/OFF) é ambíguo no TalkBack; descreve o estado de descanso e marca como botão.
+    val toggleDesc = if (isRestDay) stringResource(R.string.a11y_rest_day_on) else stringResource(R.string.a11y_rest_day_off)
     Text(
         label,
         style = MaterialTheme.typography.labelMedium,
@@ -595,7 +627,8 @@ private fun RestDayToggle(isRestDay: Boolean, accent: Color, onClick: () -> Unit
             .clip(CircleShape)
             .clickable(onClick = onClick)
             .background(bgColor)
-            .padding(horizontal = 14.dp, vertical = 6.dp),
+            .padding(horizontal = 14.dp, vertical = 6.dp)
+            .semantics { role = Role.Button; contentDescription = toggleDesc },
     )
 }
 
