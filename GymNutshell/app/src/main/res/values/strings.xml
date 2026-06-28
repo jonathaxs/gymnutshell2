@@ -137,7 +137,7 @@
     <string name="streak_bonus_monthly_l3_desc">All days of the month with level 3 or 4 achievements.</string>
     <string name="streak_bonus_monthly_l4_desc">All days of the month with 4 achievements.</string>
     <string name="streak_bonus_points_format">+%1$d pts</string>
-    <string name="settings_accent_color">Accent color</string>
+    <string name="settings_accent_color">Colors</string>
     <string name="a11y_selected">Selected</string>
     <string name="a11y_not_selected">Not selected</string>
 
@@ -160,12 +160,14 @@
     <string name="field_age">Age</string>
     <string name="field_sex">Sex</string>
     <string name="field_goal">Goal</string>
-    <string name="settings_fitness_goal">Fitness goal</string>
+    <string name="settings_fitness_goal">Fitness Goal</string>
+    <!-- Rótulo na lista de Ajustes (a tela em si tem título "Goals" via goals_title) -->
+    <string name="settings_daily_goals">Daily Goals</string>
     <!-- Tela de objetivo fitness (picker em cards + prévia das metas recalculadas) -->
     <string name="settings_goalchange_pick_header">Choose your goal</string>
     <string name="settings_goalchange_pick_footer">Changing your goal recalculates the app\'s default goals based on your physical data and your chosen new goal.</string>
     <string name="settings_goalchange_preview_header">Recalculated goals</string>
-    <string name="settings_units">Units</string>
+    <string name="settings_units">Measurements</string>
     <!-- Orientação (só celular) -->
     <string name="settings_orientation">Orientation</string>
     <string name="settings_orientation_portrait">Lock to portrait</string>
@@ -277,7 +279,7 @@
     <string name="action_get_started">Get started</string>
 
     <!-- Temas -->
-    <string name="settings_theme">Theme</string>
+    <string name="settings_theme">Themes</string>
     <string name="theme_cat_sport">Sport</string>
     <string name="theme_cat_animals">Animals</string>
     <string name="theme_cat_warrior">Warrior</string>
@@ -464,7 +466,7 @@
     <string name="widget_goals_description">Individual progress of your active goals.</string>
 
     <!-- Ajustes: fundo do widget -->
-    <string name="settings_widget_background">Widget background</string>
+    <string name="settings_widget_background">Widgets</string>
     <string name="widget_bg_mode_system">Default</string>
     <string name="widget_bg_mode_accent">Accent</string>
     <string name="widget_bg_mode_custom">Custom</string>

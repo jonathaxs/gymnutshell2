@@ -61,7 +61,7 @@ fun SettingsListScreen(
                 GroupRowDivider()
                 GroupRow(stringResource(R.string.settings_fitness_goal), showChevron = true, onClick = onOpenGoal)
                 GroupRowDivider()
-                GroupRow(stringResource(R.string.goals_title), showChevron = true, onClick = onOpenCustomGoals)
+                GroupRow(stringResource(R.string.settings_daily_goals), showChevron = true, onClick = onOpenCustomGoals)
             }
 
             // Seção Preferences: tema, cor, widgets e unidades.
