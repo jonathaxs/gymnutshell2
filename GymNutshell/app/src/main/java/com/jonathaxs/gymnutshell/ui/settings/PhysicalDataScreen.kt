@@ -167,7 +167,7 @@ fun PhysicalDataScreen(onBack: () -> Unit, viewModel: SettingsViewModel = viewMo
                 )
             }
 
-            GroupSection(title = stringResource(R.string.settings_physical_data)) {
+            GroupSection(title = stringResource(R.string.settings_profile_section_physical)) {
                 // Peso na unidade atual (kg ou lbs).
                 FieldRow(
                     label = stringResource(

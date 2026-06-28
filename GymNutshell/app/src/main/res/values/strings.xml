@@ -152,7 +152,8 @@
     <string name="color_pink">Pink</string>
 
     <!-- Dados físicos -->
-    <string name="settings_physical_data">Physical data</string>
+    <string name="settings_physical_data">Your data</string>
+    <string name="settings_profile_section_physical">Physical data</string>
     <string name="field_name">Name</string>
     <string name="field_weight_kg">Weight (kg)</string>
     <string name="field_height_cm">Height (cm)</string>
@@ -160,6 +161,10 @@
     <string name="field_sex">Sex</string>
     <string name="field_goal">Goal</string>
     <string name="settings_fitness_goal">Fitness goal</string>
+    <!-- Tela de objetivo fitness (picker em cards + prévia das metas recalculadas) -->
+    <string name="settings_goalchange_pick_header">Choose your goal</string>
+    <string name="settings_goalchange_pick_footer">Changing your goal recalculates the app\'s default goals based on your physical data and your chosen new goal.</string>
+    <string name="settings_goalchange_preview_header">Recalculated goals</string>
     <string name="settings_units">Units</string>
     <!-- Orientação (só celular) -->
     <string name="settings_orientation">Orientation</string>
