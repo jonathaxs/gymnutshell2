@@ -5,6 +5,9 @@ import androidx.annotation.StringRes
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.jonathaxs.gymnutshell.R
+// R do :core (onde vivem os nomes de tier). Os módulos têm R separado — `nonTransitiveRClass` é o
+// default do AGP 8+, então o R do :app NÃO inclui os recursos da lib.
+import com.jonathaxs.gymnutshell.core.R as CoreR
 import com.jonathaxs.gymnutshell.health.HealthConnectManager
 import com.jonathaxs.gymnutshell.notifications.GymNotifier
 import com.jonathaxs.gymnutshell.notifications.NotificationScheduler
@@ -82,8 +85,10 @@ data class TodayUiState(
     val dateLabel: String = "",
     val overallPercent: Int = 0,
     val tierEmoji: String = "🐓",
-    /** Nível do tier (1–4), usado no rótulo "Level N" da conquista no hero. */
+    /** Nível do tier (1–4) — controla o tamanho/opacidade do emoji no hero. */
     val tierLevel: Int = 1,
+    /** Nome do nível no tema atual (ex.: "Rooster"), exibido sob o emoji do hero. */
+    @param:StringRes val tierNameRes: Int = CoreR.string.tier_gym_level1,
     val overallProgress: Float = 0f,
     val sections: List<TodayCategoryUi> = emptyList(),
     /** Metas personalizadas sem categoria, exibidas no fim da lista. */
@@ -153,7 +158,7 @@ class TodayViewModel(app: Application) : AndroidViewModel(app) {
         }
         // Notifica a conquista do dia que virou (porte da notificação de meia-noite do iOS).
         val tier = DailyAchievement.from(finalized.percent / 100.0)
-        val tierName = getApplication<Application>().getString(R.string.notification_tier_level, tier.ordinal + 1)
+        val tierName = getApplication<Application>().getString(theme.tierNameRes(tier))
         notifier.fireAchievementUnlocked(tierName, finalized.achievementEmoji, last)
         // 2) zera os intakes pro novo dia
         intakeRepo.resetAllIntakes()
@@ -269,6 +274,7 @@ class TodayViewModel(app: Application) : AndroidViewModel(app) {
                 overallPercent = floor(avg * 100).toInt(),
                 tierEmoji = theme.emoji(tier),
                 tierLevel = tier.ordinal + 1,
+                tierNameRes = theme.tierNameRes(tier),
                 overallProgress = avg.toFloat(),
                 sections = sections,
                 uncategorizedGoals = uncategorized,

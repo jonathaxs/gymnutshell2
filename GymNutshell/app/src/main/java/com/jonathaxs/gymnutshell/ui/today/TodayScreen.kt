@@ -342,7 +342,8 @@ private fun RingBlock(state: TodayUiState, onRingClick: () -> Unit, modifier: Mo
 /** Bloco da conquista: rótulo "Achievement" + emoji do tier + nome "Level N". Toque abre a info da conquista. */
 @Composable
 private fun TierBlock(state: TodayUiState, onTierClick: () -> Unit, modifier: Modifier = Modifier) {
-    val tierDesc = stringResource(R.string.cd_daily_tier, state.tierLevel)
+    val tierName = stringResource(state.tierNameRes)
+    val tierDesc = stringResource(R.string.cd_daily_tier, tierName)
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(16.dp))
@@ -369,7 +370,7 @@ private fun TierBlock(state: TodayUiState, onTierClick: () -> Unit, modifier: Mo
         )
         Spacer(Modifier.height(8.dp))
         Text(
-            stringResource(R.string.progress_tier_level, state.tierLevel),
+            tierName,
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold,
             modifier = Modifier.clearAndSetSemantics {},

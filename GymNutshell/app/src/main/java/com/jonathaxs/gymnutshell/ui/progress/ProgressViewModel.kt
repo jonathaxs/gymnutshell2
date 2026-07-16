@@ -1,6 +1,7 @@
 package com.jonathaxs.gymnutshell.ui.progress
 
 import android.app.Application
+import androidx.annotation.StringRes
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.jonathaxs.gymnutshell.core.data.CustomGoalRepository
@@ -22,7 +23,8 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 /** Contagem de dias num tier. */
-data class TierCountUi(val emoji: String, val level: Int, val days: Int)
+/** `nameRes` = nome do nível no tema atual (ex.: "Gym Rat"); vem do `AppTheme.tierNameRes`. */
+data class TierCountUi(val emoji: String, val level: Int, val days: Int, @param:StringRes val nameRes: Int)
 
 /** Uma célula da grade "Últimos 7 dias". `emoji` nulo = dia sem registro (mostra um ponto). */
 data class RecentDayUi(
@@ -99,7 +101,12 @@ class ProgressViewModel(app: Application) : AndroidViewModel(app) {
                 totalPoints = records.sumOf { it.points } + bonuses.sumOf { it.bonusPoints },
                 bonusCount = bonuses.size,
                 tierCounts = DailyAchievement.entries.map { tier ->
-                    TierCountUi(emoji = theme.emoji(tier), level = tier.ordinal + 1, days = countByTier[tier] ?: 0)
+                    TierCountUi(
+                        emoji = theme.emoji(tier),
+                        level = tier.ordinal + 1,
+                        days = countByTier[tier] ?: 0,
+                        nameRes = theme.tierNameRes(tier),
+                    )
                 },
                 workoutDays = records.count { it.didWorkout },
                 cardioDays = records.count { it.didCardio },

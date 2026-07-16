@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.jonathaxs.gymnutshell.core.data.SettingsRepository
 import com.jonathaxs.gymnutshell.core.data.WearStatsRepository
+import com.jonathaxs.gymnutshell.core.domain.AppTheme
 import com.jonathaxs.gymnutshell.core.sync.WearStatsSummary
 import com.jonathaxs.gymnutshell.core.theme.AccentColor
 import kotlinx.coroutines.flow.SharingStarted
@@ -26,4 +27,9 @@ class WearStatsViewModel(app: Application) : AndroidViewModel(app) {
         SettingsRepository(app.applicationContext).accentColor
             .map { it.argb }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AccentColor.Default.argb)
+
+    /** Tema escolhido no celular (chega pelo snapshot) — define emoji e nome de cada nível. */
+    val theme: StateFlow<AppTheme> =
+        SettingsRepository(app.applicationContext).theme
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AppTheme.Default)
 }

@@ -149,8 +149,7 @@ internal fun ThemeInfoSheet(theme: AppTheme, onDismiss: () -> Unit) {
                 DailyAchievement.entries.forEachIndexed { index, tier ->
                     if (index > 0) GroupRowDivider()
                     GroupRow(
-                        // Nomes de tier por tema ainda não existem no Android; até lá o título é "Level N".
-                        title = stringResource(R.string.ring_info_level_label, index + 1),
+                        title = stringResource(theme.tierNameRes(tier)),
                         subtitle = tierRange(tier) + rangeSuffix,
                         leading = { Text(theme.emoji(tier), style = MaterialTheme.typography.headlineSmall) },
                     )

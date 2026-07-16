@@ -123,7 +123,7 @@ private fun EditHeaderCard(state: EditRecordUiState, accent: Color) {
                     fontWeight = FontWeight.SemiBold,
                 )
                 Text(
-                    "${stringResource(R.string.progress_tier_level, state.tierLevel)} · ${state.percent}%",
+                    "${stringResource(state.tierNameRes)} · ${state.percent}%",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )

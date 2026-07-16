@@ -1,8 +1,10 @@
 package com.jonathaxs.gymnutshell.ui.achievements
 
 import android.app.Application
+import androidx.annotation.StringRes
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.jonathaxs.gymnutshell.core.R as CoreR
 import com.jonathaxs.gymnutshell.core.data.CustomGoal
 import com.jonathaxs.gymnutshell.core.data.CustomGoalCategory
 import com.jonathaxs.gymnutshell.core.data.CustomGoalCategoryRepository
@@ -48,6 +50,8 @@ data class EditRecordUiState(
     val tierEmoji: String = "🐓",
     /** Nível do tier (1–4) recalculado ao vivo conforme o usuário edita. */
     val tierLevel: Int = 1,
+    /** Nome do nível no tema atual, recalculado junto com o tier. */
+    @param:StringRes val tierNameRes: Int = CoreR.string.tier_gym_level1,
     val sections: List<TodayCategoryUi> = emptyList(),
     val uncategorizedGoals: List<TodayGoalUi> = emptyList(),
     val accentArgb: Long = 0xFF007AFF,
@@ -244,6 +248,7 @@ class EditRecordViewModel(app: Application) : AndroidViewModel(app) {
             percent = floor(avg * 100).toInt(),
             tierEmoji = theme.emoji(tier),
             tierLevel = tier.ordinal + 1,
+            tierNameRes = theme.tierNameRes(tier),
             sections = sections,
             uncategorizedGoals = uncategorized,
             accentArgb = accentArgb,

@@ -157,7 +157,7 @@ private fun TiersCard(state: ProgressUiState, accent: Color, onShowTierInfo: () 
             if (index > 0) AccentDivider(accent, inset = true)
             StatRow(
                 leading = tier.emoji,
-                label = stringResource(R.string.progress_tier_level, tier.level),
+                label = stringResource(tier.nameRes),
                 value = stringResource(R.string.progress_days_count, tier.days),
             )
         }

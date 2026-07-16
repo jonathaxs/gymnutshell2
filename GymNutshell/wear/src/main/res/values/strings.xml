@@ -28,7 +28,6 @@
     <string name="wear_stats_recent">Last 7 days</string>
     <string name="wear_stats_days_format">%1$d days</string>
     <string name="wear_stats_syncing">Open Gym Nutshell on your phone to sync.</string>
-    <string name="wear_tier_level">Level %1$d</string>
 
     <!-- Página Notifications. -->
     <string name="wear_notif_empty">No notifications yet.</string>

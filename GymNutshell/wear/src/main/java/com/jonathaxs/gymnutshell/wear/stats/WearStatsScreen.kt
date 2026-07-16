@@ -35,6 +35,7 @@ import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.material3.Text
+import com.jonathaxs.gymnutshell.core.domain.AppTheme
 import com.jonathaxs.gymnutshell.core.domain.DailyAchievement
 import com.jonathaxs.gymnutshell.core.sync.WearDayEntry
 import com.jonathaxs.gymnutshell.core.sync.WearStatsSummary
@@ -49,12 +50,13 @@ import com.jonathaxs.gymnutshell.wear.R
 fun WearStatsScreen(viewModel: WearStatsViewModel = viewModel()) {
     val stats by viewModel.stats.collectAsStateWithLifecycle()
     val accentArgb by viewModel.accentArgb.collectAsStateWithLifecycle()
+    val theme by viewModel.theme.collectAsStateWithLifecycle()
 
     val summary = stats
     if (summary == null) {
         SyncingState()
     } else {
-        StatsContent(summary, Color(accentArgb))
+        StatsContent(summary, Color(accentArgb), theme)
     }
 }
 
@@ -79,7 +81,7 @@ private fun SyncingState() {
 }
 
 @Composable
-private fun StatsContent(s: WearStatsSummary, accent: Color) {
+private fun StatsContent(s: WearStatsSummary, accent: Color, theme: AppTheme) {
     val listState = rememberScalingLazyListState()
     ScreenScaffold(scrollState = listState) {
         ScalingLazyColumn(state = listState, modifier = Modifier.fillMaxSize()) {
@@ -95,9 +97,10 @@ private fun StatsContent(s: WearStatsSummary, accent: Color) {
             item { SectionHeader(stringResource(R.string.wear_stats_tiers)) }
             items(DailyAchievement.entries.size) { index ->
                 val tier = DailyAchievement.entries[index]
+                // Emoji e nome vêm do tema escolhido no celular — `tier.emoji` é só o placeholder Gym.
                 LabeledDaysRow(
-                    emoji = tier.emoji,
-                    label = stringResource(R.string.wear_tier_level, tier.ordinal + 1),
+                    emoji = theme.emoji(tier),
+                    label = stringResource(theme.tierNameRes(tier)),
                     days = daysFor(tier, s),
                 )
             }

@@ -38,7 +38,8 @@
     <string name="state_collapsed">Collapsed</string>
     <string name="state_expanded">Expanded</string>
     <string name="cd_daily_progress">Daily progress, %1$d percent</string>
-    <string name="cd_daily_tier">Daily achievement, level %1$d</string>
+    <!-- Porte de today.tier.a11y.label (iOS): anuncia o nome do nível, não o número. -->
+    <string name="cd_daily_tier">Daily achievement, %1$s</string>
     <string name="cd_prev_month">Previous month</string>
     <string name="cd_next_month">Next month</string>
 
@@ -60,7 +61,6 @@
     <string name="progress_section_tiers">Tier Breakdown</string>
     <string name="progress_section_activity">Gym Activity</string>
     <string name="progress_section_bonuses">Streak Bonuses</string>
-    <string name="progress_tier_level">Level %1$d</string>
     <string name="progress_activity_workout">Workout Days</string>
     <string name="progress_activity_cardio">Cardio Days</string>
     <string name="progress_bonus_weekly_strong">🎖️ Fitness Week</string>
@@ -117,7 +117,6 @@
     <string name="ring_info_color_cyan">Almost there</string>
     <string name="ring_info_color_blue">Goal complete</string>
     <string name="tier_info_range_suffix">" of progress"</string>
-    <string name="ring_info_level_label">Level %1$d</string>
 
     <!-- Página de conquistas (tiers) -->
     <string name="settings_about_achievement">Achievement</string>
@@ -315,7 +314,6 @@
     <string name="notif_sound_silent">Silent</string>
 
     <!-- Notificações: tier (placeholder até nomes localizados) e atividade de saúde -->
-    <string name="notification_tier_level">Level %d</string>
     <string name="health_activity_other">Exercise</string>
 
     <!-- Notificações: títulos por kind (também viram o nome do canal) -->
