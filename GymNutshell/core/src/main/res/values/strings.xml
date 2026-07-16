@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Nomes dos níveis (tiers) por tema — porte das chaves daily.achievement.* do iOS
+  (GymNutshellCore/Resources/Localizations/en.lproj). Ficam no :core, e não no :app, porque tanto o
+  app quanto o :wear exibem tier; ambos resolvem via com.jonathaxs.gymnutshell.core.R.
+
+  O mapeamento tema+nível -> string está em AppTheme.tierNameRes.
+-->
+<resources>
+
+    <!-- Sport -->
+    <string name="tier_gym_level1">Rooster</string>
+    <string name="tier_gym_level2">Strongling</string>
+    <string name="tier_gym_level3">Gym Rat</string>
+    <string name="tier_gym_level4">Muscly</string>
+
+    <string name="tier_running_level1">Walker</string>
+    <string name="tier_running_level2">On pace</string>
+    <string name="tier_running_level3">Runner</string>
+    <string name="tier_running_level4">Marathoner</string>
+
+    <!-- Animals -->
+    <string name="tier_cat_level1">Little Cat</string>
+    <string name="tier_cat_level2">Fitness Cat</string>
+    <string name="tier_cat_level3">Big Cat</string>
+    <string name="tier_cat_level4">Leader Cat</string>
+
+    <string name="tier_dog_level1">Little Dog</string>
+    <string name="tier_dog_level2">Fitness Dog</string>
+    <string name="tier_dog_level3">Snoop Dog</string>
+    <string name="tier_dog_level4">The Caramel Dog</string>
+
+    <string name="tier_bear_level1">Bear Cub</string>
+    <string name="tier_bear_level2">Brown Bear</string>
+    <string name="tier_bear_level3">Polar Bear</string>
+    <string name="tier_bear_level4">Mighty Bison</string>
+
+    <string name="tier_dino_level1">Baby Turtle</string>
+    <string name="tier_dino_level2">Crocodile</string>
+    <string name="tier_dino_level3">T-Rex</string>
+    <string name="tier_dino_level4">Big Dino</string>
+
+    <string name="tier_dragon_level1">Little Egg</string>
+    <string name="tier_dragon_level2">Lizard</string>
+    <string name="tier_dragon_level3">Dragon</string>
+    <string name="tier_dragon_level4">Elder Dragon</string>
+
+    <string name="tier_horse_level1">Colt</string>
+    <string name="tier_horse_level2">Unicorn</string>
+    <string name="tier_horse_level3">Jockey</string>
+    <string name="tier_horse_level4">Carousel Champion</string>
+
+    <string name="tier_ocean_level1">Little Fish</string>
+    <string name="tier_ocean_level2">Dolphin</string>
+    <string name="tier_ocean_level3">Jellyfish</string>
+    <string name="tier_ocean_level4">Blue Whale</string>
+
+    <string name="tier_monkey_level1">Little Primate</string>
+    <string name="tier_monkey_level2">Fit Primate</string>
+    <string name="tier_monkey_level3">Donkey Primate</string>
+    <string name="tier_monkey_level4">Master Primate</string>
+
+    <string name="tier_bird_level1">Little Chick</string>
+    <string name="tier_bird_level2">Bluebird</string>
+    <string name="tier_bird_level3">Eagle</string>
+    <string name="tier_bird_level4">Wise Owl</string>
+
+    <!-- Warrior -->
+    <string name="tier_doctor_level1">Apprentice</string>
+    <string name="tier_doctor_level2">Beginner</string>
+    <string name="tier_doctor_level3">Graduate</string>
+    <string name="tier_doctor_level4">Doctor Who</string>
+
+    <string name="tier_ninja_level1">Trainee</string>
+    <string name="tier_ninja_level2">Swordsman</string>
+    <string name="tier_ninja_level3">Ninja</string>
+    <string name="tier_ninja_level4">Super</string>
+
+    <!-- Elements -->
+    <string name="tier_fire_level1">Candle</string>
+    <string name="tier_fire_level2">Flame</string>
+    <string name="tier_fire_level3">Volcano</string>
+    <string name="tier_fire_level4">Solar</string>
+
+    <string name="tier_plant_level1">Little Sprout</string>
+    <string name="tier_plant_level2">Herb</string>
+    <string name="tier_plant_level3">Big Tree</string>
+    <string name="tier_plant_level4">Christmas Tree</string>
+
+    <!-- Space -->
+    <string name="tier_astronaut_level1">Satellite</string>
+    <string name="tier_astronaut_level2">Astronaut</string>
+    <string name="tier_astronaut_level3">Space rocket</string>
+    <string name="tier_astronaut_level4">Flying Saucer</string>
+
+    <string name="tier_celestial_level1">Comet</string>
+    <string name="tier_celestial_level2">Moon</string>
+    <string name="tier_celestial_level3">Earth</string>
+    <string name="tier_celestial_level4">Saturn</string>
+
+    <!-- Competition -->
+    <string name="tier_champion_level1">Bronze</string>
+    <string name="tier_champion_level2">Silver</string>
+    <string name="tier_champion_level3">Gold</string>
+    <string name="tier_champion_level4">Diamond</string>
+
+    <string name="tier_number_level1">One</string>
+    <string name="tier_number_level2">Two</string>
+    <string name="tier_number_level3">Three</string>
+    <string name="tier_number_level4">Four</string>
+
+</resources>

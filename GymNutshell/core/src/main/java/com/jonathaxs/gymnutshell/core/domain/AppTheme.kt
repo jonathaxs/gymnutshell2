@@ -1,12 +1,14 @@
 package com.jonathaxs.gymnutshell.core.domain
 
+import androidx.annotation.StringRes
+import com.jonathaxs.gymnutshell.core.R
+
 /** Categorias dos temas — porte de AppTheme.ThemeCategory (iOS). Ordem = ordem de exibição. */
 enum class ThemeCategory { Sport, Animals, Warrior, Space, Elements, Competition }
 
 /**
- * Tema de mascote — porte de AppTheme (iOS). Define o emoji exibido em cada tier de conquista.
- * `rawValue` persiste no DataStore. Os nomes localizados por tier (ex.: "Rooster") virão depois;
- * por ora o tema controla só os emojis. Variantes por sexo também ficam pra depois (usa o base).
+ * Tema de mascote — porte de AppTheme (iOS). Define o emoji e o nome exibidos em cada tier de
+ * conquista. `rawValue` persiste no DataStore. Variantes por sexo ficam pra depois (usa o base).
  */
 enum class AppTheme(val rawValue: String, val category: ThemeCategory) {
     Gym("gym", ThemeCategory.Sport),
@@ -50,6 +52,33 @@ enum class AppTheme(val rawValue: String, val category: ThemeCategory) {
         Celestial -> tier.pick("☄️", "🌔", "🌎", "🪐")
         Champion -> tier.pick("🥉", "🥈", "🥇", "💎")
         Number -> tier.pick("1️⃣", "2️⃣", "3️⃣", "4️⃣")
+    }
+
+    /**
+     * Nome do tema para um tier (ex.: Gym + Level1 = "Rooster") — porte de AppTheme.name(for:) do
+     * iOS. Devolve o @StringRes; quem resolve é a UI, com `stringResource`/`getString`.
+     */
+    @StringRes
+    fun tierNameRes(tier: DailyAchievement): Int = when (this) {
+        Gym -> tier.pick(R.string.tier_gym_level1, R.string.tier_gym_level2, R.string.tier_gym_level3, R.string.tier_gym_level4)
+        Running -> tier.pick(R.string.tier_running_level1, R.string.tier_running_level2, R.string.tier_running_level3, R.string.tier_running_level4)
+        Cat -> tier.pick(R.string.tier_cat_level1, R.string.tier_cat_level2, R.string.tier_cat_level3, R.string.tier_cat_level4)
+        Dog -> tier.pick(R.string.tier_dog_level1, R.string.tier_dog_level2, R.string.tier_dog_level3, R.string.tier_dog_level4)
+        Bear -> tier.pick(R.string.tier_bear_level1, R.string.tier_bear_level2, R.string.tier_bear_level3, R.string.tier_bear_level4)
+        Dino -> tier.pick(R.string.tier_dino_level1, R.string.tier_dino_level2, R.string.tier_dino_level3, R.string.tier_dino_level4)
+        Dragon -> tier.pick(R.string.tier_dragon_level1, R.string.tier_dragon_level2, R.string.tier_dragon_level3, R.string.tier_dragon_level4)
+        Horse -> tier.pick(R.string.tier_horse_level1, R.string.tier_horse_level2, R.string.tier_horse_level3, R.string.tier_horse_level4)
+        Ocean -> tier.pick(R.string.tier_ocean_level1, R.string.tier_ocean_level2, R.string.tier_ocean_level3, R.string.tier_ocean_level4)
+        Monkey -> tier.pick(R.string.tier_monkey_level1, R.string.tier_monkey_level2, R.string.tier_monkey_level3, R.string.tier_monkey_level4)
+        Bird -> tier.pick(R.string.tier_bird_level1, R.string.tier_bird_level2, R.string.tier_bird_level3, R.string.tier_bird_level4)
+        Doctor -> tier.pick(R.string.tier_doctor_level1, R.string.tier_doctor_level2, R.string.tier_doctor_level3, R.string.tier_doctor_level4)
+        Ninja -> tier.pick(R.string.tier_ninja_level1, R.string.tier_ninja_level2, R.string.tier_ninja_level3, R.string.tier_ninja_level4)
+        Fire -> tier.pick(R.string.tier_fire_level1, R.string.tier_fire_level2, R.string.tier_fire_level3, R.string.tier_fire_level4)
+        Plant -> tier.pick(R.string.tier_plant_level1, R.string.tier_plant_level2, R.string.tier_plant_level3, R.string.tier_plant_level4)
+        Astronaut -> tier.pick(R.string.tier_astronaut_level1, R.string.tier_astronaut_level2, R.string.tier_astronaut_level3, R.string.tier_astronaut_level4)
+        Celestial -> tier.pick(R.string.tier_celestial_level1, R.string.tier_celestial_level2, R.string.tier_celestial_level3, R.string.tier_celestial_level4)
+        Champion -> tier.pick(R.string.tier_champion_level1, R.string.tier_champion_level2, R.string.tier_champion_level3, R.string.tier_champion_level4)
+        Number -> tier.pick(R.string.tier_number_level1, R.string.tier_number_level2, R.string.tier_number_level3, R.string.tier_number_level4)
     }
 
     /** Os 4 emojis do tema, do tier 1 ao 4 — usado em prévias do seletor. */
