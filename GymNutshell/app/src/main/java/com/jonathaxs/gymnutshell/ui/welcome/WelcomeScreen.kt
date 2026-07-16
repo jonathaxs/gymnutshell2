@@ -57,10 +57,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -346,16 +349,26 @@ private fun PhysicalStep(
 @Composable
 private fun BirthdayField(birthday: LocalDate, onBirthday: (LocalDate) -> Unit) {
     var show by remember { mutableStateOf(false) }
+    val fieldLabel = stringResource(R.string.field_birthday)
+    val dateText = AppDateFormatters.mediumDate(birthday)
+    // Pro TalkBack o conjunto é um botão só ("Birthday, Jan 1, 2001") — o overlay carrega o rótulo
+    // e o campo em si fica mudo, senão o foco pararia duas vezes no mesmo controle.
+    val fieldDesc = stringResource(R.string.a11y_welcome_birthday, fieldLabel, dateText)
+    val hint = stringResource(R.string.a11y_welcome_birthday_hint)
     Box {
         OutlinedTextField(
-            value = AppDateFormatters.mediumDate(birthday),
+            value = dateText,
             onValueChange = {},
             readOnly = true,
-            label = { Text(stringResource(R.string.field_birthday)) },
-            modifier = Modifier.fillMaxWidth(),
+            label = { Text(fieldLabel) },
+            modifier = Modifier.fillMaxWidth().clearAndSetSemantics {},
         )
         // Overlay clicável (o TextField readOnly não recebe clique sozinho).
-        Box(Modifier.matchParentSize().clickable { show = true })
+        Box(
+            Modifier.matchParentSize()
+                .clickable(onClickLabel = hint) { show = true }
+                .semantics { contentDescription = fieldDesc; role = Role.Button },
+        )
     }
     if (show) {
         val state = rememberDatePickerState(
@@ -541,8 +554,14 @@ private fun WelcomeSecondaryButton(text: String, color: Color, onClick: () -> Un
 private fun GoalCard(goal: UserGoal, selected: Boolean, onClick: () -> Unit) {
     val bg = if (selected) goalColor(goal) else MaterialTheme.colorScheme.surfaceVariant
     val fg = if (selected) Color.White else MaterialTheme.colorScheme.onSurface
+    // Estado de escolha por stateDescription (mesma convenção do ColorSwatch): o TalkBack anuncia
+    // "Selected" em vez de depender do "✓" e da cor de fundo.
+    val stateDesc = stringResource(if (selected) R.string.a11y_selected else R.string.a11y_not_selected)
     Row(
-        Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(bg).clickable(onClick = onClick).padding(16.dp),
+        Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(bg)
+            .clickable(role = Role.Button, onClick = onClick)
+            .semantics { stateDescription = stateDesc }
+            .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -555,7 +574,7 @@ private fun GoalCard(goal: UserGoal, selected: Boolean, onClick: () -> Unit) {
         }
         if (selected) {
             Spacer(Modifier.width(8.dp))
-            Text("✓", color = Color.White, style = MaterialTheme.typography.titleMedium)
+            Text("✓", color = Color.White, style = MaterialTheme.typography.titleMedium, modifier = Modifier.clearAndSetSemantics {})
         }
     }
 }
@@ -566,15 +585,19 @@ private fun WelcomeThemeRow(theme: AppTheme, selected: Boolean, accent: Color, o
     val themeName = stringResource(themeNameRes(theme))
     val bg = if (selected) accent else MaterialTheme.colorScheme.surfaceVariant
     val fg = if (selected) Color.White else MaterialTheme.colorScheme.onSurface
+    // Idem GoalCard: o estado vem do stateDescription, não do "✓" (que é decorativo).
+    val stateDesc = stringResource(if (selected) R.string.a11y_selected else R.string.a11y_not_selected)
     Row(
-        Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(bg).clickable(onClick = onClick)
+        Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(bg)
+            .clickable(role = Role.Button, onClick = onClick)
+            .semantics { stateDescription = stateDesc }
             .padding(start = 16.dp, top = 4.dp, bottom = 4.dp, end = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(theme.previewEmojis.joinToString("  "), style = MaterialTheme.typography.titleMedium, modifier = Modifier.clearAndSetSemantics {})
         Spacer(Modifier.width(12.dp))
         Text(themeName, Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge, color = fg)
-        if (selected) Text("✓", color = Color.White, style = MaterialTheme.typography.titleMedium)
+        if (selected) Text("✓", color = Color.White, style = MaterialTheme.typography.titleMedium, modifier = Modifier.clearAndSetSemantics {})
         IconButton(onClick = onInfo) {
             Icon(
                 Icons.Outlined.Info,

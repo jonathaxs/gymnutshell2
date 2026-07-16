@@ -38,6 +38,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
@@ -146,7 +147,12 @@ fun ProgressScreen(
 /** Card "Conquistas": distribuição de dias por tier; abre a sheet de tiers ao tocar. */
 @Composable
 private fun TiersCard(state: ProgressUiState, accent: Color, onShowTierInfo: () -> Unit) {
-    StatCard(stringResource(R.string.progress_section_tiers), accent, onClick = onShowTierInfo) {
+    StatCard(
+        stringResource(R.string.progress_section_tiers),
+        accent,
+        onClick = onShowTierInfo,
+        onClickHint = stringResource(R.string.a11y_stats_card_tiers_hint),
+    ) {
         state.tierCounts.forEachIndexed { index, tier ->
             if (index > 0) AccentDivider(accent, inset = true)
             StatRow(
@@ -161,7 +167,12 @@ private fun TiersCard(state: ProgressUiState, accent: Color, onShowTierInfo: () 
 /** Card "Bônus de sequência": contagens semanais/mensais; abre a sheet de bônus ao tocar. */
 @Composable
 private fun BonusesCard(state: ProgressUiState, accent: Color, onShowBonusInfo: () -> Unit) {
-    StatCard(stringResource(R.string.progress_section_bonuses), accent, onClick = onShowBonusInfo) {
+    StatCard(
+        stringResource(R.string.progress_section_bonuses),
+        accent,
+        onClick = onShowBonusInfo,
+        onClickHint = stringResource(R.string.a11y_stats_card_bonuses_hint),
+    ) {
         BonusLine(R.string.progress_bonus_weekly_strong, state.weeklyStrong, accent, first = true)
         BonusLine(R.string.progress_bonus_weekly_expert, state.weeklyExpert, accent)
         BonusLine(R.string.progress_bonus_monthly_strong, state.monthlyStrong, accent)
@@ -172,7 +183,12 @@ private fun BonusesCard(state: ProgressUiState, accent: Color, onShowBonusInfo: 
 /** Card "Atividade": dias de treino e cardio; abre Conquistas no modo Lista ao tocar. */
 @Composable
 private fun ActivityCard(state: ProgressUiState, accent: Color, onClick: () -> Unit) {
-    StatCard(stringResource(R.string.progress_section_activity), accent, onClick = onClick) {
+    StatCard(
+        stringResource(R.string.progress_section_activity),
+        accent,
+        onClick = onClick,
+        onClickHint = stringResource(R.string.a11y_stats_card_activity_hint),
+    ) {
         StatRow("🏋️", stringResource(R.string.progress_activity_workout),
             stringResource(R.string.progress_days_count, state.workoutDays))
         AccentDivider(accent, inset = true)
@@ -184,7 +200,12 @@ private fun ActivityCard(state: ProgressUiState, accent: Color, onClick: () -> U
 /** Card "Metas ativas": quantas metas estão sendo rastreadas; abre Metas nos Ajustes ao tocar. */
 @Composable
 private fun GoalsCard(state: ProgressUiState, accent: Color, onClick: () -> Unit) {
-    StatCard(stringResource(R.string.progress_section_goals), accent, onClick = onClick) {
+    StatCard(
+        stringResource(R.string.progress_section_goals),
+        accent,
+        onClick = onClick,
+        onClickHint = stringResource(R.string.a11y_stats_card_goals_hint),
+    ) {
         StatRow(
             leading = "✅",
             label = stringResource(R.string.progress_goals_active_label),
@@ -196,7 +217,12 @@ private fun GoalsCard(state: ProgressUiState, accent: Color, onClick: () -> Unit
 /** Card "Objetivo fitness": o objetivo atual (bulking/manutenção/cutting); abre a tela de Objetivo ao tocar. */
 @Composable
 private fun UserGoalCard(state: ProgressUiState, accent: Color, onClick: () -> Unit) {
-    StatCard(stringResource(R.string.progress_section_goal), accent, onClick = onClick) {
+    StatCard(
+        stringResource(R.string.progress_section_goal),
+        accent,
+        onClick = onClick,
+        onClickHint = stringResource(R.string.a11y_stats_card_usergoal_hint),
+    ) {
         StatRow(leading = null, label = stringResource(userGoalLabelRes(state.userGoal)), value = "")
     }
 }
@@ -210,7 +236,11 @@ private fun SummaryRow(state: ProgressUiState, onBonusClick: () -> Unit) {
     ) {
         SummaryStat(state.totalDays.toString(), R.string.progress_days, Modifier.weight(1f))
         SummaryStat(state.totalPoints.toString(), R.string.progress_points, Modifier.weight(1f))
-        SummaryStat(state.bonusCount.toString(), R.string.progress_bonuses, Modifier.weight(1f), onClick = onBonusClick)
+        SummaryStat(
+            state.bonusCount.toString(), R.string.progress_bonuses, Modifier.weight(1f),
+            onClick = onBonusClick,
+            onClickHint = stringResource(R.string.a11y_stats_card_bonuses_hint),
+        )
     }
 }
 
@@ -221,12 +251,20 @@ private fun SummaryStat(
     @StringRes labelRes: Int,
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null,
+    onClickHint: String? = null,
 ) {
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(percent = 50))
             .background(MaterialTheme.colorScheme.surfaceContainerHigh)
-            .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
+            .then(
+                if (onClick != null) {
+                    Modifier.clickable(onClickLabel = onClickHint, role = Role.Button, onClick = onClick)
+                } else {
+                    // Sem clique não há fusão automática: junta número e rótulo num só foco ("12, Days").
+                    Modifier.semantics(mergeDescendants = true) {}
+                },
+            )
             .padding(vertical = 14.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -242,13 +280,15 @@ private fun SummaryStat(
 
 /**
  * Card de estatísticas com título em cor secundária e divisória na cor de destaque — porte do
- * StatisticsCard do iOS. Quando `onClick` != null, o card inteiro vira botão (abre a sheet de info).
+ * StatisticsCard do iOS. Quando `onClick` != null, o card inteiro vira botão (abre a sheet de info)
+ * e `onClickHint` descreve a ação pro TalkBack (porte do accessibilityHint do iOS).
  */
 @Composable
 private fun StatCard(
     title: String,
     accent: Color,
     onClick: (() -> Unit)? = null,
+    onClickHint: String? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     Column(
@@ -256,7 +296,13 @@ private fun StatCard(
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
             .background(MaterialTheme.colorScheme.surfaceContainerHigh)
-            .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier),
+            .then(
+                if (onClick != null) {
+                    Modifier.clickable(onClickLabel = onClickHint, role = Role.Button, onClick = onClick)
+                } else {
+                    Modifier
+                },
+            ),
     ) {
         Text(
             title,
@@ -290,7 +336,8 @@ private fun StatRow(leading: String?, label: String, value: String) {
         verticalAlignment = Alignment.CenterVertically,
     ) {
         if (leading != null) {
-            Text(leading, style = MaterialTheme.typography.titleMedium)
+            // Emoji decorativo: o rótulo ao lado já nomeia a linha ("🏋️" + "Workout").
+            Text(leading, style = MaterialTheme.typography.titleMedium, modifier = Modifier.clearAndSetSemantics {})
             Spacer(Modifier.width(12.dp))
         }
         Text(label, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge)
@@ -319,12 +366,13 @@ private fun BonusLine(@StringRes labelRes: Int, count: Int, accent: Color, first
 /** Card de dados físicos (altura, peso, idade, sexo) nas unidades preferidas; abre Seus dados nos Ajustes ao tocar. */
 @Composable
 private fun PhysicalCard(physical: PhysicalUi, accent: Color, onClick: () -> Unit) {
+    val hint = stringResource(R.string.a11y_stats_card_physical_hint)
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
             .background(MaterialTheme.colorScheme.surfaceContainerHigh)
-            .clickable(onClick = onClick),
+            .clickable(onClickLabel = hint, role = Role.Button, onClick = onClick),
     ) {
         Text(
             stringResource(R.string.progress_section_physical),
@@ -389,10 +437,11 @@ private fun RecentDayCell(day: RecentDayUi, accent: Color, modifier: Modifier, o
     } else {
         stringResource(R.string.a11y_recent_day_empty, dateText)
     }
+    val hint = stringResource(R.string.a11y_recent_day_hint)
     Column(
         modifier
             .clip(RoundedCornerShape(10.dp))
-            .clickable(onClick = onClick)
+            .clickable(onClickLabel = hint, onClick = onClick)
             .semantics(mergeDescendants = true) { contentDescription = desc; role = Role.Button },
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {

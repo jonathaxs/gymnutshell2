@@ -420,6 +420,20 @@
     <string name="a11y_recent_day_done">%1$s, achievement earned</string>
     <string name="a11y_recent_day_empty">%1$s, no record</string>
     <string name="a11y_history_row">%1$s, %2$d percent</string>
+    <!--
+      Dicas de ação dos cards do Progresso — porte de a11y.stats.card.*.hint (iOS). Viram o rótulo do
+      onClick, então o TalkBack anuncia "toque duas vezes para <dica>" (o "Tap to" do iOS já vem embutido).
+    -->
+    <string name="a11y_stats_card_tiers_hint">see how tiers work</string>
+    <string name="a11y_stats_card_bonuses_hint">see how streak bonuses work</string>
+    <string name="a11y_stats_card_activity_hint">open the activity log</string>
+    <string name="a11y_stats_card_goals_hint">manage tracked goals</string>
+    <string name="a11y_stats_card_usergoal_hint">change goal</string>
+    <string name="a11y_stats_card_physical_hint">edit physical data</string>
+    <string name="a11y_recent_day_hint">open this day in the calendar</string>
+    <!-- Welcome: o campo de nascimento é um botão que abre o seletor de data. -->
+    <string name="a11y_welcome_birthday">%1$s, %2$s</string>
+    <string name="a11y_welcome_birthday_hint">choose the date</string>
 
     <!-- Notificações: metas personalizadas -->
     <string name="notif_custom_desc">Reminders to meet today\'s goal.</string>

@@ -34,6 +34,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -104,13 +106,18 @@ private fun ThemeRow(
             .fillMaxWidth()
             .heightIn(min = 56.dp)
             .then(if (selected) Modifier.background(accent) else Modifier)
-            .clickable(onClick = onClick)
+            .clickable(role = Role.Button, onClick = onClick)
             .padding(start = 20.dp, top = 12.dp, bottom = 12.dp, end = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(Modifier.weight(1f)) {
             Text(themeName, style = MaterialTheme.typography.bodyLarge, color = contentColor)
-            Text(theme.previewEmojis.joinToString("  "), style = MaterialTheme.typography.titleMedium)
+            // Prévia decorativa: ler a lista de emojis do nível não acrescenta nada ao nome do tema.
+            Text(
+                theme.previewEmojis.joinToString("  "),
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.clearAndSetSemantics {},
+            )
         }
         if (selected) {
             Spacer(Modifier.width(8.dp))

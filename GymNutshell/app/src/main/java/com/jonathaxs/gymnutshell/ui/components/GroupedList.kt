@@ -19,9 +19,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.jonathaxs.gymnutshell.R
 
 /**
  * Lista agrupada moderna (estilo Ajustes do Android / inset-grouped do iOS): cards arredondados
@@ -108,7 +114,12 @@ fun GroupRow(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .then(if (onClick != null) Modifier.clickable(enabled = enabled, onClick = onClick) else Modifier)
+            // `clickable` já funde os filhos, então o TalkBack lê a linha inteira de uma vez e
+            // anuncia "toque duas vezes para ativar" pelo Role.Button.
+            .then(
+                if (onClick != null) Modifier.clickable(enabled = enabled, role = Role.Button, onClick = onClick)
+                else Modifier,
+            )
             .heightIn(min = RowMinHeight)
             .padding(horizontal = RowPaddingH, vertical = RowPaddingV),
         verticalAlignment = Alignment.CenterVertically,
@@ -141,6 +152,8 @@ fun GroupRow(
                 "›",
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                // Decorativo: o Role.Button da linha já diz que ela navega; ler "›" só polui.
+                modifier = Modifier.clearAndSetSemantics {},
             )
         }
     }
@@ -155,8 +168,18 @@ fun GroupRowDivider(startInset: Dp = RowPaddingH) {
     )
 }
 
-/** Checkmark na cor de destaque, usado em linhas de seleção. */
+/**
+ * Checkmark na cor de destaque, usado em linhas de seleção. Vira "Selected" no TalkBack — a linha
+ * é lida como "Portrait, Selected" em vez do "✓" cru.
+ */
 @Composable
 fun GroupCheck(color: Color) {
-    Text("✓", color = color, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+    val selectedDesc = stringResource(R.string.a11y_selected)
+    Text(
+        "✓",
+        color = color,
+        style = MaterialTheme.typography.titleMedium,
+        fontWeight = FontWeight.Bold,
+        modifier = Modifier.semantics { contentDescription = selectedDesc },
+    )
 }
