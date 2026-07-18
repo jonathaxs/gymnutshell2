@@ -1,0 +1,497 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  pt-BR do :app — porte das traduções do pt-BR.lproj do iOS (mesmo vocabulário: Workout = Musculação,
+  Fats = Gordura Boa, Streak Bonus = Bônus de Sequência, etc.). Mesma ordem de chaves do values/ (en).
+-->
+<resources>
+    <string name="app_name">Gym Nutshell</string>
+    <string name="app_name_home">Nutshell</string>
+    <string name="tab_today">Hoje</string>
+    <string name="tab_achievements">Conquistas</string>
+    <string name="tab_progress">Progresso</string>
+    <string name="tab_settings">Ajustes</string>
+
+    <!-- Metas da Today -->
+    <string name="today_workout">Musculação</string>
+    <string name="today_cardio">Cardio</string>
+    <string name="today_sleep">Sono</string>
+    <string name="today_water">Água</string>
+    <string name="today_calories">Calorias</string>
+    <string name="today_protein">Proteína</string>
+    <string name="today_carbs">Carboidratos</string>
+    <string name="today_good_fat">Gordura Boa</string>
+    <string name="today_fiber">Fibra</string>
+    <string name="today_creatine">Creatina</string>
+    <string name="rest_day">Dia de descanso</string>
+    <string name="rest_day_on">ON</string>
+    <string name="rest_day_off">OFF</string>
+    <string name="today_ring_label">Progresso</string>
+    <string name="today_tier_label">Conquista</string>
+
+    <!-- Categorias de metas -->
+    <string name="category_essencial">Essencial</string>
+    <string name="category_nutricao">Nutrição</string>
+    <string name="category_treino">Treino</string>
+    <string name="category_suplemento">Suplemento</string>
+
+    <!-- Acessibilidade (TalkBack) -->
+    <string name="cd_increase">Aumentar %1$s</string>
+    <string name="cd_decrease">Diminuir %1$s</string>
+    <string name="state_collapsed">Recolhido</string>
+    <string name="state_expanded">Expandido</string>
+    <string name="cd_daily_progress">Progresso diário, %1$d por cento</string>
+    <string name="cd_daily_tier">Conquista do dia, %1$s</string>
+    <string name="cd_prev_month">Mês anterior</string>
+    <string name="cd_next_month">Próximo mês</string>
+
+    <!-- Achievements -->
+    <string name="achievements_empty">Nenhum registro ainda</string>
+    <string name="achievements_header_title">Conquistas</string>
+    <string name="achievements_filter_calendar">Calendário</string>
+    <string name="achievements_filter_list">Lista</string>
+    <string name="cd_edit_record">Editar este dia</string>
+
+    <!-- Edit record -->
+    <string name="edit_record_title">Editar dia</string>
+    <string name="edit_record_save">Salvar</string>
+
+    <!-- Progress -->
+    <string name="progress_days">Dias</string>
+    <string name="progress_points">Pontos</string>
+    <string name="progress_bonuses">Bônus</string>
+    <string name="progress_section_tiers">Conquistas por Níveis</string>
+    <string name="progress_section_activity">Atividade nos Treinos</string>
+    <string name="progress_section_bonuses">Bônus de Sequência</string>
+    <string name="progress_activity_workout">Dias de Musculação</string>
+    <string name="progress_activity_cardio">Dias de Cardio</string>
+    <string name="progress_bonus_weekly_strong">🎖️ Semana Fitness</string>
+    <string name="progress_bonus_weekly_expert">💀 Semana Musculosa</string>
+    <string name="progress_bonus_monthly_strong">🏆 Mês Fitness</string>
+    <string name="progress_bonus_monthly_expert">☠️ Mês Musculoso</string>
+    <string name="progress_bonus_times">%1$d vezes</string>
+    <string name="progress_days_count">%1$d dias</string>
+    <string name="progress_section_goals">Metas</string>
+    <string name="progress_goals_active_label">Metas ativas</string>
+    <string name="progress_goals_active">%1$d ativas</string>
+    <string name="progress_section_goal">Objetivo</string>
+    <string name="progress_section_physical">Dados Físicos</string>
+    <string name="progress_physical_height">Altura</string>
+    <string name="progress_physical_weight">Peso</string>
+    <string name="progress_physical_age">Idade</string>
+    <string name="progress_section_recent">Últimos 7 dias</string>
+
+    <!-- Settings -->
+    <string name="settings_section_profile">Perfil</string>
+    <string name="settings_section_preferences">Preferências</string>
+    <string name="settings_section_system">Sistema</string>
+    <string name="settings_section_about">Sobre</string>
+    <string name="settings_appearance">Aparência</string>
+
+    <!-- Seção About -->
+    <string name="settings_about_link">Gym Nutshell</string>
+    <string name="settings_about_title">Sobre o App</string>
+    <string name="settings_about_version">Versão</string>
+    <string name="settings_about_description">Gym Nutshell são suas metas diárias da academia em resumo.\n\nMarque, acompanhe e veja a constância virar resultado.</string>
+    <string name="settings_about_developer_header">Fale com o desenvolvedor</string>
+    <string name="settings_about_feedback">Enviar feedback</string>
+    <string name="settings_about_website">Site do desenvolvedor</string>
+    <string name="a11y_app_icon">Ícone do app</string>
+
+    <!-- Instruções de instalação no relógio -->
+    <string name="settings_wear_os">Wear OS</string>
+    <string name="wear_sheet_title">Instalar no Wear OS</string>
+    <string name="wear_sheet_intro">Pra instalar o Gym Nutshell no seu relógio Wear OS, siga os passos abaixo:</string>
+    <string name="wear_sheet_step1">Abra a Play Store no seu relógio</string>
+    <string name="wear_sheet_step2">Busque por \"Gym Nutshell\"</string>
+    <string name="wear_sheet_step3">Toque em Instalar</string>
+    <string name="wear_sheet_note">Você também pode abrir a página do Gym Nutshell na Play Store do celular e instalar no relógio a partir de lá.</string>
+
+    <!-- Página do anel de progresso -->
+    <string name="settings_about_progress_ring">Anel de Progresso</string>
+    <string name="ring_info_intro">O anel apresenta a média de quantos % você completou das suas metas.</string>
+    <string name="ring_info_section_colors">Cores do anel</string>
+    <string name="ring_info_color_red">Começando</string>
+    <string name="ring_info_color_orange">No caminho</string>
+    <string name="ring_info_color_green">Muito bem</string>
+    <string name="ring_info_color_cyan">Quase lá</string>
+    <string name="ring_info_color_blue">Meta concluída</string>
+    <string name="tier_info_range_suffix">" de progresso"</string>
+
+    <!-- Página de conquistas (tiers) -->
+    <string name="settings_about_achievement">Conquista</string>
+    <string name="tier_info_intro">Sua conquista é registrada no fim do dia, à meia-noite.</string>
+    <string name="tier_info_section_levels">Conquistas</string>
+    <string name="tier_info_change_theme">Alterar Tema</string>
+
+    <!-- Página dos bônus de sequência -->
+    <string name="settings_about_streak_bonus">Bônus de Sequência</string>
+    <string name="streak_bonus_info_intro">Bônus de Sequência são pontos concedidos quando você conquista Nível 3 ou 4 em todos os dias de uma semana ou mês.</string>
+    <string name="streak_bonus_weekly_l3_title">Semana Fitness</string>
+    <string name="streak_bonus_weekly_l4_title">Semana Musculosa</string>
+    <string name="streak_bonus_monthly_l3_title">Mês Fitness</string>
+    <string name="streak_bonus_monthly_l4_title">Mês Musculoso</string>
+    <string name="streak_bonus_weekly_l3_desc">Todos os dias da semana com conquistas nível 3 ou 4.</string>
+    <string name="streak_bonus_weekly_l4_desc">Todos os dias da semana com conquistas nível 4.</string>
+    <string name="streak_bonus_monthly_l3_desc">Todos os dias do mês com conquistas nível 3 ou 4.</string>
+    <string name="streak_bonus_monthly_l4_desc">Todos os dias do mês com conquistas nível 4.</string>
+    <string name="streak_bonus_points_format">+%1$d pts</string>
+    <string name="settings_accent_color">Cores</string>
+    <string name="a11y_selected">Selecionado</string>
+    <string name="a11y_not_selected">Não selecionado</string>
+
+    <!-- Nomes das cores de destaque -->
+    <string name="color_red">Vermelho</string>
+    <string name="color_blue">Azul</string>
+    <string name="color_purple">Roxo</string>
+    <string name="color_green">Verde</string>
+    <string name="color_yellow">Amarelo</string>
+    <string name="color_orange">Laranja</string>
+    <string name="color_cyan">Ciano</string>
+    <string name="color_pink">Rosa</string>
+
+    <!-- Dados físicos -->
+    <string name="settings_physical_data">Seus dados</string>
+    <string name="settings_profile_section_physical">Dados físicos</string>
+    <string name="field_name">Nome</string>
+    <string name="field_weight_kg">Peso (kg)</string>
+    <string name="field_height_cm">Altura (cm)</string>
+    <string name="field_age">Idade</string>
+    <string name="field_sex">Sexo</string>
+    <string name="field_goal">Objetivo</string>
+    <string name="settings_fitness_goal">Objetivo</string>
+    <string name="settings_daily_goals">Metas</string>
+    <string name="settings_goalchange_pick_header">Escolha seu objetivo</string>
+    <string name="settings_goalchange_pick_footer">Alterar seu objetivo recalcula as metas padrões do app com base nos seus dados físicos e seu novo objetivo escolhido.</string>
+    <string name="settings_goalchange_preview_header">Metas recalculadas</string>
+    <string name="settings_units">Medidas</string>
+    <!-- Orientação (só celular) -->
+    <string name="settings_orientation">Orientação</string>
+    <string name="settings_orientation_portrait">Travar na vertical</string>
+    <string name="settings_orientation_both">Usar ambas</string>
+    <string name="settings_orientation_footer">Escolha como o app deve responder à rotação do aparelho.</string>
+    <string name="unit_metric">Métrico (ml)</string>
+    <string name="unit_us">EUA (fl oz)</string>
+    <string name="settings_custom_goals">Metas personalizadas</string>
+    <string name="field_emoji">Emoji</string>
+    <string name="field_unit">Unidade</string>
+    <string name="field_target">Alvo</string>
+    <string name="field_increment">Passo</string>
+    <string name="custom_goal_add">Adicionar meta</string>
+    <string name="category_none">Nenhuma</string>
+    <string name="cd_delete">Apagar</string>
+    <string name="sex_male">Masculino</string>
+    <string name="sex_female">Feminino</string>
+    <string name="sex_other">Não informar</string>
+    <string name="field_birthday">Data de nascimento</string>
+    <!-- Dados físicos: seção pessoal, rótulos cientes de unidade e unidades imperiais -->
+    <string name="settings_profile_section_personal">Pessoal</string>
+    <string name="field_name_hint">Seu nome</string>
+    <string name="field_weight_lbs">Peso (lbs)</string>
+    <string name="field_height">Altura</string>
+    <string name="unit_feet">pés</string>
+    <string name="unit_inches">pol</string>
+    <string name="action_ok">OK</string>
+    <string name="action_cancel">Cancelar</string>
+    <string name="goal_bulking">Ganhar massa</string>
+    <string name="goal_maintenance">Se manter</string>
+    <string name="goal_cutting">Emagrecimento</string>
+    <string name="action_save">Salvar</string>
+    <string name="cd_back">Voltar</string>
+
+    <!-- Goals (hub) -->
+    <string name="goals_title">Metas</string>
+    <string name="goals_categories_title">Categorias</string>
+    <string name="goals_category_order">Ordem das categorias</string>
+    <string name="goal_badge_standard">Padrão</string>
+    <string name="goal_badge_recommended">Recomendado</string>
+    <string name="goal_badge_custom">Personalizada</string>
+    <string name="tracking_goals_edit">Editar</string>
+    <string name="tracking_goals_done">Concluído</string>
+    <!-- Adicionar/editar meta -->
+    <string name="addgoal_title_new">Nova meta</string>
+    <string name="addgoal_section_category">Categoria</string>
+    <string name="addgoal_emoji_placeholder">ex: 🧘</string>
+    <string name="addgoal_name_placeholder">ex: Meditação</string>
+    <string name="addgoal_unit_placeholder">ex: min</string>
+    <string name="addgoal_goal_placeholder">ex: 10</string>
+    <string name="addgoal_section_step">Passo</string>
+    <string name="addgoal_increment_placeholder">ex: 2</string>
+    <string name="addgoal_warning_catalog">Já existe uma meta com esse nome.</string>
+    <string name="addgoal_warning_emoji">Esse emoji já está sendo utilizado por outra meta.</string>
+    <string name="addgoal_warning_category_duplicate">Já existe uma categoria com esse nome.</string>
+    <string name="addgoal_warning_step">O passo não pode ser maior que o alvo.</string>
+    <string name="addgoal_category_new_button">Nova categoria</string>
+    <string name="addgoal_category_new_section">Categoria personalizada</string>
+    <string name="addgoal_category_new_name_placeholder">ex: Alongamento</string>
+    <string name="addgoal_category_new_rest_day">Botão de descanso (ON/OFF)</string>
+    <!-- Detalhe de meta fixa (valor + passo) -->
+    <string name="goaldetail_stepper">Ajustar valor</string>
+    <string name="goaldetail_increment_stepper">Ajustar passo</string>
+    <string name="goaldetail_footer">Alterar isso não afeta registros passados.</string>
+    <string name="goaldetail_increment_footer">O passo é o quanto o slider avança no valor da meta.</string>
+    <!-- Acessibilidade / descrições -->
+    <string name="a11y_add_goal">Nova meta de rastreio</string>
+    <string name="a11y_remove_goal">Remover meta</string>
+    <string name="a11y_restore_goal">Restaurar meta</string>
+    <string name="a11y_edit_category">Editar categoria</string>
+    <string name="a11y_theme_info">Mais informações sobre %1$s</string>
+    <string name="cd_move_up">Mover para cima</string>
+    <string name="cd_move_down">Mover para baixo</string>
+
+    <!-- Welcome / onboarding -->
+    <string name="welcome_start_title">Olá!</string>
+    <string name="welcome_start_intro">Gym Nutshell é um companheiro diário na sua rotina de academia.\n\nRastreie sua nutrição, hidratação, sono, treinos e outras metas ao longo do dia.\n\nAcompanhe o seu avanço na tela de conquistas e progresso.</string>
+    <string name="welcome_start_subtitle">Vamos lá!\nComece agora.</string>
+    <string name="welcome_start_new">Começar agora</string>
+    <string name="welcome_restore_error_title">Não foi possível restaurar</string>
+    <string name="welcome_goal_title">Seu objetivo</string>
+    <string name="welcome_goal_bulking_desc">Ganhar massa muscular com superávit calórico</string>
+    <string name="welcome_goal_maintenance_desc">Manter o peso e composição atual</string>
+    <string name="welcome_goal_cutting_desc">Reduzir gordura preservando a musculatura</string>
+    <string name="welcome_goal_info_choose">Escolha o que melhor descreve seu objetivo atual.</string>
+    <string name="welcome_goal_info_editable">Você pode mudar depois em ajustes do app.</string>
+    <string name="welcome_physical_title">Seus dados físicos</string>
+    <string name="welcome_physical_info_calculate">Isso será usado para calcular automaticamente os valores das suas metas diárias.</string>
+    <string name="welcome_physical_info_editable">Os valores podem ser alterados em ajustes do app.</string>
+    <string name="welcome_theme_title">Escolha o seu tema</string>
+    <string name="welcome_theme_subtitle">Escolha os emojis que irão inspirar o seu progresso.</string>
+    <string name="welcome_theme_footer">O tema pode ser alterado em ajustes do app.</string>
+    <string name="welcome_summary_title">Suas metas</string>
+    <string name="welcome_summary_subtitle">Deslize até o final.</string>
+    <string name="welcome_summary_calculated">Estes valores foram calculados com base nos seus dados físicos e no seu objetivo de %1$s.</string>
+    <string name="welcome_summary_customize">Em ajustes do app você pode ajustar esses valores de meta e adicionar metas personalizadas.</string>
+    <string name="welcome_summary_optional_badge">Recomendado</string>
+    <string name="welcome_option_add">Adicionar</string>
+    <string name="welcome_option_remove">Remover</string>
+    <string name="welcome_button_continue">Continuar</string>
+    <string name="welcome_button_start">Vamos lá!</string>
+    <string name="welcome_progress_format">Passo %1$d de %2$d</string>
+    <string name="a11y_welcome_back">Voltar ao passo anterior</string>
+    <string name="a11y_welcome_optional_add">Adicionar %1$s</string>
+    <string name="a11y_welcome_optional_remove">Remover %1$s</string>
+    <string name="action_next">Próximo</string>
+    <string name="action_back">Voltar</string>
+    <string name="action_finish">Concluir</string>
+    <string name="action_get_started">Começar</string>
+
+    <!-- Temas -->
+    <string name="settings_theme">Temas</string>
+    <string name="theme_cat_sport">Esporte</string>
+    <string name="theme_cat_animals">Animais</string>
+    <string name="theme_cat_warrior">Guerreiro</string>
+    <string name="theme_cat_space">Espaço</string>
+    <string name="theme_cat_elements">Elementos</string>
+    <string name="theme_cat_competition">Competição</string>
+    <string name="theme_gym">Academia</string>
+    <string name="theme_running">Corrida</string>
+    <string name="theme_cat">Gato</string>
+    <string name="theme_dog">Cachorro</string>
+    <string name="theme_bear">Urso</string>
+    <string name="theme_dino">Dino</string>
+    <string name="theme_dragon">Dragão</string>
+    <string name="theme_horse">Cavalo</string>
+    <string name="theme_ocean">Oceano</string>
+    <string name="theme_monkey">Primata</string>
+    <string name="theme_bird">Pássaro</string>
+    <string name="theme_doctor">Médico</string>
+    <string name="theme_ninja">Ninja</string>
+    <string name="theme_fire">Fogo</string>
+    <string name="theme_plant">Planta</string>
+    <string name="theme_astronaut">Astronauta</string>
+    <string name="theme_celestial">Celestial</string>
+    <string name="theme_champion">Campeão</string>
+    <string name="theme_number">Número</string>
+
+    <!-- Notificações: grupos de canais -->
+    <string name="notif_group_reminders">Lembretes</string>
+    <string name="notif_group_system">Sistema</string>
+
+    <!-- Notificações: som -->
+    <string name="notif_sound_default">Padrão</string>
+    <string name="notif_sound_silent">Silencioso</string>
+
+    <!-- Notificações: atividade de saúde -->
+    <string name="health_activity_other">Exercício</string>
+
+    <!-- Notificações: títulos por kind -->
+    <string name="notif_kind_progress_title">Progresso</string>
+    <string name="notif_kind_achievement_title">Conquista do dia</string>
+    <string name="notif_kind_streak_title">Bônus de sequência</string>
+    <string name="notif_kind_health_title">Health Connect</string>
+    <string name="notif_kind_backup_title">Backup</string>
+    <string name="notif_kind_sleep_title">Sono</string>
+    <string name="notif_kind_water_title">Água</string>
+    <string name="notif_kind_calories_title">Calorias</string>
+    <string name="notif_kind_protein_title">Proteínas</string>
+    <string name="notif_kind_carbs_title">Carboidratos</string>
+    <string name="notif_kind_goodfat_title">Gordura Boa</string>
+    <string name="notif_kind_fiber_title">Fibras</string>
+    <string name="notif_kind_workout_title">Musculação</string>
+    <string name="notif_kind_cardio_title">Cardio</string>
+    <string name="notif_kind_creatine_title">Creatina</string>
+
+    <!-- Notificações: descrições -->
+    <string name="notif_kind_progress_desc">Quanto falta pra sua próxima conquista do dia.</string>
+    <string name="notif_kind_achievement_desc">Notifica, à meia-noite, a conquista desbloqueada no dia.</string>
+    <string name="notif_kind_streak_desc">Avisa quando você ganha um bônus semanal ou mensal.</string>
+    <string name="notif_kind_health_desc">Confirma registros sincronizados com o Health Connect.</string>
+    <string name="notif_kind_backup_desc">Confirma cada backup automático.</string>
+    <string name="notif_kind_sleep_desc">Incentiva um cochilo quando a meta de sono ainda não foi atingida (somente entre 10h e 19h).</string>
+    <string name="notif_kind_water_desc">Lembra de tomar um copo d\'água até você bater a meta do dia.</string>
+    <string name="notif_kind_calories_desc">Lembretes para bater a meta diária de calorias.</string>
+    <string name="notif_kind_protein_desc">Lembretes para bater a meta diária de proteínas.</string>
+    <string name="notif_kind_carbs_desc">Lembretes para bater a meta diária de carboidratos.</string>
+    <string name="notif_kind_goodfat_desc">Lembretes para bater a meta diária de gorduras boas.</string>
+    <string name="notif_kind_fiber_desc">Lembretes para bater a meta diária de fibras.</string>
+    <string name="notif_kind_workout_desc">Lembretes para completar o treino de musculação do dia.</string>
+    <string name="notif_kind_cardio_desc">Lembretes para completar o cardio do dia.</string>
+    <string name="notif_kind_creatine_desc">Lembretes para a dose diária de creatina.</string>
+
+    <!-- Notificações: corpo dos lembretes recorrentes -->
+    <string name="notif_kind_progress_body">Continue assim! Cada meta conta pra sua próxima conquista.</string>
+    <string name="notif_kind_sleep_body">Que tal um cochilo pra alcançar sua meta de sono hoje?</string>
+    <string name="notif_kind_water_body">Bora tomar um copo de água? Continue rumo à sua meta do dia.</string>
+    <string name="notif_kind_calories_body">Hora de registrar suas refeições pra bater a meta de calorias do dia.</string>
+    <string name="notif_kind_protein_body">Hora de caprichar na proteína pra bater sua meta do dia.</string>
+    <string name="notif_kind_carbs_body">Que tal uma boa fonte de carboidratos pra manter o pique?</string>
+    <string name="notif_kind_goodfat_body">Não esqueça das gorduras boas hoje (azeite, castanhas, abacate).</string>
+    <string name="notif_kind_fiber_body">Inclua uma porção de fibras na próxima refeição.</string>
+    <string name="notif_kind_workout_body">Seu treino de musculação te espera. Bora pra academia!</string>
+    <string name="notif_kind_cardio_body">Hora do cardio! Um pouco de movimento faz diferença.</string>
+    <string name="notif_kind_creatine_body">Já tomou sua creatina hoje?</string>
+
+    <!-- Notificações: corpo dos eventos -->
+    <string name="notif_event_achievement_body">%1$s Você fechou o dia como %2$s!</string>
+    <string name="notif_event_streak_body">%1$s Sequência completa! +%2$d pontos.</string>
+    <string name="notif_event_health_body_cardio">Foi registrado %1$d min em Cardio (%2$s).</string>
+    <string name="notif_event_health_body_workout">Foi registrado %1$d min em Musculação (%2$s).</string>
+    <string name="notif_event_health_body_sleep">Foi registrado %d h de sono.</string>
+    <string name="notif_event_backup_body">Backup concluído com sucesso.</string>
+
+    <!-- Notificações: rodapé explicativo do editor de intervalo -->
+    <string name="notif_kind_progress_footer">Lembretes periódicos mostrando o quanto falta pra você subir de nível hoje.</string>
+    <string name="notif_kind_sleep_footer">A cada X minutos o app sugere um descanso enquanto a meta do dia não for atingida. Nenhum lembrete é enviado antes das 10h nem depois das 19h.</string>
+    <string name="notif_kind_water_footer">A cada X minutos o app te lembra de beber água. Os lembretes param assim que você atinge sua meta diária.</string>
+    <string name="notif_kind_calories_footer">Lembretes periódicos param quando você atinge a meta de calorias.</string>
+    <string name="notif_kind_protein_footer">Lembretes periódicos param quando você atinge a meta de proteína.</string>
+    <string name="notif_kind_carbs_footer">Lembretes periódicos param quando você atinge a meta de carboidratos.</string>
+    <string name="notif_kind_goodfat_footer">Lembretes periódicos param quando você atinge a meta de gordura boa.</string>
+    <string name="notif_kind_fiber_footer">Lembretes periódicos param quando você atinge a meta de fibras.</string>
+    <string name="notif_kind_workout_footer">Lembretes periódicos param quando você atinge a meta de musculação.</string>
+    <string name="notif_kind_cardio_footer">Lembretes periódicos param quando você atinge a meta de cardio.</string>
+    <string name="notif_kind_creatine_footer">Lembretes periódicos param quando você registra a dose do dia.</string>
+
+    <!-- Notificações: tela de Ajustes -->
+    <string name="settings_notifications">Notificações</string>
+    <string name="settings_notifications_section_system">Sistema</string>
+    <string name="settings_notifications_section_goals">Metas</string>
+    <string name="settings_notifications_section_custom">Metas personalizadas</string>
+    <string name="settings_notifications_authorize_button">Habilitar notificações</string>
+    <string name="settings_notifications_authorize_footer">Permita as notificações para receber os lembretes do Gym Nutshell. Se você já negou antes, habilite nos ajustes do sistema.</string>
+    <string name="settings_notifications_interval_header">Intervalo entre notificações</string>
+    <string name="settings_notifications_interval_value">A cada %d min</string>
+    <string name="settings_notifications_sound_header">Som</string>
+    <string name="settings_notifications_sound_footer">Padrão toca o som do canal; Silencioso envia sem som. Você pode ajustar cada canal nos ajustes do sistema.</string>
+    <string name="cd_open_notification_settings">Abrir ajustes de notificação de %s</string>
+
+    <!-- Notificações: histórico -->
+    <string name="notif_history_title">Histórico de notificações</string>
+    <string name="notif_history_today">Hoje</string>
+    <string name="notif_history_yesterday">Ontem</string>
+    <string name="notif_history_empty_title">Nenhuma notificação ainda</string>
+    <string name="notif_history_empty_desc">Os lembretes de eventos dos últimos 3 dias aparecem aqui.</string>
+    <string name="notif_history_clear">Limpar</string>
+    <string name="cd_notification_history">Histórico de notificações</string>
+    <!-- Acessibilidade (TalkBack) — frases enxutas -->
+    <string name="a11y_goal_label">Meta %1$s</string>
+    <string name="a11y_goal_value">%1$d de %2$d %3$s concluído</string>
+    <string name="a11y_goal_restday">no modo dia de descanso, meta cumprida</string>
+    <string name="a11y_slider_label">Controle deslizante %1$s</string>
+    <string name="a11y_category_label">Categoria %1$s</string>
+    <string name="a11y_rest_day_on">Dia de descanso ativado</string>
+    <string name="a11y_rest_day_off">Dia de descanso desativado</string>
+    <string name="a11y_calendar_day">%1$s, %2$d por cento</string>
+    <string name="a11y_calendar_day_empty">%1$s, sem registro</string>
+    <string name="a11y_recent_day_done">%1$s, conquista obtida</string>
+    <string name="a11y_recent_day_empty">%1$s, sem registro</string>
+    <string name="a11y_history_row">%1$s, %2$d por cento</string>
+    <!-- Dicas de ação dos cards do Progresso (sem o "Toque para", que o TalkBack embute) -->
+    <string name="a11y_stats_card_tiers_hint">ver como funcionam os níveis</string>
+    <string name="a11y_stats_card_bonuses_hint">ver como funcionam os bônus de sequência</string>
+    <string name="a11y_stats_card_activity_hint">abrir o histórico de atividades</string>
+    <string name="a11y_stats_card_goals_hint">gerenciar metas rastreadas</string>
+    <string name="a11y_stats_card_usergoal_hint">mudar o objetivo</string>
+    <string name="a11y_stats_card_physical_hint">editar dados físicos</string>
+    <string name="a11y_recent_day_hint">abrir este dia no calendário</string>
+    <!-- Welcome: campo de nascimento -->
+    <string name="a11y_welcome_birthday">%1$s, %2$s</string>
+    <string name="a11y_welcome_birthday_hint">escolher a data</string>
+
+    <!-- Notificações: metas personalizadas -->
+    <string name="notif_custom_desc">Lembretes pra bater a meta do dia.</string>
+    <string name="notif_custom_body">Hora de registrar %s, continue rumo à meta do dia.</string>
+    <string name="notif_custom_footer">Lembretes periódicos param quando você atinge a meta do dia dessa meta personalizada.</string>
+
+    <!-- Health Connect: nomes das atividades -->
+    <string name="health_activity_running">Corrida</string>
+    <string name="health_activity_walking">Caminhada</string>
+    <string name="health_activity_cycling">Ciclismo</string>
+    <string name="health_activity_swimming">Natação</string>
+    <string name="health_activity_elliptical">Elíptico</string>
+    <string name="health_activity_rowing">Remo</string>
+    <string name="health_activity_stair_climbing">Escada</string>
+    <string name="health_activity_hiking">Trilha</string>
+    <string name="health_activity_dance">Dança</string>
+    <string name="health_activity_strength_training">Musculação</string>
+    <string name="health_activity_functional_training">Funcional</string>
+    <string name="health_activity_cross_training">Cross Training</string>
+    <string name="health_activity_hiit">HIIT</string>
+    <string name="health_activity_boxing">Boxe</string>
+    <string name="health_activity_martial_arts">Artes marciais</string>
+    <string name="health_activity_climbing">Escalada</string>
+
+    <!-- Ajustes: integração com o Health Connect -->
+    <string name="settings_health">Health Connect</string>
+    <string name="settings_health_sync_sleep">Registrar sono no Health Connect</string>
+    <string name="settings_health_auto_checkin">Detectar treinos automaticamente</string>
+    <string name="settings_health_footer">As horas de sono que você registra são gravadas no Health Connect. Treinos e cardio registrados hoje são detectados automaticamente e preenchem suas metas de Treino. As permissões são pedidas ao ativar cada opção.</string>
+    <string name="settings_health_unavailable_title">Health Connect indisponível</string>
+    <string name="settings_health_unavailable_desc">Instale ou configure o Health Connect para registrar sono e detectar treinos.</string>
+    <string name="settings_health_unavailable_button">Configurar Health Connect</string>
+
+    <!-- Ajustes: backup -->
+    <string name="settings_backup">Backup</string>
+    <string name="backup_description">Exporte seus dados como um arquivo JSON, ou restaure a partir de um. O Android também faz backup do app automaticamente na sua conta Google.</string>
+    <string name="backup_export">Exportar backup</string>
+    <string name="backup_import">Restaurar backup</string>
+    <string name="backup_import_confirm_title">Substituir todos os dados?</string>
+    <string name="backup_import_confirm_message">Restaurar substitui seu perfil, ajustes, metas e histórico atuais pelo conteúdo do backup. Isso não pode ser desfeito.</string>
+    <string name="backup_import_confirm_button">Restaurar</string>
+    <string name="backup_cancel">Cancelar</string>
+    <string name="backup_status_exported">Backup exportado.</string>
+    <string name="backup_status_imported">Backup restaurado.</string>
+    <string name="backup_status_error">Algo deu errado. Tente novamente.</string>
+
+    <!-- Widget: Progresso -->
+    <string name="widget_progress_label">Progresso</string>
+    <string name="widget_progress_description">Acompanhe seu progresso diário.</string>
+
+    <!-- Widget: Calendário -->
+    <string name="widget_calendar_label">Calendário</string>
+    <string name="widget_calendar_description">O progresso de hoje e seu mês num relance.</string>
+
+    <!-- Widget: Metas -->
+    <string name="widget_goals_label">Metas</string>
+    <string name="widget_goals_description">O progresso individual das suas metas ativas.</string>
+
+    <!-- Ajustes: fundo do widget -->
+    <string name="settings_widget_background">Widgets</string>
+    <string name="widget_bg_mode_system">Sistema</string>
+    <string name="widget_bg_mode_accent">Destaque</string>
+    <string name="widget_bg_mode_custom">Personalizada</string>
+    <string name="widget_bg_footer_system">Os widgets seguem o fundo do sistema (claro ou escuro).</string>
+    <string name="widget_bg_footer_accent">Os widgets usam a cor de destaque do app.</string>
+    <string name="widget_bg_footer_custom">Os widgets usam uma cor escolhida por você.</string>
+    <string name="widget_bg_preview">Pré-visualização</string>
+    <string name="widget_bg_pick_color">Escolha uma cor</string>
+</resources>

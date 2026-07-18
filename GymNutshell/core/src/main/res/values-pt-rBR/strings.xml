@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Nomes dos níveis (tiers) por tema, em pt-BR — porte 1:1 das formas base (masculinas) das chaves
+  daily.achievement.* do pt-BR.lproj do iOS. As variantes femininas ficam pra quando o tierNameRes
+  passar a receber o sexo (adiado junto com as variantes de emoji).
+-->
+<resources>
+
+    <!-- Sport -->
+    <string name="tier_gym_level1">Frango</string>
+    <string name="tier_gym_level2">Marombinha</string>
+    <string name="tier_gym_level3">Rato de Academia</string>
+    <string name="tier_gym_level4">Musculoso</string>
+
+    <string name="tier_running_level1">Caminhante</string>
+    <string name="tier_running_level2">No Ritmo</string>
+    <string name="tier_running_level3">Corredor</string>
+    <string name="tier_running_level4">Maratonista</string>
+
+    <!-- Animals -->
+    <string name="tier_cat_level1">Gatinho</string>
+    <string name="tier_cat_level2">Gato Fitness</string>
+    <string name="tier_cat_level3">Gatão</string>
+    <string name="tier_cat_level4">Gato Líder</string>
+
+    <string name="tier_dog_level1">Cachorrinho</string>
+    <string name="tier_dog_level2">Cachorro Fitness</string>
+    <string name="tier_dog_level3">Cachorrão</string>
+    <string name="tier_dog_level4">Cachorro Caramelo</string>
+
+    <string name="tier_bear_level1">Ursinho</string>
+    <string name="tier_bear_level2">Urso Brabo</string>
+    <string name="tier_bear_level3">Urso Congelante</string>
+    <string name="tier_bear_level4">Bisão</string>
+
+    <string name="tier_dino_level1">Tartaruguinha</string>
+    <string name="tier_dino_level2">Crocodilo</string>
+    <string name="tier_dino_level3">T-Rex</string>
+    <string name="tier_dino_level4">Dinossaurão</string>
+
+    <string name="tier_dragon_level1">Ovinho</string>
+    <string name="tier_dragon_level2">Lagarto</string>
+    <string name="tier_dragon_level3">Dragão</string>
+    <string name="tier_dragon_level4">Dragão Ancião</string>
+
+    <string name="tier_horse_level1">Cavalinho</string>
+    <string name="tier_horse_level2">Unicórnio</string>
+    <string name="tier_horse_level3">Cavalo Fitness</string>
+    <string name="tier_horse_level4">Cavaludo</string>
+
+    <string name="tier_ocean_level1">Peixinho</string>
+    <string name="tier_ocean_level2">Golfinho</string>
+    <string name="tier_ocean_level3">Água-viva</string>
+    <string name="tier_ocean_level4">Baleia Azul</string>
+
+    <string name="tier_monkey_level1">Primatinha</string>
+    <string name="tier_monkey_level2">Primata Ativo</string>
+    <string name="tier_monkey_level3">Primata Forte</string>
+    <string name="tier_monkey_level4">Primata Mestre</string>
+
+    <string name="tier_bird_level1">Pintinho</string>
+    <string name="tier_bird_level2">Pardal</string>
+    <string name="tier_bird_level3">Águia</string>
+    <string name="tier_bird_level4">Coruja Sábia</string>
+
+    <!-- Warrior -->
+    <string name="tier_doctor_level1">Aprendiz</string>
+    <string name="tier_doctor_level2">Iniciante</string>
+    <string name="tier_doctor_level3">Formado</string>
+    <string name="tier_doctor_level4">Doutor</string>
+
+    <string name="tier_ninja_level1">Aprendiz</string>
+    <string name="tier_ninja_level2">Espadachim</string>
+    <string name="tier_ninja_level3">Ninja</string>
+    <string name="tier_ninja_level4">Super</string>
+
+    <!-- Elements -->
+    <string name="tier_fire_level1">Velinha</string>
+    <string name="tier_fire_level2">Chama Viva</string>
+    <string name="tier_fire_level3">Vulcão</string>
+    <string name="tier_fire_level4">Solar</string>
+
+    <string name="tier_plant_level1">Brotinho</string>
+    <string name="tier_plant_level2">Erva</string>
+    <string name="tier_plant_level3">Árvore Grande</string>
+    <string name="tier_plant_level4">Árvore de Natal</string>
+
+    <!-- Space -->
+    <string name="tier_astronaut_level1">Satélite</string>
+    <string name="tier_astronaut_level2">Astronauta</string>
+    <string name="tier_astronaut_level3">Foguetão</string>
+    <string name="tier_astronaut_level4">Disco Voador</string>
+
+    <string name="tier_celestial_level1">Cometa</string>
+    <string name="tier_celestial_level2">Lua</string>
+    <string name="tier_celestial_level3">Terra</string>
+    <string name="tier_celestial_level4">Saturno</string>
+
+    <!-- Competition -->
+    <string name="tier_champion_level1">Bronze</string>
+    <string name="tier_champion_level2">Prata</string>
+    <string name="tier_champion_level3">Ouro</string>
+    <string name="tier_champion_level4">Diamante</string>
+
+    <string name="tier_number_level1">Um</string>
+    <string name="tier_number_level2">Dois</string>
+    <string name="tier_number_level3">Três</string>
+    <string name="tier_number_level4">Quatro</string>
+
+</resources>

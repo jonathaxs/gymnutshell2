@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- pt-BR do :wear — segue a terminologia do pt-BR.lproj do iOS (ex.: Workout = "Musculação"). -->
+<resources>
+    <string name="app_name">Gym Nutshell</string>
+
+    <!-- Metas built-in (mesmos textos do celular). -->
+    <string name="wear_goal_workout">Musculação</string>
+    <string name="wear_goal_cardio">Cardio</string>
+    <string name="wear_goal_sleep">Sono</string>
+    <string name="wear_goal_water">Água</string>
+    <string name="wear_goal_calories">Calorias</string>
+    <string name="wear_goal_protein">Proteína</string>
+    <string name="wear_goal_carbs">Carboidratos</string>
+    <string name="wear_goal_good_fat">Gordura Boa</string>
+    <string name="wear_goal_fiber">Fibra</string>
+    <string name="wear_goal_creatine">Creatina</string>
+    <string name="rest_day">Dia de descanso</string>
+
+    <!-- Acessibilidade (TalkBack). -->
+    <string name="cd_increase">Aumentar %1$s</string>
+    <string name="cd_decrease">Diminuir %1$s</string>
+    <string name="cd_rest_day">Alternar dia de descanso de %1$s</string>
+
+    <!-- Página Stats. -->
+    <string name="wear_stats_points">Pontos</string>
+    <string name="wear_stats_days">Dias</string>
+    <string name="wear_stats_tiers">Níveis</string>
+    <string name="wear_stats_activity">Atividade</string>
+    <string name="wear_stats_recent">Últimos 7 dias</string>
+    <string name="wear_stats_days_format">%1$d dias</string>
+    <string name="wear_stats_syncing">Abra o Gym Nutshell no celular para sincronizar.</string>
+
+    <!-- Página Notifications. -->
+    <string name="wear_notif_empty">Nenhuma notificação ainda.</string>
+    <string name="wear_notif_today">Hoje</string>
+    <string name="wear_notif_yesterday">Ontem</string>
+    <string name="wear_notif_delete">Apagar</string>
+</resources>
