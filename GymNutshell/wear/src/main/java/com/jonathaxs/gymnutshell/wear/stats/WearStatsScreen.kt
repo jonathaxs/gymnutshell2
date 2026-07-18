@@ -51,12 +51,13 @@ fun WearStatsScreen(viewModel: WearStatsViewModel = viewModel()) {
     val stats by viewModel.stats.collectAsStateWithLifecycle()
     val accentArgb by viewModel.accentArgb.collectAsStateWithLifecycle()
     val theme by viewModel.theme.collectAsStateWithLifecycle()
+    val sex by viewModel.sex.collectAsStateWithLifecycle()
 
     val summary = stats
     if (summary == null) {
         SyncingState()
     } else {
-        StatsContent(summary, Color(accentArgb), theme)
+        StatsContent(summary, Color(accentArgb), theme, sex)
     }
 }
 
@@ -81,7 +82,7 @@ private fun SyncingState() {
 }
 
 @Composable
-private fun StatsContent(s: WearStatsSummary, accent: Color, theme: AppTheme) {
+private fun StatsContent(s: WearStatsSummary, accent: Color, theme: AppTheme, sex: String) {
     val listState = rememberScalingLazyListState()
     ScreenScaffold(scrollState = listState) {
         ScalingLazyColumn(state = listState, modifier = Modifier.fillMaxSize()) {
@@ -97,10 +98,10 @@ private fun StatsContent(s: WearStatsSummary, accent: Color, theme: AppTheme) {
             item { SectionHeader(stringResource(R.string.wear_stats_tiers)) }
             items(DailyAchievement.entries.size) { index ->
                 val tier = DailyAchievement.entries[index]
-                // Emoji e nome vêm do tema escolhido no celular — `tier.emoji` é só o placeholder Gym.
+                // Emoji e nome vêm do tema + sexo escolhidos no celular (chegam pelo snapshot).
                 LabeledDaysRow(
-                    emoji = theme.emoji(tier),
-                    label = stringResource(theme.tierNameRes(tier)),
+                    emoji = theme.emoji(tier, sex),
+                    label = stringResource(theme.tierNameRes(tier, sex)),
                     days = daysFor(tier, s),
                 )
             }

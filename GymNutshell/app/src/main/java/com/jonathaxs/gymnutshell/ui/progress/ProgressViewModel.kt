@@ -102,10 +102,10 @@ class ProgressViewModel(app: Application) : AndroidViewModel(app) {
                 bonusCount = bonuses.size,
                 tierCounts = DailyAchievement.entries.map { tier ->
                     TierCountUi(
-                        emoji = theme.emoji(tier),
+                        emoji = theme.emoji(tier, profile.sex),
                         level = tier.ordinal + 1,
                         days = countByTier[tier] ?: 0,
-                        nameRes = theme.tierNameRes(tier),
+                        nameRes = theme.tierNameRes(tier, profile.sex),
                     )
                 },
                 workoutDays = records.count { it.didWorkout },
@@ -117,7 +117,7 @@ class ProgressViewModel(app: Application) : AndroidViewModel(app) {
                 activeGoals = activeGoals,
                 userGoal = profile.goal,
                 physical = physicalOf(profile, measurement),
-                recentDays = recentDaysOf(records, theme),
+                recentDays = recentDaysOf(records, theme, profile.sex),
                 accentArgb = accent.argb,
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ProgressUiState())
@@ -147,6 +147,7 @@ class ProgressViewModel(app: Application) : AndroidViewModel(app) {
     private fun recentDaysOf(
         records: List<com.jonathaxs.gymnutshell.core.data.DailyRecord>,
         theme: com.jonathaxs.gymnutshell.core.domain.AppTheme,
+        sex: String,
     ): List<RecentDayUi> {
         val todayEpoch = LocalDate.now().toEpochDay()
         val byDate = records.associateBy { it.date }
@@ -159,7 +160,7 @@ class ProgressViewModel(app: Application) : AndroidViewModel(app) {
                 epochDay = epoch,
                 dayNumber = date.dayOfMonth,
                 weekday = AppDateFormatters.weekdayInitial(date),
-                emoji = if (hasRecord) theme.emoji(DailyAchievement.from(record!!.percent / 100.0)) else null,
+                emoji = if (hasRecord) theme.emoji(DailyAchievement.from(record!!.percent / 100.0), sex) else null,
                 isToday = epoch == todayEpoch,
             )
         }

@@ -301,6 +301,14 @@
     <string name="theme_celestial">Celestial</string>
     <string name="theme_champion">Campeão</string>
     <string name="theme_number">Número</string>
+    <!-- Formas femininas do nome do tema/categoria (sex != "male") — porte de app.theme.*.fem do iOS. -->
+    <string name="theme_cat_warrior_fem">Guerreira</string>
+    <string name="theme_cat_fem">Gata</string>
+    <string name="theme_dog_fem">Cachorra</string>
+    <string name="theme_bear_fem">Ursa</string>
+    <string name="theme_dragon_fem">Dragoa</string>
+    <string name="theme_horse_fem">Égua</string>
+    <string name="theme_doctor_fem">Médica</string>
 
     <!-- Notificações: grupos de canais -->
     <string name="notif_group_reminders">Lembretes</string>

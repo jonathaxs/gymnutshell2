@@ -109,4 +109,41 @@
     <string name="tier_number_level3">Three</string>
     <string name="tier_number_level4">Four</string>
 
+    <!--
+      Variantes femininas dos nomes de nível (sex != "male") — espelham as chaves
+      daily.achievement.*.fem do iOS. Em inglês o iOS só diferencia "Hen" (Gym L1); as demais
+      repetem a base de propósito, porque o resource precisa existir no default `values/` pra
+      resolução. Onde de fato mudam é no values-pt-rBR.
+    -->
+    <string name="tier_gym_level1_fem">Hen</string>
+    <string name="tier_gym_level2_fem">Strongling</string>
+    <string name="tier_gym_level3_fem">Gym Rat</string>
+    <string name="tier_gym_level4_fem">Muscly</string>
+    <string name="tier_running_level3_fem">Runner</string>
+    <string name="tier_cat_level1_fem">Little Cat</string>
+    <string name="tier_cat_level2_fem">Fitness Cat</string>
+    <string name="tier_cat_level3_fem">Big Cat</string>
+    <string name="tier_cat_level4_fem">Leader Cat</string>
+    <string name="tier_dog_level1_fem">Little Dog</string>
+    <string name="tier_dog_level2_fem">Fitness Dog</string>
+    <string name="tier_dog_level3_fem">Snoop Dog</string>
+    <string name="tier_dog_level4_fem">The Caramel Dog</string>
+    <string name="tier_bear_level1_fem">Bear Cub</string>
+    <string name="tier_bear_level2_fem">Brown Bear</string>
+    <string name="tier_bear_level3_fem">Polar Bear</string>
+    <string name="tier_bear_level4_fem">Mighty Bison</string>
+    <string name="tier_dino_level4_fem">Big Dino</string>
+    <string name="tier_dragon_level1_fem">Little Egg</string>
+    <string name="tier_dragon_level2_fem">Lizard</string>
+    <string name="tier_dragon_level3_fem">Dragon</string>
+    <string name="tier_dragon_level4_fem">Elder Dragon</string>
+    <string name="tier_horse_level1_fem">Colt</string>
+    <string name="tier_horse_level2_fem">Unicorn</string>
+    <string name="tier_horse_level3_fem">Jockey</string>
+    <string name="tier_horse_level4_fem">Carousel Champion</string>
+    <string name="tier_fire_level3_fem">Volcano</string>
+    <string name="tier_fire_level4_fem">Solar</string>
+    <string name="tier_doctor_level3_fem">Graduate</string>
+    <string name="tier_doctor_level4_fem">Doctor Who</string>
+
 </resources>

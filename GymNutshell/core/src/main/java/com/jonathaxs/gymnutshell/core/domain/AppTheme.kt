@@ -55,6 +55,27 @@ enum class AppTheme(val rawValue: String, val category: ThemeCategory) {
     }
 
     /**
+     * Emoji do tema para um tier, com variante por sexo — porte de AppTheme.emoji(for:sex:) do iOS.
+     * `sex != "male"` usa a variante feminina (só Gym, Running e Doctor têm alguma); o resto cai na
+     * base. Usar só em EXIBIÇÃO — o emoji congelado no DailyRecord é sempre o base (chave do tier).
+     */
+    fun emoji(tier: DailyAchievement, sex: String): String {
+        if (sex != "male") {
+            when (this) {
+                Gym -> return tier.pick("🐔", "🏋️‍♀️", "🐁", "🍑")
+                Running -> when (tier) {
+                    DailyAchievement.Level1 -> return "🚶‍♀️"
+                    DailyAchievement.Level3 -> return "🏃‍♀️"
+                    else -> {}
+                }
+                Doctor -> if (tier == DailyAchievement.Level4) return "👩‍⚕️"
+                else -> {}
+            }
+        }
+        return emoji(tier)
+    }
+
+    /**
      * Nome do tema para um tier (ex.: Gym + Level1 = "Rooster") — porte de AppTheme.name(for:) do
      * iOS. Devolve o @StringRes; quem resolve é a UI, com `stringResource`/`getString`.
      */
@@ -81,9 +102,41 @@ enum class AppTheme(val rawValue: String, val category: ThemeCategory) {
         Number -> tier.pick(R.string.tier_number_level1, R.string.tier_number_level2, R.string.tier_number_level3, R.string.tier_number_level4)
     }
 
-    /** Os 4 emojis do tema, do tier 1 ao 4 — usado em prévias do seletor. */
-    val previewEmojis: List<String>
-        get() = DailyAchievement.entries.map { emoji(it) }
+    /**
+     * Nome do tema para um tier, com variante por sexo — porte de AppTheme.name(for:sex:) do iOS.
+     * `sex != "male"` usa o @StringRes feminino quando este tema+tier tem um; senão devolve a base.
+     */
+    @StringRes
+    fun tierNameRes(tier: DailyAchievement, sex: String): Int {
+        if (sex != "male") {
+            val fem = femTierNameRes(tier)
+            if (fem != 0) return fem
+        }
+        return tierNameRes(tier)
+    }
+
+    /**
+     * @StringRes feminino de um tema+tier, ou 0 quando não há variante (aí o nome base já serve).
+     * Espelha as chaves `daily.achievement.*.fem` do iOS: em inglês quase todas repetem a base
+     * (o iOS só diferencia "Hen" no Gym L1); em pt-BR é onde as formas femininas de fato mudam.
+     */
+    @StringRes
+    private fun femTierNameRes(tier: DailyAchievement): Int = when (this) {
+        Gym -> tier.pick(R.string.tier_gym_level1_fem, R.string.tier_gym_level2_fem, R.string.tier_gym_level3_fem, R.string.tier_gym_level4_fem)
+        Running -> tier.pick(0, 0, R.string.tier_running_level3_fem, 0)
+        Cat -> tier.pick(R.string.tier_cat_level1_fem, R.string.tier_cat_level2_fem, R.string.tier_cat_level3_fem, R.string.tier_cat_level4_fem)
+        Dog -> tier.pick(R.string.tier_dog_level1_fem, R.string.tier_dog_level2_fem, R.string.tier_dog_level3_fem, R.string.tier_dog_level4_fem)
+        Bear -> tier.pick(R.string.tier_bear_level1_fem, R.string.tier_bear_level2_fem, R.string.tier_bear_level3_fem, R.string.tier_bear_level4_fem)
+        Dino -> tier.pick(0, 0, 0, R.string.tier_dino_level4_fem)
+        Dragon -> tier.pick(R.string.tier_dragon_level1_fem, R.string.tier_dragon_level2_fem, R.string.tier_dragon_level3_fem, R.string.tier_dragon_level4_fem)
+        Horse -> tier.pick(R.string.tier_horse_level1_fem, R.string.tier_horse_level2_fem, R.string.tier_horse_level3_fem, R.string.tier_horse_level4_fem)
+        Fire -> tier.pick(0, 0, R.string.tier_fire_level3_fem, R.string.tier_fire_level4_fem)
+        Doctor -> tier.pick(0, 0, R.string.tier_doctor_level3_fem, R.string.tier_doctor_level4_fem)
+        else -> 0
+    }
+
+    /** Os 4 emojis do tema, do tier 1 ao 4, respeitando o sexo — usado em prévias do seletor. */
+    fun previewEmojis(sex: String): List<String> = DailyAchievement.entries.map { emoji(it, sex) }
 
     companion object {
         val Default = Gym

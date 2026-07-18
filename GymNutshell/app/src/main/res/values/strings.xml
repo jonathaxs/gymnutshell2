@@ -304,6 +304,18 @@
     <string name="theme_celestial">Celestial</string>
     <string name="theme_champion">Champion</string>
     <string name="theme_number">Number</string>
+    <!--
+      Variantes femininas do nome do tema/categoria (sex != "male"), espelhando app.theme.*.fem do
+      iOS mas adaptadas à base do Android. Em inglês repetem a base (o resource precisa existir no
+      default `values/`); só o pt-BR muda de fato. Temas neutros (Gym, Ninja) não têm variante.
+    -->
+    <string name="theme_cat_warrior_fem">Warrior</string>
+    <string name="theme_cat_fem">Cat</string>
+    <string name="theme_dog_fem">Dog</string>
+    <string name="theme_bear_fem">Bear</string>
+    <string name="theme_dragon_fem">Dragon</string>
+    <string name="theme_horse_fem">Horse</string>
+    <string name="theme_doctor_fem">Doctor</string>
 
     <!-- Notificações: grupos de canais (espelham as seções de Ajustes) -->
     <string name="notif_group_reminders">Reminders</string>

@@ -107,4 +107,40 @@
     <string name="tier_number_level3">Três</string>
     <string name="tier_number_level4">Quatro</string>
 
+    <!--
+      Formas femininas dos nomes de nível (sex != "male") — porte das chaves daily.achievement.*.fem
+      do pt-BR.lproj do iOS. Só existem onde a forma feminina muda de fato; nos temas/tiers sem
+      entrada aqui, o AppTheme cai na base (masculina/neutra).
+    -->
+    <string name="tier_gym_level1_fem">Franga</string>
+    <string name="tier_gym_level2_fem">Marombinha</string>
+    <string name="tier_gym_level3_fem">Rata de Academia</string>
+    <string name="tier_gym_level4_fem">Musculosa</string>
+    <string name="tier_running_level3_fem">Corredora</string>
+    <string name="tier_cat_level1_fem">Gatinha</string>
+    <string name="tier_cat_level2_fem">Gata Fitness</string>
+    <string name="tier_cat_level3_fem">Gatona</string>
+    <string name="tier_cat_level4_fem">Gata Líder</string>
+    <string name="tier_dog_level1_fem">Cachorrinha</string>
+    <string name="tier_dog_level2_fem">Cachorra Fitness</string>
+    <string name="tier_dog_level3_fem">Cachorrona</string>
+    <string name="tier_dog_level4_fem">Cachorra Caramelo</string>
+    <string name="tier_bear_level1_fem">Ursinha</string>
+    <string name="tier_bear_level2_fem">Ursa Braba</string>
+    <string name="tier_bear_level3_fem">Ursa Congelante</string>
+    <string name="tier_bear_level4_fem">Bisã</string>
+    <string name="tier_dino_level4_fem">Dinossaurona</string>
+    <string name="tier_dragon_level1_fem">Ovinha</string>
+    <string name="tier_dragon_level2_fem">Lagartixa</string>
+    <string name="tier_dragon_level3_fem">Dragoa</string>
+    <string name="tier_dragon_level4_fem">Dragoa Anciã</string>
+    <string name="tier_horse_level1_fem">Éguinha pocotó</string>
+    <string name="tier_horse_level2_fem">Unicórnia</string>
+    <string name="tier_horse_level3_fem">Cavala Fitness</string>
+    <string name="tier_horse_level4_fem">Cavaluda</string>
+    <string name="tier_fire_level3_fem">Vulcânica</string>
+    <string name="tier_fire_level4_fem">Estrela Diva</string>
+    <string name="tier_doctor_level3_fem">Formada</string>
+    <string name="tier_doctor_level4_fem">Doutora</string>
+
 </resources>

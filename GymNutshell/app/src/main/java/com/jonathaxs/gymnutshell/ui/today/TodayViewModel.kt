@@ -158,7 +158,7 @@ class TodayViewModel(app: Application) : AndroidViewModel(app) {
         }
         // Notifica a conquista do dia que virou (porte da notificação de meia-noite do iOS).
         val tier = DailyAchievement.from(finalized.percent / 100.0)
-        val tierName = getApplication<Application>().getString(theme.tierNameRes(tier))
+        val tierName = getApplication<Application>().getString(theme.tierNameRes(tier, profile.sex))
         notifier.fireAchievementUnlocked(tierName, finalized.achievementEmoji, last)
         // 2) zera os intakes pro novo dia
         intakeRepo.resetAllIntakes()
@@ -272,9 +272,9 @@ class TodayViewModel(app: Application) : AndroidViewModel(app) {
             TodayUiState(
                 dateLabel = AppDateFormatters.longDate(LocalDate.now()),
                 overallPercent = floor(avg * 100).toInt(),
-                tierEmoji = theme.emoji(tier),
+                tierEmoji = theme.emoji(tier, profile.sex),
                 tierLevel = tier.ordinal + 1,
-                tierNameRes = theme.tierNameRes(tier),
+                tierNameRes = theme.tierNameRes(tier, profile.sex),
                 overallProgress = avg.toFloat(),
                 sections = sections,
                 uncategorizedGoals = uncategorized,

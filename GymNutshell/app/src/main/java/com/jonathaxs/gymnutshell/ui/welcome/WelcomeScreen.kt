@@ -204,6 +204,7 @@ fun WelcomeScreen(viewModel: WelcomeViewModel = viewModel()) {
                     )
                     WelcomeStep.Theme -> ThemeStep(
                         selected = theme,
+                        sex = sex,
                         accent = sexColor,
                         onSelect = { themeOrdinal = it.ordinal },
                         onInfo = { infoTheme = it },
@@ -241,7 +242,7 @@ fun WelcomeScreen(viewModel: WelcomeViewModel = viewModel()) {
     }
 
     // Sheet com os 4 níveis do tema tocado — mesmo porte do ThemeInfoView usado nas Settings.
-    infoTheme?.let { t -> ThemeInfoSheet(theme = t, onDismiss = { infoTheme = null }) }
+    infoTheme?.let { t -> ThemeInfoSheet(theme = t, sex = sex, onDismiss = { infoTheme = null }) }
 
     // Alerta de falha na restauração (arquivo inválido).
     if (restoreFailed) {
@@ -449,6 +450,7 @@ private fun SummaryStep(
 @Composable
 private fun ThemeStep(
     selected: AppTheme,
+    sex: String,
     accent: Color,
     onSelect: (AppTheme) -> Unit,
     onInfo: (AppTheme) -> Unit,
@@ -461,14 +463,14 @@ private fun ThemeStep(
         ThemeCategory.entries.forEach { category ->
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Text(
-                    stringResource(themeCategoryLabel(category)),
+                    stringResource(themeCategoryLabel(category, sex)),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(start = 4.dp),
                 )
                 AppTheme.inCategory(category).forEach { theme ->
-                    WelcomeThemeRow(theme, theme == selected, accent, onClick = { onSelect(theme) }, onInfo = { onInfo(theme) })
+                    WelcomeThemeRow(theme, sex, theme == selected, accent, onClick = { onSelect(theme) }, onInfo = { onInfo(theme) })
                 }
             }
         }
@@ -581,8 +583,8 @@ private fun GoalCard(goal: UserGoal, selected: Boolean, onClick: () -> Unit) {
 
 /** Linha selecionável de tema: prévia dos emojis + nome + check + botão ⓘ — porte do card de WelcomeThemeStep (iOS). */
 @Composable
-private fun WelcomeThemeRow(theme: AppTheme, selected: Boolean, accent: Color, onClick: () -> Unit, onInfo: () -> Unit) {
-    val themeName = stringResource(themeNameRes(theme))
+private fun WelcomeThemeRow(theme: AppTheme, sex: String, selected: Boolean, accent: Color, onClick: () -> Unit, onInfo: () -> Unit) {
+    val themeName = stringResource(themeNameRes(theme, sex))
     val bg = if (selected) accent else MaterialTheme.colorScheme.surfaceVariant
     val fg = if (selected) Color.White else MaterialTheme.colorScheme.onSurface
     // Idem GoalCard: o estado vem do stateDescription, não do "✓" (que é decorativo).
@@ -594,7 +596,7 @@ private fun WelcomeThemeRow(theme: AppTheme, selected: Boolean, accent: Color, o
             .padding(start = 16.dp, top = 4.dp, bottom = 4.dp, end = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(theme.previewEmojis.joinToString("  "), style = MaterialTheme.typography.titleMedium, modifier = Modifier.clearAndSetSemantics {})
+        Text(theme.previewEmojis(sex).joinToString("  "), style = MaterialTheme.typography.titleMedium, modifier = Modifier.clearAndSetSemantics {})
         Spacer(Modifier.width(12.dp))
         Text(themeName, Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge, color = fg)
         if (selected) Text("✓", color = Color.White, style = MaterialTheme.typography.titleMedium, modifier = Modifier.clearAndSetSemantics {})
@@ -728,3 +730,9 @@ private fun themeCategoryLabel(category: ThemeCategory): Int = when (category) {
     ThemeCategory.Elements -> R.string.theme_cat_elements
     ThemeCategory.Competition -> R.string.theme_cat_competition
 }
+
+/** Nome da categoria com variante por sexo (só Guerreiro→Guerreira) — espelha localizedName(sex:). */
+@StringRes
+private fun themeCategoryLabel(category: ThemeCategory, sex: String): Int =
+    if (category == ThemeCategory.Warrior && sex != "male") R.string.theme_cat_warrior_fem
+    else themeCategoryLabel(category)

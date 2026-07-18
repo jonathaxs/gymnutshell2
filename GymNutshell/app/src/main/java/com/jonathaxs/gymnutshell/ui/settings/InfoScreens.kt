@@ -94,6 +94,7 @@ fun TierInfoContent(
     viewModel: SettingsViewModel = viewModel(),
 ) {
     val theme by viewModel.theme.collectAsStateWithLifecycle()
+    val sex = viewModel.profile.collectAsStateWithLifecycle().value.sex
     val accent = viewModel.accentColor.collectAsStateWithLifecycle().value.color
     val rangeSuffix = stringResource(R.string.tier_info_range_suffix)
 
@@ -102,9 +103,9 @@ fun TierInfoContent(
         DailyAchievement.entries.forEachIndexed { index, tier ->
             if (index > 0) GroupRowDivider()
             GroupRow(
-                title = stringResource(theme.tierNameRes(tier)),
+                title = stringResource(theme.tierNameRes(tier, sex)),
                 subtitle = tierRange(tier) + rangeSuffix,
-                leading = { Text(theme.emoji(tier), style = MaterialTheme.typography.headlineSmall) },
+                leading = { Text(theme.emoji(tier, sex), style = MaterialTheme.typography.headlineSmall) },
             )
         }
     }

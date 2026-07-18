@@ -3,6 +3,7 @@ package com.jonathaxs.gymnutshell.wear.stats
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.jonathaxs.gymnutshell.core.data.ProfileRepository
 import com.jonathaxs.gymnutshell.core.data.SettingsRepository
 import com.jonathaxs.gymnutshell.core.data.WearStatsRepository
 import com.jonathaxs.gymnutshell.core.domain.AppTheme
@@ -32,4 +33,10 @@ class WearStatsViewModel(app: Application) : AndroidViewModel(app) {
     val theme: StateFlow<AppTheme> =
         SettingsRepository(app.applicationContext).theme
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AppTheme.Default)
+
+    /** Sexo do perfil (sincronizado do celular) — escolhe as variantes femininas de emoji/nome. */
+    val sex: StateFlow<String> =
+        ProfileRepository(app.applicationContext).profile
+            .map { it.sex }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), "other")
 }

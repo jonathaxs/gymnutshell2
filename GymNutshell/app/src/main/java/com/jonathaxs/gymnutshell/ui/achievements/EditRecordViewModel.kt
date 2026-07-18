@@ -78,6 +78,7 @@ class EditRecordViewModel(app: Application) : AndroidViewModel(app) {
     private var baseRecord: DailyRecord? = null
     private var goals: GoalsCalculator.Result? = null
     private var theme: AppTheme = AppTheme.Default
+    private var sex: String = "other"
     private var measurement: MeasurementSystem = MeasurementSystem.Metric
     private var customGoals: List<CustomGoal> = emptyList()
     private var customCategories: List<CustomGoalCategory> = emptyList()
@@ -98,6 +99,7 @@ class EditRecordViewModel(app: Application) : AndroidViewModel(app) {
             val profile = profileRepo.profile.first()
             val effective = if (profile.weightKg <= 0.0) DEMO_PROFILE else profile
             goals = GoalsProvider.goals(effective)
+            sex = profile.sex
             theme = settingsRepo.theme.first()
             measurement = settingsRepo.measurementSystem.first()
             customGoals = customGoalRepo.all()
@@ -246,9 +248,9 @@ class EditRecordViewModel(app: Application) : AndroidViewModel(app) {
             loaded = true,
             dateLabel = AppDateFormatters.longDate(LocalDate.ofEpochDay(baseRecord?.date ?: 0L)),
             percent = floor(avg * 100).toInt(),
-            tierEmoji = theme.emoji(tier),
+            tierEmoji = theme.emoji(tier, sex),
             tierLevel = tier.ordinal + 1,
-            tierNameRes = theme.tierNameRes(tier),
+            tierNameRes = theme.tierNameRes(tier, sex),
             sections = sections,
             uncategorizedGoals = uncategorized,
             accentArgb = accentArgb,

@@ -54,6 +54,8 @@ import com.jonathaxs.gymnutshell.ui.theme.color
 fun ThemeSettingsScreen(onBack: () -> Unit, viewModel: SettingsViewModel = viewModel()) {
     val selected by viewModel.theme.collectAsStateWithLifecycle()
     val accent = viewModel.accentColor.collectAsStateWithLifecycle().value.color
+    // Sexo do perfil define as variantes femininas de emoji/nome (espelha o `sex` do iOS).
+    val sex = viewModel.profile.collectAsStateWithLifecycle().value.sex
     // Tema cujo sheet de níveis está aberto (null = nenhum), igual ao $infoTheme do iOS.
     var infoTheme by remember { mutableStateOf<AppTheme?>(null) }
 
@@ -61,11 +63,12 @@ fun ThemeSettingsScreen(onBack: () -> Unit, viewModel: SettingsViewModel = viewM
         LazyColumn(modifier = Modifier.fillMaxSize().padding(padding)) {
             ThemeCategory.entries.forEach { category ->
                 item(key = "cat_${category.name}") {
-                    GroupSection(title = stringResource(categoryNameRes(category)), titleColor = accent) {
+                    GroupSection(title = stringResource(categoryNameRes(category, sex)), titleColor = accent) {
                         AppTheme.inCategory(category).forEachIndexed { index, theme ->
                             if (index > 0) GroupRowDivider()
                             ThemeRow(
                                 theme = theme,
+                                sex = sex,
                                 selected = theme == selected,
                                 accent = accent,
                                 onClick = { viewModel.setTheme(theme) },
@@ -81,7 +84,7 @@ fun ThemeSettingsScreen(onBack: () -> Unit, viewModel: SettingsViewModel = viewM
 
     // Sheet com os 4 níveis do tema tocado — porte do ThemeInfoView (iOS, sempre apresentado como sheet).
     infoTheme?.let { theme ->
-        ThemeInfoSheet(theme = theme, onDismiss = { infoTheme = null })
+        ThemeInfoSheet(theme = theme, sex = sex, onDismiss = { infoTheme = null })
     }
 }
 
@@ -92,12 +95,13 @@ fun ThemeSettingsScreen(onBack: () -> Unit, viewModel: SettingsViewModel = viewM
 @Composable
 private fun ThemeRow(
     theme: AppTheme,
+    sex: String,
     selected: Boolean,
     accent: Color,
     onClick: () -> Unit,
     onInfo: () -> Unit,
 ) {
-    val themeName = stringResource(themeNameRes(theme))
+    val themeName = stringResource(themeNameRes(theme, sex))
     // Linha selecionada ganha fundo na cor de destaque e conteúdo branco — igual ao listRowBackground do iOS.
     // O Surface do GroupCard já recorta os cantos, então a primeira/última linha herdam o arredondamento.
     val contentColor = if (selected) Color.White else MaterialTheme.colorScheme.onSurface
@@ -114,7 +118,7 @@ private fun ThemeRow(
             Text(themeName, style = MaterialTheme.typography.bodyLarge, color = contentColor)
             // Prévia decorativa: ler a lista de emojis do nível não acrescenta nada ao nome do tema.
             Text(
-                theme.previewEmojis.joinToString("  "),
+                theme.previewEmojis(sex).joinToString("  "),
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.clearAndSetSemantics {},
             )
@@ -136,12 +140,12 @@ private fun ThemeRow(
 /** Sheet informativo dos 4 níveis de um tema: emoji + nível + faixa de progresso. Porte do ThemeInfoView (iOS). */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun ThemeInfoSheet(theme: AppTheme, onDismiss: () -> Unit) {
+internal fun ThemeInfoSheet(theme: AppTheme, sex: String, onDismiss: () -> Unit) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val rangeSuffix = stringResource(R.string.tier_info_range_suffix)
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
         // Título = nome do tema, como o navigationTitle do ThemeInfoView.
-        InfoSheetTitle(stringResource(themeNameRes(theme)))
+        InfoSheetTitle(stringResource(themeNameRes(theme, sex)))
         Column(
             Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(bottom = 24.dp),
         ) {
@@ -149,9 +153,9 @@ internal fun ThemeInfoSheet(theme: AppTheme, onDismiss: () -> Unit) {
                 DailyAchievement.entries.forEachIndexed { index, tier ->
                     if (index > 0) GroupRowDivider()
                     GroupRow(
-                        title = stringResource(theme.tierNameRes(tier)),
+                        title = stringResource(theme.tierNameRes(tier, sex)),
                         subtitle = tierRange(tier) + rangeSuffix,
-                        leading = { Text(theme.emoji(tier), style = MaterialTheme.typography.headlineSmall) },
+                        leading = { Text(theme.emoji(tier, sex), style = MaterialTheme.typography.headlineSmall) },
                     )
                 }
             }
@@ -167,6 +171,30 @@ private fun categoryNameRes(category: ThemeCategory): Int = when (category) {
     ThemeCategory.Space -> R.string.theme_cat_space
     ThemeCategory.Elements -> R.string.theme_cat_elements
     ThemeCategory.Competition -> R.string.theme_cat_competition
+}
+
+/** Nome da categoria com variante por sexo (só Guerreiro→Guerreira) — porte de localizedName(sex:). */
+@StringRes
+internal fun categoryNameRes(category: ThemeCategory, sex: String): Int =
+    if (category == ThemeCategory.Warrior && sex != "male") R.string.theme_cat_warrior_fem
+    else categoryNameRes(category)
+
+/** Nome do tema com variante feminina (sex != "male") — porte de AppTheme.displayName(sex:) do iOS. */
+@StringRes
+internal fun themeNameRes(theme: AppTheme, sex: String): Int {
+    if (sex != "male") {
+        val fem = when (theme) {
+            AppTheme.Cat -> R.string.theme_cat_fem
+            AppTheme.Dog -> R.string.theme_dog_fem
+            AppTheme.Bear -> R.string.theme_bear_fem
+            AppTheme.Dragon -> R.string.theme_dragon_fem
+            AppTheme.Horse -> R.string.theme_horse_fem
+            AppTheme.Doctor -> R.string.theme_doctor_fem
+            else -> 0
+        }
+        if (fem != 0) return fem
+    }
+    return themeNameRes(theme)
 }
 
 @StringRes

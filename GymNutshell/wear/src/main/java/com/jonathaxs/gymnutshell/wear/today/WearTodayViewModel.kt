@@ -135,7 +135,7 @@ class WearTodayViewModel(app: Application) : AndroidViewModel(app) {
             WearTodayUiState(
                 overallProgress = avg.toFloat(),
                 overallPercent = floor(avg * 100).toInt(),
-                tierEmoji = theme.emoji(DailyAchievement.from(avg)),
+                tierEmoji = theme.emoji(DailyAchievement.from(avg), profile.sex),
                 accentArgb = accent.argb,
                 goals = ordered,
             )

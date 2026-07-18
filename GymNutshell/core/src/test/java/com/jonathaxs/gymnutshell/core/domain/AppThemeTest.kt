@@ -33,9 +33,57 @@ class AppThemeTest {
     @Test
     fun everyThemeHasFourPreviewEmojis() {
         AppTheme.entries.forEach { theme ->
-            assertEquals(4, theme.previewEmojis.size)
-            assertEquals("tema $theme repete emoji entre níveis", 4, theme.previewEmojis.distinct().size)
+            assertEquals(4, theme.previewEmojis("male").size)
+            assertEquals("tema $theme repete emoji entre níveis", 4, theme.previewEmojis("male").distinct().size)
         }
+    }
+
+    /** Sexo masculino sempre cai na base — tierNameRes(tier,"male") == tierNameRes(tier). */
+    @Test
+    fun maleUsesBaseNames() {
+        AppTheme.entries.forEach { theme ->
+            DailyAchievement.entries.forEach { tier ->
+                assertEquals(theme.tierNameRes(tier), theme.tierNameRes(tier, "male"))
+            }
+        }
+    }
+
+    /** Onde existe forma feminina (ex.: Gym L1: Rooster→Hen), sex != "male" muda o @StringRes. */
+    @Test
+    fun feminineNameDiffersWhereItExists() {
+        assertNotEquals(
+            AppTheme.Gym.tierNameRes(DailyAchievement.Level1),
+            AppTheme.Gym.tierNameRes(DailyAchievement.Level1, "female"),
+        )
+        // "other" (default do Android) não é "male" → também pega a feminina.
+        assertEquals(
+            AppTheme.Gym.tierNameRes(DailyAchievement.Level1, "female"),
+            AppTheme.Gym.tierNameRes(DailyAchievement.Level1, "other"),
+        )
+    }
+
+    /** Tema sem variante feminina (ex.: Champion) cai na base mesmo com sex != "male". */
+    @Test
+    fun themesWithoutFeminineVariantFallBackToBase() {
+        DailyAchievement.entries.forEach { tier ->
+            assertEquals(
+                AppTheme.Champion.tierNameRes(tier),
+                AppTheme.Champion.tierNameRes(tier, "female"),
+            )
+        }
+    }
+
+    /** O emoji também tem variante feminina no Gym (Rooster 🐓 → Hen 🐔). */
+    @Test
+    fun feminineEmojiDiffersForGym() {
+        assertNotEquals(
+            AppTheme.Gym.emoji(DailyAchievement.Level1),
+            AppTheme.Gym.emoji(DailyAchievement.Level1, "female"),
+        )
+        assertEquals(
+            AppTheme.Gym.emoji(DailyAchievement.Level1),
+            AppTheme.Gym.emoji(DailyAchievement.Level1, "male"),
+        )
     }
 
     @Test
