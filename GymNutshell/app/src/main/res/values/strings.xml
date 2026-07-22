@@ -479,6 +479,8 @@
 
     <!-- Ajustes: backup -->
     <string name="settings_backup">Backup</string>
+    <string name="settings_language">Language</string>
+    <string name="language_system_default">System default</string>
     <string name="backup_description">Export your data as a JSON file, or restore from one. Android also backs up the app automatically to your Google account.</string>
     <string name="backup_export">Export backup</string>
     <string name="backup_import">Restore backup</string>

@@ -38,6 +38,7 @@ fun SettingsListScreen(
     onOpenNotifications: () -> Unit,
     onOpenHealth: () -> Unit,
     onOpenBackup: () -> Unit,
+    onOpenLanguage: () -> Unit,
     onOpenWidgetBackground: () -> Unit,
     onOpenAbout: () -> Unit,
     onOpenWear: () -> Unit,
@@ -87,6 +88,8 @@ fun SettingsListScreen(
                 GroupRow(stringResource(R.string.settings_health), showChevron = true, onClick = onOpenHealth)
                 GroupRowDivider()
                 GroupRow(stringResource(R.string.settings_backup), showChevron = true, onClick = onOpenBackup)
+                GroupRowDivider()
+                GroupRow(stringResource(R.string.settings_language), showChevron = true, onClick = onOpenLanguage)
             }
 
             // Seção About: páginas informativas (app, relógio, anel, tiers e bônus).

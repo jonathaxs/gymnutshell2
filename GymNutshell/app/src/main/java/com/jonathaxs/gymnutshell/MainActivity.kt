@@ -1,6 +1,7 @@
 package com.jonathaxs.gymnutshell
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
@@ -20,6 +21,7 @@ import com.jonathaxs.gymnutshell.notifications.GymNotifier
 import com.jonathaxs.gymnutshell.notifications.NotificationScheduler
 import com.jonathaxs.gymnutshell.ui.RootScreen
 import com.jonathaxs.gymnutshell.ui.theme.GymNutshellTheme
+import com.jonathaxs.gymnutshell.util.AppLocales
 import com.jonathaxs.gymnutshell.wear.PhoneWearSync
 import com.jonathaxs.gymnutshell.widget.GymWidgets
 import kotlinx.coroutines.launch
@@ -34,6 +36,11 @@ class MainActivity : ComponentActivity() {
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
             if (granted) applyNotificationDefaults()
         }
+
+    // Aplica o idioma escolhido no app antes de tudo (Android 12 e abaixo; no 13+ o framework cuida).
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(AppLocales.wrap(newBase))
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

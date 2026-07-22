@@ -469,6 +469,8 @@
 
     <!-- Ajustes: backup -->
     <string name="settings_backup">Backup</string>
+    <string name="settings_language">Idioma</string>
+    <string name="language_system_default">Padrão do sistema</string>
     <string name="backup_description">Exporte seus dados como um arquivo JSON, ou restaure a partir de um. O Android também faz backup do app automaticamente na sua conta Google.</string>
     <string name="backup_export">Exportar backup</string>
     <string name="backup_import">Restaurar backup</string>

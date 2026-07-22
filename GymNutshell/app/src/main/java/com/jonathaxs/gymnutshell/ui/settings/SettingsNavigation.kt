@@ -35,6 +35,7 @@ object SettingsRoutes {
     const val NOTIF_EDIT = "settings_notif_edit" // + "/{target}"
     const val HEALTH = "settings_health"
     const val BACKUP = "settings_backup"
+    const val LANGUAGE = "settings_language"
     const val WIDGET_BG = "settings_widget_bg"
     const val ABOUT = "settings_about"
     const val WEAR = "settings_wear"
@@ -58,6 +59,7 @@ fun NavGraphBuilder.settingsGraph(navController: NavController) {
                 onOpenNotifications = { navController.navigate(SettingsRoutes.NOTIFICATIONS) },
                 onOpenHealth = { navController.navigate(SettingsRoutes.HEALTH) },
                 onOpenBackup = { navController.navigate(SettingsRoutes.BACKUP) },
+                onOpenLanguage = { navController.navigate(SettingsRoutes.LANGUAGE) },
                 onOpenWidgetBackground = { navController.navigate(SettingsRoutes.WIDGET_BG) },
                 onOpenAbout = { navController.navigate(SettingsRoutes.ABOUT) },
                 onOpenWear = { navController.navigate(SettingsRoutes.WEAR) },
@@ -131,6 +133,9 @@ fun NavGraphBuilder.settingsGraph(navController: NavController) {
         }
         composable(SettingsRoutes.BACKUP) {
             BackupScreen(onBack = { navController.popBackStack() })
+        }
+        composable(SettingsRoutes.LANGUAGE) {
+            LanguageScreen(onBack = { navController.popBackStack() })
         }
         composable(SettingsRoutes.WIDGET_BG) {
             WidgetBackgroundScreen(onBack = { navController.popBackStack() })
