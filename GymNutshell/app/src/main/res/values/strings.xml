@@ -491,13 +491,6 @@
     <string name="backup_status_exported">Backup exported.</string>
     <string name="backup_status_imported">Backup restored.</string>
     <string name="backup_status_error">Something went wrong. Please try again.</string>
-    <string name="backup_drive_title">Google Drive</string>
-    <string name="backup_drive_description">Back up to a private folder in your Google Drive and restore it on any device.</string>
-    <string name="backup_drive_export">Back up to Drive</string>
-    <string name="backup_drive_import">Restore from Drive</string>
-    <string name="backup_drive_working">Working…</string>
-    <string name="backup_drive_status_exported">Backed up to Drive.</string>
-    <string name="backup_drive_status_empty">No backup found on Drive.</string>
 
     <!-- Widget: Progresso -->
     <string name="widget_progress_label">Progress</string>

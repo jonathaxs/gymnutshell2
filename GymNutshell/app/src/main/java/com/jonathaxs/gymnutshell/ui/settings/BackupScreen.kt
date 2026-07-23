@@ -10,14 +10,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,13 +39,9 @@ fun BackupScreen(
 ) {
     val status by viewModel.status.collectAsStateWithLifecycle()
     val suggestedFilename by viewModel.suggestedFilename.collectAsStateWithLifecycle()
-    val driveStatus by viewModel.driveStatus.collectAsStateWithLifecycle()
-    val authRequest by viewModel.authRequest.collectAsStateWithLifecycle()
 
     // Uri pendente de import, aguardando confirmação do usuário.
     var pendingImport by remember { mutableStateOf<Uri?>(null) }
-    // Confirmação pendente da restauração via Drive (operação destrutiva).
-    var pendingDriveRestore by remember { mutableStateOf(false) }
 
     val exportLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.CreateDocument("application/json"),
@@ -56,15 +50,6 @@ fun BackupScreen(
     val importLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.OpenDocument(),
     ) { uri -> uri?.let { pendingImport = it } }
-
-    val authLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.StartIntentSenderForResult(),
-    ) { result -> viewModel.onAuthResult(result.data) }
-
-    // Quando a VM pede a resolução da autorização, lança o PendingIntent (conta/consentimento do Google).
-    LaunchedEffect(authRequest) {
-        authRequest?.let { authLauncher.launch(it) }
-    }
 
     Scaffold(topBar = { SettingsTopBar(stringResource(R.string.settings_backup), onBack) }) { padding ->
         Column(
@@ -86,31 +71,6 @@ fun BackupScreen(
             ) { Text(stringResource(R.string.backup_import)) }
 
             status?.let { StatusMessage(it) }
-
-            HorizontalDivider(Modifier.padding(vertical = 4.dp))
-
-            // Seção Google Drive: mesmo JSON, guardado na pasta oculta appDataFolder do Drive do usuário.
-            Text(
-                stringResource(R.string.backup_drive_title),
-                style = MaterialTheme.typography.titleMedium,
-            )
-            Text(
-                stringResource(R.string.backup_drive_description),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Button(
-                onClick = { viewModel.clearDriveStatus(); viewModel.backupToDrive() },
-                enabled = driveStatus != DriveStatus.Working,
-                modifier = Modifier.fillMaxWidth(),
-            ) { Text(stringResource(R.string.backup_drive_export)) }
-            OutlinedButton(
-                onClick = { viewModel.clearDriveStatus(); pendingDriveRestore = true },
-                enabled = driveStatus != DriveStatus.Working,
-                modifier = Modifier.fillMaxWidth(),
-            ) { Text(stringResource(R.string.backup_drive_import)) }
-
-            driveStatus?.let { DriveStatusMessage(it) }
         }
     }
 
@@ -132,42 +92,6 @@ fun BackupScreen(
             },
         )
     }
-
-    // Confirmação antes da restauração via Drive (também destrutiva).
-    if (pendingDriveRestore) {
-        AlertDialog(
-            onDismissRequest = { pendingDriveRestore = false },
-            title = { Text(stringResource(R.string.backup_import_confirm_title)) },
-            text = { Text(stringResource(R.string.backup_import_confirm_message)) },
-            confirmButton = {
-                TextButton(onClick = { viewModel.restoreFromDrive(); pendingDriveRestore = false }) {
-                    Text(stringResource(R.string.backup_import_confirm_button))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { pendingDriveRestore = false }) {
-                    Text(stringResource(R.string.backup_cancel))
-                }
-            },
-        )
-    }
-}
-
-/** Linha de feedback da última operação no Drive. */
-@Composable
-private fun DriveStatusMessage(status: DriveStatus) {
-    val (textRes, isError) = when (status) {
-        DriveStatus.Working -> R.string.backup_drive_working to false
-        DriveStatus.BackedUp -> R.string.backup_drive_status_exported to false
-        DriveStatus.Restored -> R.string.backup_status_imported to false
-        DriveStatus.Empty -> R.string.backup_drive_status_empty to false
-        DriveStatus.Error -> R.string.backup_status_error to true
-    }
-    Text(
-        stringResource(textRes),
-        style = MaterialTheme.typography.bodyMedium,
-        color = if (isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
-    )
 }
 
 /** Linha de feedback da última operação (sucesso de export/import ou erro). */
