@@ -55,6 +55,7 @@ dependencies {
     implementation(libs.androidx.health.connect.client)
     implementation(libs.androidx.glance.appwidget)
     implementation(libs.play.services.wearable)
+    implementation(libs.play.services.auth)
     implementation(libs.kotlinx.coroutines.play.services)
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))

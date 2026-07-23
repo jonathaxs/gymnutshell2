@@ -481,6 +481,13 @@
     <string name="backup_status_exported">Backup exportado.</string>
     <string name="backup_status_imported">Backup restaurado.</string>
     <string name="backup_status_error">Algo deu errado. Tente novamente.</string>
+    <string name="backup_drive_title">Google Drive</string>
+    <string name="backup_drive_description">Faça backup numa pasta privada do seu Google Drive e restaure em qualquer aparelho.</string>
+    <string name="backup_drive_export">Fazer backup no Drive</string>
+    <string name="backup_drive_import">Restaurar do Drive</string>
+    <string name="backup_drive_working">Processando…</string>
+    <string name="backup_drive_status_exported">Backup feito no Drive.</string>
+    <string name="backup_drive_status_empty">Nenhum backup encontrado no Drive.</string>
 
     <!-- Widget: Progresso -->
     <string name="widget_progress_label">Progresso</string>

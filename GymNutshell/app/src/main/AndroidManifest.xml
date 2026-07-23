@@ -5,6 +5,9 @@
     <!-- Notificações locais. Runtime só é exigida no Android 13+ (API 33); abaixo disso é silenciosa. -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
+    <!-- Backup no Google Drive: chamadas REST à Drive API. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <!-- Health Connect: ler treinos (auto check-in) e gravar sono (sync de sono). -->
     <uses-permission android:name="android.permission.health.READ_EXERCISE" />
     <uses-permission android:name="android.permission.health.WRITE_SLEEP" />
