@@ -2,6 +2,7 @@ package com.jonathaxs.gymnutshell.widget
 
 import android.content.Context
 import androidx.annotation.StringRes
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceId
@@ -16,6 +17,7 @@ import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.appwidget.appWidgetBackground
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.provideContent
+import androidx.glance.background
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
 import androidx.glance.layout.Column
@@ -65,6 +67,8 @@ class GoalsWidget : GlanceAppWidget() {
     @androidx.compose.runtime.Composable
     private fun Content(context: Context, snapshot: WidgetSnapshot) {
         val textColor = widgetTextColor(snapshot)
+        // Cor da borda de contraste das barras sobre fundos custom/accent (null em System).
+        val borderColor = widgetBorderArgb(snapshot)?.let { Color(it) }
         Column(
             modifier = GlanceModifier
                 .fillMaxSize()
@@ -79,7 +83,7 @@ class GoalsWidget : GlanceAppWidget() {
             // Até 6 metas, igual ao iOS (prefix 6). Sem Spacer entre linhas: o Glance limita ~10
             // filhos diretos por container, então o espaçamento vai como padding dentro de cada linha.
             snapshot.goals.take(6).forEach { goal ->
-                GoalRow(context, goal, textColor)
+                GoalRow(context, goal, textColor, borderColor)
             }
         }
     }
@@ -96,6 +100,7 @@ class GoalsWidget : GlanceAppWidget() {
                         ringArgb = ProgressColors.ringArgb(snapshot.progressNormalized),
                         emoji = snapshot.tierEmoji,
                         strokeDp = 7f,
+                        borderArgb = widgetBorderArgb(snapshot),
                     ),
                 ),
                 contentDescription = null,
@@ -120,8 +125,11 @@ class GoalsWidget : GlanceAppWidget() {
 
     /** Uma linha de meta: emoji + rótulo + barra + %. */
     @androidx.compose.runtime.Composable
-    private fun GoalRow(context: Context, goal: GoalProgress, textColor: ColorProvider) {
+    private fun GoalRow(context: Context, goal: GoalProgress, textColor: ColorProvider, borderColor: Color?) {
         val label = goal.label ?: context.getString(goalTitleRes(goal.key))
+        val barImage = ImageProvider(
+            WidgetBar.bitmap(percent = goal.percent, fillArgb = ProgressColors.ringArgb(goal.percent / 100.0)),
+        )
         Row(
             modifier = GlanceModifier.fillMaxWidth().padding(vertical = 5.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -134,14 +142,32 @@ class GoalsWidget : GlanceAppWidget() {
                 Text(label, maxLines = 1, style = TextStyle(fontSize = 12.sp, color = textColor))
             }
             Spacer(GlanceModifier.width(8.dp))
-            Image(
-                provider = ImageProvider(
-                    WidgetBar.bitmap(percent = goal.percent, fillArgb = ProgressColors.ringArgb(goal.percent / 100.0)),
-                ),
-                contentDescription = null,
-                contentScale = ContentScale.FillBounds,
-                modifier = GlanceModifier.defaultWeight().height(8.dp).cornerRadius(4.dp),
-            )
+            if (borderColor != null) {
+                // Contorno de contraste (fundo custom/accent): caixa na cor da borda com 1dp de recuo
+                // revelando-a em volta da barra — mesma técnica do "hoje" no calendário.
+                Box(
+                    modifier = GlanceModifier
+                        .defaultWeight()
+                        .height(10.dp)
+                        .cornerRadius(5.dp)
+                        .background(ColorProvider(borderColor))
+                        .padding(1.dp),
+                ) {
+                    Image(
+                        provider = barImage,
+                        contentDescription = null,
+                        contentScale = ContentScale.FillBounds,
+                        modifier = GlanceModifier.fillMaxSize().cornerRadius(4.dp),
+                    )
+                }
+            } else {
+                Image(
+                    provider = barImage,
+                    contentDescription = null,
+                    contentScale = ContentScale.FillBounds,
+                    modifier = GlanceModifier.defaultWeight().height(8.dp).cornerRadius(4.dp),
+                )
+            }
             Spacer(GlanceModifier.width(8.dp))
             Box(modifier = GlanceModifier.width(38.dp), contentAlignment = Alignment.CenterEnd) {
                 Text(

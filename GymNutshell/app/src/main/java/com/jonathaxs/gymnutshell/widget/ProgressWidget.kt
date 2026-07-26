@@ -113,6 +113,7 @@ class ProgressWidget : GlanceAppWidget() {
                         progress = snapshot.progressNormalized.toFloat(),
                         ringArgb = ProgressColors.ringArgb(snapshot.progressNormalized),
                         emoji = snapshot.tierEmoji,
+                        borderArgb = widgetBorderArgb(snapshot),
                     ),
                 ),
                 contentDescription = null,

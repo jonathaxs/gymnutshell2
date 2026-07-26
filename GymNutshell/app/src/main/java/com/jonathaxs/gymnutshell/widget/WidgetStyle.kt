@@ -35,3 +35,14 @@ fun widgetTextColor(snapshot: WidgetSnapshot): ColorProvider = when (snapshot.ba
     WidgetBackgroundMode.Accent -> ColorProvider(Color(WidgetBackground.contrastingTextArgb(snapshot.accentArgb)))
     WidgetBackgroundMode.Custom -> ColorProvider(Color(WidgetBackground.contrastingTextArgb(snapshot.customBackgroundArgb)))
 }
+
+/**
+ * Cor (ARGB) do contorno de contraste dos elementos — anel, barras, células — sobre fundos custom/accent,
+ * onde a cor do elemento pode se confundir com o gradiente. `null` no modo System, onde o fundo do sistema
+ * já contrasta e o iOS também não desenha borda (regra `needsBorder = mode != .system`).
+ */
+fun widgetBorderArgb(snapshot: WidgetSnapshot): Long? = when (snapshot.backgroundMode) {
+    WidgetBackgroundMode.System -> null
+    WidgetBackgroundMode.Accent -> WidgetBackground.contrastingTextArgb(snapshot.accentArgb)
+    WidgetBackgroundMode.Custom -> WidgetBackground.contrastingTextArgb(snapshot.customBackgroundArgb)
+}

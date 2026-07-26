@@ -68,6 +68,8 @@ class CalendarWidget : GlanceAppWidget() {
     private fun Content(context: Context, snapshot: WidgetSnapshot) {
         val textColor = widgetTextColor(snapshot)
         val accent = Color(snapshot.accentArgb)
+        // Cor da borda de contraste das células do mês sobre fundos custom/accent (null em System).
+        val cellBorder = widgetBorderArgb(snapshot)?.let { Color(it) }
         val (weekdays, weeks) = buildMonth(snapshot.recentDays)
 
         Column(
@@ -103,7 +105,7 @@ class CalendarWidget : GlanceAppWidget() {
                 WeekdayRow(weekdays, textColor)
                 weeks.forEach { week ->
                     Row(modifier = GlanceModifier.fillMaxWidth()) {
-                        week.forEach { day -> DayCellView(day, accent, textColor) }
+                        week.forEach { day -> DayCellView(day, accent, textColor, cellBorder) }
                     }
                 }
             }
@@ -127,6 +129,7 @@ class CalendarWidget : GlanceAppWidget() {
                         ringArgb = ProgressColors.ringArgb(snapshot.progressNormalized),
                         emoji = snapshot.tierEmoji,
                         strokeDp = 7f,
+                        borderArgb = widgetBorderArgb(snapshot),
                     ),
                 ),
                 contentDescription = null,
@@ -164,18 +167,30 @@ class CalendarWidget : GlanceAppWidget() {
     }
 
     @androidx.compose.runtime.Composable
-    private fun RowScope.DayCellView(day: CalDay, accent: Color, textColor: ColorProvider) {
+    private fun RowScope.DayCellView(day: CalDay, accent: Color, textColor: ColorProvider, cellBorder: Color?) {
         Box(
             modifier = GlanceModifier.defaultWeight().height(30.dp).padding(2.dp),
             contentAlignment = Alignment.Center,
         ) {
-            if (day.isToday) {
-                // "Borda" de hoje: caixa accent com 2dp de recuo revelando a cor do dia por dentro.
-                Box(modifier = GlanceModifier.fillMaxSize().cornerRadius(8.dp).background(accent).padding(2.dp)) {
-                    CellInner(day, textColor)
-                }
-            } else {
-                CellInner(day, textColor)
+            when {
+                day.isToday ->
+                    // "Borda" de hoje: caixa accent com 2dp de recuo revelando a cor do dia por dentro.
+                    Box(modifier = GlanceModifier.fillMaxSize().cornerRadius(8.dp).background(accent).padding(2.dp)) {
+                        CellInner(day, textColor)
+                    }
+                // Borda de contraste nas células do mês sobre fundo custom/accent (só as do mês atual,
+                // pra não competir com o foco de hoje); mesma técnica de caixa+recuo, a 50% de opacidade.
+                cellBorder != null && day.inMonth ->
+                    Box(
+                        modifier = GlanceModifier
+                            .fillMaxSize()
+                            .cornerRadius(7.dp)
+                            .background(ColorProvider(cellBorder.copy(alpha = 0.5f)))
+                            .padding(1.dp),
+                    ) {
+                        CellInner(day, textColor)
+                    }
+                else -> CellInner(day, textColor)
             }
         }
     }

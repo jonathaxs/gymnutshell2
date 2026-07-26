@@ -21,6 +21,7 @@ object WidgetRing {
         ringArgb: Long,
         emoji: String,
         strokeDp: Float = 10f,
+        borderArgb: Long? = null,
     ): Bitmap {
         val density = context.resources.displayMetrics.density
         val sizePx = (sizeDp * density).toInt().coerceAtLeast(1)
@@ -28,8 +29,21 @@ object WidgetRing {
         val bmp = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bmp)
 
-        val inset = stroke / 2f
+        // Borda de contraste (fundos custom/accent): stroke 1dp mais largo por lado atrás do anel,
+        // igual ao `lineWidth + 2` do iOS. Recolhe o rect pra caber os 1dp extras sem clipar.
+        val borderExtra = if (borderArgb != null) density else 0f
+        val inset = stroke / 2f + borderExtra
         val rect = RectF(inset, inset, sizePx - inset, sizePx - inset)
+
+        if (borderArgb != null) {
+            val border = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                style = Paint.Style.STROKE
+                strokeWidth = stroke + 2f * borderExtra
+                strokeCap = Paint.Cap.ROUND
+                color = borderArgb.toInt()
+            }
+            canvas.drawArc(rect, 0f, 360f, false, border)
+        }
 
         // Trilha de fundo (círculo completo, cinza ~20%).
         val track = Paint(Paint.ANTI_ALIAS_FLAG).apply {
