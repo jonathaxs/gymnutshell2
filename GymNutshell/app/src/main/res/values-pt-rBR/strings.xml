@@ -116,6 +116,11 @@
     <string name="ring_info_color_cyan">Quase lá</string>
     <string name="ring_info_color_blue">Meta concluída</string>
     <string name="tier_info_range_suffix">" de progresso"</string>
+    <!-- Frase de progresso "faltam X% pro próximo nível" nas sheets do anel/conquista (abertas pela Today).
+         Aspas preservam os espaços de borda, que o Android trima em texto não-citado. -->
+    <string name="info_next_prefix">"Restam "</string>
+    <string name="info_next_middle">" de progresso para: "</string>
+    <string name="today_max_level">Nível máximo atingido hoje!</string>
 
     <!-- Página de conquistas (tiers) -->
     <string name="settings_about_achievement">Conquista</string>

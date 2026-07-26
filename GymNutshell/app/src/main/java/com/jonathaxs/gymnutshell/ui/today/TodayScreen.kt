@@ -110,12 +110,16 @@ fun TodayScreen(
         }
     }
 
-    // Sheets de info abertos pelo toque no anel / conquista.
+    // Sheets de info abertos pelo toque no anel / conquista, com o % do dia pra frase de próximo nível.
     if (showRingInfo) {
-        ProgressRingInfoSheet(onDismiss = { showRingInfo = false })
+        ProgressRingInfoSheet(onDismiss = { showRingInfo = false }, currentPercent = state.overallPercent)
     }
     if (showTierInfo) {
-        TierInfoSheet(onDismiss = { showTierInfo = false }, onOpenTheme = onOpenTheme)
+        TierInfoSheet(
+            onDismiss = { showTierInfo = false },
+            onOpenTheme = onOpenTheme,
+            currentPercent = state.overallPercent,
+        )
     }
 }
 

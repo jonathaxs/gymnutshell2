@@ -25,11 +25,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.jonathaxs.gymnutshell.R
+import com.jonathaxs.gymnutshell.core.domain.AppTheme
 import com.jonathaxs.gymnutshell.core.domain.DailyAchievement
 import com.jonathaxs.gymnutshell.core.domain.ProgressColors
 import com.jonathaxs.gymnutshell.ui.components.GroupInset
@@ -51,9 +57,12 @@ fun ProgressRingInfoScreen(onBack: () -> Unit) {
     }
 }
 
-/** Conteúdo da info do anel (sem chrome), reutilizado pela página (Settings) e pelo sheet (Today). */
+/**
+ * Conteúdo da info do anel (sem chrome), reutilizado pela página (Settings) e pelo sheet (Today).
+ * `currentPercent` só vem quando aberto pela Today: aí exibe a frase de próximo nível; em Settings é nulo.
+ */
 @Composable
-fun ProgressRingInfoContent() {
+fun ProgressRingInfoContent(currentPercent: Int? = null) {
     // Mesmas cores e faixas do ProgressColors do :core (única fonte da escala).
     val rangeSuffix = stringResource(R.string.tier_info_range_suffix)
     val colors = listOf(
@@ -64,6 +73,7 @@ fun ProgressRingInfoContent() {
         Triple(stringResource(R.string.ring_info_color_blue), Color(0xFF007AFF), "100%"),
     )
     IntroText(stringResource(R.string.ring_info_intro))
+    RingNextLevelPhrase(currentPercent)
     GroupSection(title = stringResource(R.string.ring_info_section_colors)) {
         colors.forEachIndexed { index, (label, swatch, range) ->
             if (index > 0) GroupRowDivider()
@@ -87,10 +97,14 @@ fun TierInfoScreen(
     }
 }
 
-/** Conteúdo da info de conquistas (sem chrome), reutilizado pela página (Settings) e pelo sheet (Today). */
+/**
+ * Conteúdo da info de conquistas (sem chrome), reutilizado pela página (Settings) e pelo sheet (Today).
+ * `currentPercent` só vem quando aberto pela Today: aí exibe a frase de próximo nível; em Settings é nulo.
+ */
 @Composable
 fun TierInfoContent(
     onOpenTheme: () -> Unit,
+    currentPercent: Int? = null,
     viewModel: SettingsViewModel = viewModel(),
 ) {
     val theme by viewModel.theme.collectAsStateWithLifecycle()
@@ -99,6 +113,7 @@ fun TierInfoContent(
     val rangeSuffix = stringResource(R.string.tier_info_range_suffix)
 
     IntroText(stringResource(R.string.tier_info_intro))
+    TierNextLevelPhrase(currentPercent, theme, sex)
     GroupSection(title = stringResource(R.string.tier_info_section_levels)) {
         DailyAchievement.entries.forEachIndexed { index, tier ->
             if (index > 0) GroupRowDivider()
@@ -165,14 +180,14 @@ fun StreakBonusInfoContent() {
 /** Sheet com a info do anel de progresso (no iOS, ProgressRingInfoView aberta como sheet). */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProgressRingInfoSheet(onDismiss: () -> Unit) {
+fun ProgressRingInfoSheet(onDismiss: () -> Unit, currentPercent: Int? = null) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
         InfoSheetTitle(stringResource(R.string.settings_about_progress_ring))
         Column(
             Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(bottom = 24.dp),
         ) {
-            ProgressRingInfoContent()
+            ProgressRingInfoContent(currentPercent)
         }
     }
 }
@@ -195,7 +210,7 @@ fun StreakBonusInfoSheet(onDismiss: () -> Unit) {
 /** Sheet com a info de conquistas (no iOS, TierInfoView aberta como sheet). */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TierInfoSheet(onDismiss: () -> Unit, onOpenTheme: () -> Unit) {
+fun TierInfoSheet(onDismiss: () -> Unit, onOpenTheme: () -> Unit, currentPercent: Int? = null) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
@@ -203,15 +218,18 @@ fun TierInfoSheet(onDismiss: () -> Unit, onOpenTheme: () -> Unit) {
         Column(
             Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(bottom = 24.dp),
         ) {
-            TierInfoContent(onOpenTheme = {
-                // Fecha o sheet animando e só então navega pra tela de tema.
-                scope.launch { sheetState.hide() }.invokeOnCompletion {
-                    if (!sheetState.isVisible) {
-                        onDismiss()
-                        onOpenTheme()
+            TierInfoContent(
+                currentPercent = currentPercent,
+                onOpenTheme = {
+                    // Fecha o sheet animando e só então navega pra tela de tema.
+                    scope.launch { sheetState.hide() }.invokeOnCompletion {
+                        if (!sheetState.isVisible) {
+                            onDismiss()
+                            onOpenTheme()
+                        }
                     }
-                }
-            })
+                },
+            )
         }
     }
 }
@@ -263,5 +281,84 @@ private fun IntroText(text: String) {
         style = MaterialTheme.typography.bodyLarge,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = Modifier.padding(horizontal = GroupInset + 4.dp, vertical = 16.dp),
+    )
+}
+
+// ---- Frase de progresso "faltam X% pro próximo nível" (porte do bloco de próximo nível do iOS) ----
+
+/**
+ * Próximo tier a alcançar a partir do percentual do dia — mesma regra do TodayHeroView (iOS):
+ * ≥90% já é o nível máximo; senão o alvo é o próximo tier (Level2/3/4) e faltam os pontos até 33/66/90.
+ */
+@Composable
+private fun TierNextLevelPhrase(percent: Int?, theme: AppTheme, sex: String) {
+    val p = percent ?: return
+    if (p >= 90) {
+        MaxLevelPhrase()
+        return
+    }
+    val (remaining, tier) = when {
+        p >= 66 -> (90 - p) to DailyAchievement.Level4
+        p >= 33 -> (66 - p) to DailyAchievement.Level3
+        else -> (33 - p) to DailyAchievement.Level2
+    }
+    NextLevelPhrase(remaining, stringResource(theme.tierNameRes(tier, sex)))
+}
+
+/**
+ * Próxima cor do anel a alcançar a partir do percentual do dia — mesma regra do ProgressRingInfoView
+ * (iOS): 100% é o topo; senão o alvo é a cor da próxima faixa (33/66/90/100) com o quanto falta.
+ */
+@Composable
+private fun RingNextLevelPhrase(percent: Int?) {
+    val p = percent ?: return
+    if (p >= 100) {
+        MaxLevelPhrase()
+        return
+    }
+    val (remaining, nameRes) = when {
+        p < 33 -> (33 - p) to R.string.ring_info_color_orange
+        p < 66 -> (66 - p) to R.string.ring_info_color_green
+        p < 90 -> (90 - p) to R.string.ring_info_color_cyan
+        else -> (100 - p) to R.string.ring_info_color_blue
+    }
+    NextLevelPhrase(remaining, stringResource(nameRes))
+}
+
+/** "Restam X% de progresso para: <alvo>" — o alvo em cor primária, o resto em secundária (igual iOS). */
+@Composable
+private fun NextLevelPhrase(remaining: Int, nextName: String) {
+    val text = buildAnnotatedString {
+        withStyle(SpanStyle(color = MaterialTheme.colorScheme.onSurfaceVariant)) {
+            append(stringResource(R.string.info_next_prefix))
+            append("$remaining%")
+            append(stringResource(R.string.info_next_middle))
+            append("\n")
+        }
+        withStyle(SpanStyle(color = MaterialTheme.colorScheme.onSurface)) {
+            append(nextName)
+        }
+    }
+    ProgressPhraseText(text)
+}
+
+/** Frase de nível máximo atingido, quando não há próximo nível a alcançar. */
+@Composable
+private fun MaxLevelPhrase() {
+    ProgressPhraseText(AnnotatedString(stringResource(R.string.today_max_level)))
+}
+
+/** Estilo comum das frases de progresso: centralizada, semibold, logo abaixo do parágrafo de intro. */
+@Composable
+private fun ProgressPhraseText(text: AnnotatedString) {
+    Text(
+        text,
+        style = MaterialTheme.typography.titleSmall,
+        fontWeight = FontWeight.SemiBold,
+        textAlign = TextAlign.Center,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = GroupInset + 4.dp)
+            .padding(bottom = 8.dp),
     )
 }
