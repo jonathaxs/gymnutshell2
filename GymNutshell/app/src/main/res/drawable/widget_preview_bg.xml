@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Fundo dos previews de widget no seletor: retângulo arredondado com o gradiente da cor accent padrão
+  (azul), espelhando o modo Destaque (default do app) e o WidgetGradient (topo clareado → base escura).
+  Usado só pelos previewLayout do picker, nunca pelo widget real (que assa o gradiente em Bitmap).
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <corners android:radius="16dp" />
+    <gradient
+        android:angle="270"
+        android:startColor="#3D9BFF"
+        android:endColor="#0059B3" />
+</shape>

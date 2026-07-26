@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Preview do widget "Metas" no seletor (android:previewLayout, API 31+). Estático e aproximado:
+  header com anel + % + pontos e algumas metas com barra, sobre o fundo accent. O widget real é
+  composto em Glance (GoalsWidget.kt) com os dados de hoje.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_preview_bg"
+    android:orientation="vertical"
+    android:padding="12dp">
+
+    <!-- Header: anel + data + % + pontos -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <FrameLayout
+            android:layout_width="52dp"
+            android:layout_height="52dp">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/widget_preview_ring" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="🏋️"
+                android:textSize="20sp" />
+        </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="May 3"
+                android:textColor="#FFFFFFFF"
+                android:textSize="11sp" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="65%"
+                    android:textColor="#FFFFFFFF"
+                    android:textSize="24sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="40 pts"
+                    android:textColor="#FFFFFFFF"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Metas de exemplo -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="24dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="🏋️"
+            android:textSize="14sp" />
+
+        <TextView
+            android:layout_width="64dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:text="Workout"
+            android:textColor="#FFFFFFFF"
+            android:textSize="12sp" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:background="@drawable/widget_preview_bar_track"
+            android:orientation="horizontal"
+            android:weightSum="1">
+
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.8"
+                android:background="@drawable/widget_preview_bar_fill" />
+
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.2" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="38dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:gravity="end"
+            android:text="80%"
+            android:textColor="#FFFFFFFF"
+            android:textSize="11sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="24dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="💧"
+            android:textSize="14sp" />
+
+        <TextView
+            android:layout_width="64dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:text="Water"
+            android:textColor="#FFFFFFFF"
+            android:textSize="12sp" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:background="@drawable/widget_preview_bar_track"
+            android:orientation="horizontal"
+            android:weightSum="1">
+
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.6"
+                android:background="@drawable/widget_preview_bar_fill" />
+
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.4" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="38dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:gravity="end"
+            android:text="60%"
+            android:textColor="#FFFFFFFF"
+            android:textSize="11sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="24dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="🍗"
+            android:textSize="14sp" />
+
+        <TextView
+            android:layout_width="64dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:text="Protein"
+            android:textColor="#FFFFFFFF"
+            android:textSize="12sp" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:background="@drawable/widget_preview_bar_track"
+            android:orientation="horizontal"
+            android:weightSum="1">
+
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.4"
+                android:background="@drawable/widget_preview_bar_fill" />
+
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.6" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="38dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:gravity="end"
+            android:text="40%"
+            android:textColor="#FFFFFFFF"
+            android:textSize="11sp" />
+    </LinearLayout>
+</LinearLayout>

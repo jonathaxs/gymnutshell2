@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Preview do widget "Calendário" no seletor (android:previewLayout, API 31+). Estático e aproximado:
+  header com anel + % + pontos e uma grade de mês com dias coloridos, sobre o fundo accent. O widget
+  real é composto em Glance (CalendarWidget.kt) com o histórico de dias.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_preview_bg"
+    android:orientation="vertical"
+    android:padding="12dp">
+
+    <!-- Header: anel + data + % + pontos -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <FrameLayout
+            android:layout_width="52dp"
+            android:layout_height="52dp">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/widget_preview_ring" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="🏋️"
+                android:textSize="20sp" />
+        </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="May 3"
+                android:textColor="#FFFFFFFF"
+                android:textSize="11sp" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="65%"
+                    android:textColor="#FFFFFFFF"
+                    android:textSize="24sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="40 pts"
+                    android:textColor="#FFFFFFFF"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:text="May 2026"
+        android:textColor="#FFFFFFFF"
+        android:textSize="13sp"
+        android:textStyle="bold" />
+
+    <!-- Cabeçalho dos dias da semana -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:orientation="horizontal">
+
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="S" android:textColor="#B3FFFFFF" android:textSize="9sp" />
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="M" android:textColor="#B3FFFFFF" android:textSize="9sp" />
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="T" android:textColor="#B3FFFFFF" android:textSize="9sp" />
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="W" android:textColor="#B3FFFFFF" android:textSize="9sp" />
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="T" android:textColor="#B3FFFFFF" android:textSize="9sp" />
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="F" android:textColor="#B3FFFFFF" android:textSize="9sp" />
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="S" android:textColor="#B3FFFFFF" android:textSize="9sp" />
+    </LinearLayout>
+
+    <!-- Semana 1 -->
+    <LinearLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_marginTop="3dp" android:orientation="horizontal">
+        <ImageView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_margin="1.5dp" android:background="@drawable/widget_preview_cell" android:backgroundTint="#33FFFFFF" />
+        <ImageView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_margin="1.5dp" android:background="@drawable/widget_preview_cell" android:backgroundTint="#FF8CD98C" />
+        <ImageView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_margin="1.5dp" android:background="@drawable/widget_preview_cell" android:backgroundTint="#FF34C759" />
+        <ImageView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_margin="1.5dp" android:background="@drawable/widget_preview_cell" android:backgroundTint="#FF34C759" />
+        <ImageView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_margin="1.5dp" android:background="@drawable/widget_preview_cell" android:backgroundTint="#FF8CD98C" />
+        <ImageView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_margin="1.5dp" android:background="@drawable/widget_preview_cell" android:backgroundTint="#33FFFFFF" />
+        <ImageView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_margin="1.5dp" android:background="@drawable/widget_preview_cell" android:backgroundTint="#FF34C759" />
+    </LinearLayout>
+
+    <!-- Semana 2 -->
+    <LinearLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:orientation="horizontal">
+        <ImageView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_margin="1.5dp" android:background="@drawable/widget_preview_cell" android:backgroundTint="#FF34C759" />
+        <ImageView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_margin="1.5dp" android:background="@drawable/widget_preview_cell" android:backgroundTint="#FF34C759" />
+        <ImageView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_margin="1.5dp" android:background="@drawable/widget_preview_cell" android:backgroundTint="#33FFFFFF" />
+        <ImageView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_margin="1.5dp" android:background="@drawable/widget_preview_cell" android:backgroundTint="#FF8CD98C" />
+        <ImageView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_margin="1.5dp" android:background="@drawable/widget_preview_cell" android:backgroundTint="#FF34C759" />
+        <ImageView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_margin="1.5dp" android:background="@drawable/widget_preview_cell" android:backgroundTint="#FF34C759" />
+        <ImageView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_margin="1.5dp" android:background="@drawable/widget_preview_cell" android:backgroundTint="#FF8CD98C" />
+    </LinearLayout>
+
+    <!-- Semana 3 (com o dia de hoje destacado por borda branca) -->
+    <LinearLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:orientation="horizontal">
+        <ImageView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_margin="1.5dp" android:background="@drawable/widget_preview_cell" android:backgroundTint="#FF8CD98C" />
+        <ImageView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_margin="1.5dp" android:background="@drawable/widget_preview_cell" android:backgroundTint="#FF34C759" />
+        <FrameLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_margin="1.5dp" android:background="@drawable/widget_preview_cell_today" android:padding="2dp">
+            <ImageView android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/widget_preview_cell" android:backgroundTint="#FF34C759" />
+        </FrameLayout>
+        <ImageView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_margin="1.5dp" android:background="@drawable/widget_preview_cell" android:backgroundTint="#33FFFFFF" />
+        <ImageView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_margin="1.5dp" android:background="@drawable/widget_preview_cell" android:backgroundTint="#1AFFFFFF" />
+        <ImageView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_margin="1.5dp" android:background="@drawable/widget_preview_cell" android:backgroundTint="#1AFFFFFF" />
+        <ImageView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_margin="1.5dp" android:background="@drawable/widget_preview_cell" android:backgroundTint="#1AFFFFFF" />
+    </LinearLayout>
+</LinearLayout>

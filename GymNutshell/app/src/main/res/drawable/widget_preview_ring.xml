@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Anel do preview: aro branco (abstrai o anel de progresso do widget). Só usado nos previewLayout. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="ring"
+    android:useLevel="false"
+    android:thickness="4dp"
+    android:innerRadiusRatio="2.6">
+    <solid android:color="#FFFFFFFF" />
+</shape>
