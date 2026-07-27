@@ -90,7 +90,11 @@ class GoalsWidget : GlanceAppWidget() {
 
     @androidx.compose.runtime.Composable
     private fun Header(context: Context, snapshot: WidgetSnapshot, textColor: ColorProvider) {
-        Row(modifier = GlanceModifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            modifier = GlanceModifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
             Image(
                 provider = ImageProvider(
                     WidgetRing.bitmap(

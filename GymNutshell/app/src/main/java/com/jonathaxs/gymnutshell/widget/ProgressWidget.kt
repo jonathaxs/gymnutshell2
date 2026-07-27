@@ -108,6 +108,7 @@ class ProgressWidget : GlanceAppWidget() {
         Row(
             modifier = GlanceModifier.fillMaxSize(),
             verticalAlignment = Alignment.CenterVertically,
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Image(
                 provider = ImageProvider(

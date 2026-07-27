@@ -119,6 +119,7 @@ class CalendarWidget : GlanceAppWidget() {
                 .fillMaxWidth()
                 .clickable(actionStartActivity(appIntent(context, NotificationRoute.Today))),
             verticalAlignment = Alignment.CenterVertically,
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Image(
                 provider = ImageProvider(
