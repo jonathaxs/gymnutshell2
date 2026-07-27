@@ -124,27 +124,32 @@ class CalendarWidget : GlanceAppWidget() {
                 provider = ImageProvider(
                     WidgetRing.bitmap(
                         context = context,
-                        sizeDp = 56,
+                        sizeDp = 68,
                         progress = snapshot.progressNormalized.toFloat(),
                         ringArgb = ProgressColors.ringArgb(snapshot.progressNormalized),
                         emoji = snapshot.tierEmoji,
-                        strokeDp = 7f,
+                        strokeDp = 9f,
                         borderArgb = widgetBorderArgb(snapshot),
                     ),
                 ),
                 contentDescription = null,
-                modifier = GlanceModifier.size(56.dp),
+                modifier = GlanceModifier.size(68.dp),
             )
             Spacer(GlanceModifier.width(12.dp))
             Column {
                 Text(dateLabel(snapshot.updatedAtEpochMillis), style = TextStyle(fontSize = 11.sp, color = textColor))
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    context.getString(snapshot.tierNameRes),
+                    maxLines = 1,
+                    style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Medium, color = textColor),
+                )
+                Row(verticalAlignment = Alignment.Bottom) {
                     Text(
                         "${snapshot.progressPercent}%",
-                        style = TextStyle(fontSize = 24.sp, fontWeight = FontWeight.Bold, color = textColor),
+                        style = TextStyle(fontSize = 30.sp, fontWeight = FontWeight.Bold, color = textColor),
                     )
                     Text(
-                        "  ${snapshot.tierPoints} pts",
+                        ", ${snapshot.tierPoints} pts",
                         style = TextStyle(fontSize = 12.sp, fontWeight = FontWeight.Medium, color = textColor),
                     )
                 }

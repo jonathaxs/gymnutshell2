@@ -22,7 +22,6 @@ import androidx.glance.layout.Column
 import androidx.glance.layout.Row
 import androidx.glance.layout.Spacer
 import androidx.glance.layout.fillMaxSize
-import androidx.glance.layout.height
 import androidx.glance.layout.padding
 import androidx.glance.layout.size
 import androidx.glance.layout.width
@@ -62,6 +61,7 @@ class ProgressWidget : GlanceAppWidget() {
     private fun Content(context: Context, snapshot: WidgetSnapshot) {
         val size = LocalSize.current
         val textColor = widgetTextColor(snapshot)
+        val tierName = context.getString(snapshot.tierNameRes)
         Box(
             modifier = GlanceModifier
                 .fillMaxSize()
@@ -73,34 +73,38 @@ class ProgressWidget : GlanceAppWidget() {
             contentAlignment = Alignment.Center,
         ) {
             if (size.width < 200.dp) {
-                SmallLayout(snapshot, textColor)
+                SmallLayout(snapshot, tierName, textColor)
             } else {
-                MediumLayout(context, snapshot, textColor)
+                MediumLayout(context, snapshot, tierName, textColor)
             }
         }
     }
 
-    /** Pequeno: emoji grande + % + pontos (sem anel, igual ao systemSmall do iOS). */
+    /** Pequeno: nome do tier no topo, emoji grande no meio, % embaixo (igual ao systemSmall do iOS). */
     @androidx.compose.runtime.Composable
-    private fun SmallLayout(snapshot: WidgetSnapshot, textColor: ColorProvider) {
+    private fun SmallLayout(snapshot: WidgetSnapshot, tierName: String, textColor: ColorProvider) {
         Column(
             modifier = GlanceModifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(snapshot.tierEmoji, style = TextStyle(fontSize = 44.sp))
-            Spacer(GlanceModifier.height(6.dp))
+            Text(
+                tierName,
+                maxLines = 1,
+                style = TextStyle(fontSize = 15.sp, fontWeight = FontWeight.Medium, color = textColor),
+            )
+            Spacer(GlanceModifier.defaultWeight())
+            Text(snapshot.tierEmoji, style = TextStyle(fontSize = 50.sp))
+            Spacer(GlanceModifier.defaultWeight())
             Text(
                 "${snapshot.progressPercent}%",
-                style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Bold, color = textColor),
+                style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold, color = textColor),
             )
-            Text("${snapshot.tierPoints} pts", style = TextStyle(fontSize = 12.sp, color = textColor))
         }
     }
 
-    /** Médio: anel (com emoji) à esquerda + % / pontos / data à direita. */
+    /** Médio: anel (com emoji) à esquerda + nome / "% , pontos" / data à direita (igual ao systemMedium do iOS). */
     @androidx.compose.runtime.Composable
-    private fun MediumLayout(context: Context, snapshot: WidgetSnapshot, textColor: ColorProvider) {
+    private fun MediumLayout(context: Context, snapshot: WidgetSnapshot, tierName: String, textColor: ColorProvider) {
         Row(
             modifier = GlanceModifier.fillMaxSize(),
             verticalAlignment = Alignment.CenterVertically,
@@ -109,7 +113,7 @@ class ProgressWidget : GlanceAppWidget() {
                 provider = ImageProvider(
                     WidgetRing.bitmap(
                         context = context,
-                        sizeDp = 76,
+                        sizeDp = 80,
                         progress = snapshot.progressNormalized.toFloat(),
                         ringArgb = ProgressColors.ringArgb(snapshot.progressNormalized),
                         emoji = snapshot.tierEmoji,
@@ -117,18 +121,25 @@ class ProgressWidget : GlanceAppWidget() {
                     ),
                 ),
                 contentDescription = null,
-                modifier = GlanceModifier.size(76.dp),
+                modifier = GlanceModifier.size(80.dp),
             )
             Spacer(GlanceModifier.width(16.dp))
             Column(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    "${snapshot.progressPercent}%",
-                    style = TextStyle(fontSize = 30.sp, fontWeight = FontWeight.Bold, color = textColor),
+                    tierName,
+                    maxLines = 1,
+                    style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Medium, color = textColor),
                 )
-                Text(
-                    "${snapshot.tierPoints} pts",
-                    style = TextStyle(fontSize = 13.sp, fontWeight = FontWeight.Medium, color = textColor),
-                )
+                Row(verticalAlignment = Alignment.Bottom) {
+                    Text(
+                        "${snapshot.progressPercent}%",
+                        style = TextStyle(fontSize = 32.sp, fontWeight = FontWeight.Bold, color = textColor),
+                    )
+                    Text(
+                        ", ${snapshot.tierPoints} pts",
+                        style = TextStyle(fontSize = 12.sp, fontWeight = FontWeight.Medium, color = textColor),
+                    )
+                }
                 Text(dateLabel(snapshot.updatedAtEpochMillis), style = TextStyle(fontSize = 11.sp, color = textColor))
             }
         }
