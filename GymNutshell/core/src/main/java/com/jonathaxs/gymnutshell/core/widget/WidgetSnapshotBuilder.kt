@@ -105,6 +105,7 @@ object WidgetSnapshotBuilder {
             progressNormalized = avg,
             tier = tier.ordinal + 1,
             tierEmoji = theme.emoji(tier, sex),
+            tierNameRes = theme.tierNameRes(tier, sex),
             accentArgb = accentArgb,
             updatedAtEpochMillis = nowMillis,
             recentDays = recentDays,

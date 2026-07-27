@@ -1,5 +1,8 @@
 package com.jonathaxs.gymnutshell.core.widget
 
+import androidx.annotation.StringRes
+import com.jonathaxs.gymnutshell.core.domain.AppTheme
+import com.jonathaxs.gymnutshell.core.domain.DailyAchievement
 import com.jonathaxs.gymnutshell.core.theme.AccentColor
 import kotlin.math.floor
 
@@ -18,6 +21,8 @@ data class WidgetSnapshot(
     val tier: Int,
     /** Emoji do tier já resolvido com o tema escolhido. */
     val tierEmoji: String,
+    /** Nome do tier como @StringRes — porte do tierName (iOS). A UI resolve com getString/stringResource. */
+    @param:StringRes val tierNameRes: Int,
     /** Cor de destaque do app como ARGB (0xAARRGGBB), pro fundo/anel do widget. */
     val accentArgb: Long,
     /** Momento em que o snapshot foi montado (epoch millis). */
@@ -49,6 +54,7 @@ data class WidgetSnapshot(
             progressNormalized = 0.65,
             tier = 2,
             tierEmoji = "🏋️",
+            tierNameRes = AppTheme.Gym.tierNameRes(DailyAchievement.Level2),
             accentArgb = AccentColor.Blue.argb,
             updatedAtEpochMillis = System.currentTimeMillis(),
             recentDays = emptyList(),
