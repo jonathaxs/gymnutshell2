@@ -125,33 +125,33 @@ class CalendarWidget : GlanceAppWidget() {
                 provider = ImageProvider(
                     WidgetRing.bitmap(
                         context = context,
-                        sizeDp = 68,
+                        sizeDp = 72,
                         progress = snapshot.progressNormalized.toFloat(),
                         ringArgb = ProgressColors.ringArgb(snapshot.progressNormalized),
                         emoji = snapshot.tierEmoji,
-                        strokeDp = 9f,
+                        strokeDp = 10f,
                         borderArgb = widgetBorderArgb(snapshot),
                     ),
                 ),
                 contentDescription = null,
-                modifier = GlanceModifier.size(68.dp),
+                modifier = GlanceModifier.size(72.dp),
             )
-            Spacer(GlanceModifier.width(12.dp))
+            Spacer(GlanceModifier.width(14.dp))
             Column {
-                Text(dateLabel(snapshot.updatedAtEpochMillis), style = TextStyle(fontSize = 11.sp, color = textColor))
+                Text(dateLabel(snapshot.updatedAtEpochMillis), style = TextStyle(fontSize = 12.sp, color = textColor))
                 Text(
                     context.getString(snapshot.tierNameRes),
                     maxLines = 1,
-                    style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Medium, color = textColor),
+                    style = TextStyle(fontSize = 17.sp, fontWeight = FontWeight.Medium, color = textColor),
                 )
                 Row(verticalAlignment = Alignment.Bottom) {
                     Text(
                         "${snapshot.progressPercent}%",
-                        style = TextStyle(fontSize = 30.sp, fontWeight = FontWeight.Bold, color = textColor),
+                        style = TextStyle(fontSize = 32.sp, fontWeight = FontWeight.Bold, color = textColor),
                     )
                     Text(
                         ", ${snapshot.tierPoints} pts",
-                        style = TextStyle(fontSize = 12.sp, fontWeight = FontWeight.Medium, color = textColor),
+                        style = TextStyle(fontSize = 13.sp, fontWeight = FontWeight.Medium, color = textColor),
                     )
                 }
             }

@@ -129,19 +129,19 @@ class ProgressWidget : GlanceAppWidget() {
                 Text(
                     tierName,
                     maxLines = 1,
-                    style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Medium, color = textColor),
+                    style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Medium, color = textColor),
                 )
                 Row(verticalAlignment = Alignment.Bottom) {
                     Text(
                         "${snapshot.progressPercent}%",
-                        style = TextStyle(fontSize = 32.sp, fontWeight = FontWeight.Bold, color = textColor),
+                        style = TextStyle(fontSize = 34.sp, fontWeight = FontWeight.Bold, color = textColor),
                     )
                     Text(
                         ", ${snapshot.tierPoints} pts",
-                        style = TextStyle(fontSize = 12.sp, fontWeight = FontWeight.Medium, color = textColor),
+                        style = TextStyle(fontSize = 13.sp, fontWeight = FontWeight.Medium, color = textColor),
                     )
                 }
-                Text(dateLabel(snapshot.updatedAtEpochMillis), style = TextStyle(fontSize = 11.sp, color = textColor))
+                Text(dateLabel(snapshot.updatedAtEpochMillis), style = TextStyle(fontSize = 12.sp, color = textColor))
             }
         }
     }
