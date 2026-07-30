@@ -13,3 +13,7 @@
 .externalNativeBuild
 .cxx
 local.properties
+# Assinatura release — nunca versionar (segredos + identidade permanente do app)
+/keystore.properties
+*.jks
+*.keystore
