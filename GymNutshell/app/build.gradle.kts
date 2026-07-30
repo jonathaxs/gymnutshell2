@@ -1,6 +1,16 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+}
+
+// Credenciais de assinatura release, lidas de keystore.properties (fora do git). Ausente em quem
+// clona o repo — aí o build release simplesmente não assina (só o dono gera o APK de distribuição).
+val keystorePropsFile = rootProject.file("keystore.properties")
+val keystoreProps = Properties().apply {
+    if (keystorePropsFile.exists()) load(FileInputStream(keystorePropsFile))
 }
 
 android {
@@ -21,8 +31,20 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        create("release") {
+            if (keystorePropsFile.exists()) {
+                storeFile = file(keystoreProps.getProperty("storeFile"))
+                storePassword = keystoreProps.getProperty("storePassword")
+                keyAlias = keystoreProps.getProperty("keyAlias")
+                keyPassword = keystoreProps.getProperty("keyPassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
+            signingConfig = signingConfigs.getByName("release")
             optimization {
                 enable = false
             }
@@ -34,6 +56,12 @@ android {
     }
     buildFeatures {
         compose = true
+    }
+    lint {
+        // Falso positivo: o app é ComponentActivity puro (sem a lib androidx.fragment). O check assume
+        // uso de Fragment e exige a versão >= 1.3.0; registerForActivityResult numa ComponentActivity é
+        // a API pretendida e válida. Sem isso o lintVitalRelease trava o build release.
+        disable += "InvalidFragmentVersionForActivityResult"
     }
 }
 
