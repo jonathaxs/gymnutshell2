@@ -304,6 +304,15 @@ class TodayViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     /**
+     * Re-checa os treinos do Health Connect ao voltar pra tela (porte do refresh no scenePhase do iOS).
+     * Chamado no ON_RESUME da Today: pega o treino que o usuário registrou em outro app enquanto o
+     * Hoje ficava em background. Idempotente — reusa [checkWorkoutsFromHealth], que só preenche zeradas.
+     */
+    fun refreshWorkoutsFromHealth() {
+        viewModelScope.launch { checkWorkoutsFromHealth() }
+    }
+
+    /**
      * Auto check-in dos treinos do Health Connect — porte de checkWorkoutsFromHealth (iOS).
      * Lê os treinos de hoje e preenche as metas de Treino/Cardio só quando ainda estão zeradas
      * (nunca sobrescreve o que o usuário já registrou). Gateado pelo toggle `autoWorkoutCheckin`.
